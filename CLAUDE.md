@@ -44,6 +44,7 @@ A recipe management web application with a Spring Boot 4 (Java 21) backend and A
 ## Development Workflow
 
 - **TDD**: When developing code, write a failing test first, then implement the functionality to make it pass.
+- **Small, deployable steps**: Each step is one reviewable unit — at least one test plus the implementation that satisfies it. Every step must leave the app green: compiles, all tests pass, no style violations. Prefer several small commits over one large one.
 - **Thin components**: Keep Angular components as simple as possible; move logic (subscriptions, navigation, side effects) into services.
 - **Architecture docs**: Keep the arc42 documentation in `docs/arc42/` up to date when implementing new features.
 
@@ -52,7 +53,8 @@ A recipe management web application with a Spring Boot 4 (Java 21) backend and A
 - **Java**: Google Java Format enforced via Spotless
 - **TypeScript/HTML**: Prettier (100 char width, single quotes, Angular HTML parser)
 - **ESLint**: angular-eslint with `app` prefix for components (kebab-case elements) and directives (camelCase attributes)
-- **Angular components**: Use standalone components (no NgModules)
+- **Angular components**: Use standalone components (no NgModules) and `ChangeDetectionStrategy.OnPush`
+- **Backend DTOs**: Use Jakarta Bean Validation annotations on request DTOs; invalid input yields a 400 with field-level errors
 
 ## Environment Variables
 
