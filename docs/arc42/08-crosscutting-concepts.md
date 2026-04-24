@@ -59,7 +59,7 @@
 
 - Backend returns structured JSON error responses with appropriate HTTP status codes
 - Frontend shows user-friendly error messages via Angular Material snackbar/toast
-- Validation errors are returned as 400 with field-level details
+- Request DTOs use Jakarta Bean Validation annotations; validation failures are returned as 400 with field-level details
 
 ## 8.4 Testing Strategy
 

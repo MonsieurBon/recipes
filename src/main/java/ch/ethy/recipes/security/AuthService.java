@@ -1,9 +1,15 @@
 package ch.ethy.recipes.security;
 
+import ch.ethy.recipes.user.Role;
 import ch.ethy.recipes.user.User;
 import ch.ethy.recipes.user.UserRepository;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+  private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
   private final AuthenticationManager authenticationManager;
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
@@ -34,10 +42,19 @@ public class AuthService {
             credentials.usernameOrEmail(), credentials.password());
 
     Authentication authentication = authenticationManager.authenticate(authToken);
-    org.springframework.security.core.userdetails.User user =
-        (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
-    assert user != null;
-    return jwtService.generateToken(user.getUsername());
+    if (!(authentication.getPrincipal()
+        instanceof org.springframework.security.core.userdetails.User user)) {
+      log.error(
+          "Authentication returned unexpected principal type: {}",
+          authentication.getPrincipal().getClass().getName());
+      throw new IllegalStateException("Authentication principal has unexpected type");
+    }
+    Set<Role> roles =
+        user.getAuthorities().stream()
+            .filter(Role.class::isInstance)
+            .map(Role.class::cast)
+            .collect(Collectors.toCollection(() -> EnumSet.noneOf(Role.class)));
+    return jwtService.generateToken(user.getUsername(), roles);
   }
 
   public void register(RegistrationDetails registrationDetails) {
