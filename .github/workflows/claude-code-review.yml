@@ -40,23 +40,21 @@ jobs:
           plugins: 'code-review@claude-code-plugins'
           prompt: |
             Review PR ${{ github.repository }}#${{ github.event.pull_request.number }}
-            by delegating to THREE subagents in parallel via the Task tool. Each
+            by delegating to TWO subagents in parallel via the Task tool. Each
             subagent is defined in .claude/agents/ and must be invoked with its
             exact name as `subagent_type`:
 
-              1. pr-code-reviewer       — polite, collegial code-quality review
-              2. grumpy-pr-reviewer     — harsh, opinionated critique
-              3. web-security-reviewer  — security-focused audit
+              1. pr-code-reviewer       — neutral, professional code-quality review
+              2. web-security-reviewer  — security-focused audit
 
             Hand each subagent the PR diff (use `gh pr diff ${{ github.event.pull_request.number }}`)
             and ask for its findings. Review only the changed code, not the whole
             codebase.
 
-            Post the three reviews as THREE separate PR comments using
+            Post the two reviews as TWO separate PR comments using
             `gh pr comment`. Prefix each comment with a header identifying the
-            reviewer, e.g. `## pr-code-reviewer`, `## grumpy-pr-reviewer`,
-            `## web-security-reviewer`. Do not merge the three into a single
-            comment — keep them distinct so each persona's voice is preserved.
+            reviewer, e.g. `## pr-code-reviewer`, `## web-security-reviewer`. Do
+            not merge them into a single comment — keep each review distinct.
           claude_args: >-
             --max-turns 25
             --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh api:*)"
