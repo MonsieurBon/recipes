@@ -13,7 +13,7 @@ spring:
       '[db_password]': ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
   web:
     resources:
