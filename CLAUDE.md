@@ -10,7 +10,7 @@ A recipe management web application with a Spring Boot 4 (Java 21) backend and A
 
 ### Backend (Maven)
 - `./mvnw spring-boot:run` — run the Spring Boot app
-- `SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run` — run locally with the `dev` profile (Hibernate `ddl-auto: update`). The default profile uses prod-safe values.
+- `SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run` — run locally with the `dev` profile (Hibernate `ddl-auto: update`, SQL logging on). The default profile uses prod-safe values.
 - `./mvnw clean package` — full build (includes frontend build, lint, format check, and tests via frontend-maven-plugin)
 - `./mvnw test` — run backend tests + frontend lint/format/tests
 - `./mvnw spotless:apply` — auto-format Java code (Google Java Format)
