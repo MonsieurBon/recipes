@@ -28,7 +28,33 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Skip the review when the PR diff is identical to a diff we've already
+      # reviewed (e.g. a force-push from a rebase onto main). The cache key
+      # combines the PR number and a hash of the current diff; a cache hit
+      # means the same diff has been seen before, so we skip the expensive
+      # review step. Any new commit that actually changes the diff produces
+      # a new key, missing the cache, and triggers a fresh review.
+      - name: Compute PR diff hash
+        id: diff-hash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          hash=$(gh pr diff "${{ github.event.pull_request.number }}" | sha256sum | cut -d' ' -f1)
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+
+      - name: Look up cache for this diff
+        id: diff-cache
+        uses: actions/cache@v4
+        with:
+          path: .claude-review-marker
+          key: claude-review-pr-${{ github.event.pull_request.number }}-${{ steps.diff-hash.outputs.hash }}
+
+      - name: Mark this diff as reviewed
+        if: steps.diff-cache.outputs.cache-hit != 'true'
+        run: touch .claude-review-marker
+
       - name: Run Claude Code Review
+        if: steps.diff-cache.outputs.cache-hit != 'true'
         id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
@@ -44,8 +70,12 @@ jobs:
               1. pr-code-reviewer       — neutral, professional code-quality review
               2. web-security-reviewer  — security-focused audit
 
-            Hand each subagent the PR diff (use `gh pr diff ${{ github.event.pull_request.number }}`)
-            and ask for its findings. Review only the changed code, not the whole
+            Pass each subagent the PR identifier
+            `${{ github.repository }}#${{ github.event.pull_request.number }}` and
+            instruct it to fetch BOTH the diff (`gh pr diff <number>`) AND the
+            existing review comments (`gh pr view <number> --comments`) before
+            forming findings, so it does not re-flag items already addressed or
+            deferred in the thread. Review only the changed code, not the whole
             codebase.
 
             Post the two reviews as TWO separate PR comments using
