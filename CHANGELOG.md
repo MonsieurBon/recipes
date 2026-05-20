@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/MonsieurBon/recipes/compare/v2.0.0...v2.0.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* **security:** restrict user lookup endpoints to admins ([e58b633](https://github.com/MonsieurBon/recipes/commit/e58b633bb2511340724c1195160d7e341e21aa8a))
+
 # [2.0.0](https://github.com/MonsieurBon/recipes/compare/v1.5.0...v2.0.0) (2026-05-20)
 
 
