@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/MonsieurBon/recipes/compare/v1.4.0...v1.5.0) (2026-05-20)
+
+
+### Features
+
+* include user role in JWT and authorize from the token claim ([3843c52](https://github.com/MonsieurBon/recipes/commit/3843c521cdef827b73d6e3a8b3b8f59a1c3aa53d))
+
 # [1.4.0](https://github.com/MonsieurBon/recipes/compare/v1.3.0...v1.4.0) (2026-03-27)
 
 

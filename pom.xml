@@ -10,7 +10,7 @@
   </parent>
   <groupId>ch.ethy</groupId>
   <artifactId>recipes</artifactId>
-  <version>v1.4.1-SNAPSHOT</version>
+  <version>1.5.0</version>
   <name>recipes</name>
   <description>Recipes database</description>
   <url/>
