@@ -1,3 +1,18 @@
+# [2.0.0](https://github.com/MonsieurBon/recipes/compare/v1.5.0...v2.0.0) (2026-05-20)
+
+
+* fix(security)!: externalize JWT signing key with startup validation ([a36f7c8](https://github.com/MonsieurBon/recipes/commit/a36f7c82396f87855770cc410afefa295770792d))
+
+
+### BREAKING CHANGES
+
+* The application now requires a JWT_SECRET environment
+variable at startup. Generate one with `openssl rand -base64 48` and
+set it in the deployment environment before upgrading. Existing tokens
+issued with the previous (now-rotated) key will be invalidated.
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
 # [1.5.0](https://github.com/MonsieurBon/recipes/compare/v1.4.0...v1.5.0) (2026-05-20)
 
 
