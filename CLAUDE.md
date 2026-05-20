@@ -61,3 +61,4 @@ A recipe management web application with a Spring Boot 4 (Java 21) backend and A
 - `DB_HOST` / `DB_PORT` — MySQL connection (defaults: localhost:3306)
 - `DB_PASSWORD` — MySQL app user password
 - `FLYWAY_PASSWORD` — Flyway migration user password
+- `JWT_SECRET` — Base64-encoded HMAC-SHA256 signing key for JWTs (required; minimum 32 bytes / 256 bits, but generate with `openssl rand -base64 48` for headroom)

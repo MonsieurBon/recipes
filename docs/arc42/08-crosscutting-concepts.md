@@ -8,6 +8,7 @@
 - All other `/api/**` endpoints require a valid JWT
 - Role-based authorization: every endpoint under `/api/admin/**` additionally requires the `ADMIN` role; enforced in `SecurityConfig` and mirrored in the frontend by `AdminGuard`
 - The user's role is included as a claim in the JWT so the frontend can render admin navigation without an extra API call
+- The HMAC-SHA256 signing key is supplied via the `JWT_SECRET` environment variable (no default); a `FailureAnalyzer` surfaces missing or undersized keys as a Spring Boot `APPLICATION FAILED TO START` banner at startup
 
 ## 8.2 Domain Model
 

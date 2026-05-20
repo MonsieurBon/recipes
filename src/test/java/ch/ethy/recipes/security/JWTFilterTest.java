@@ -17,7 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 class JWTFilterTest {
-  private final JwtService jwtService = new JwtService();
+  private static final String TEST_ENCODED_KEY =
+      "sPYf4F91EbSV6mfc+ZoqZhVuZih8mTiyx1jjPCq8qeuBaCnOlpq8gm3XwFPFo8Sj";
+  private final JwtService jwtService = new JwtService(TEST_ENCODED_KEY);
   private final JWTFilter filter = new JWTFilter(jwtService);
 
   @AfterEach
