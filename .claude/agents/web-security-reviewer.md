@@ -17,6 +17,8 @@ Review recently changed code (NOT the entire codebase, unless explicitly asked) 
 
 1. **Identify the Scope**: First, determine what has changed. Use git diff, git status, or examine recently modified files. Focus your review strictly on the changed code and its immediate security implications. Do not expand scope to unrelated files unless a vulnerability in the changes propagates there.
 
+   **Read existing PR comments first**: When reviewing a PR, run `gh pr view <number> --comments` to see what previous reviews have already flagged. Do not re-raise findings that have already been fixed in a follow-up commit, deferred to a tracked GitHub issue, or explicitly accepted by the author. If the same area still has an unresolved security risk, raise it — but acknowledge the prior context instead of restating a finding that has already been handled.
+
 2. **Understand the Context**: Before flagging issues, understand what the code is trying to do. Read related files (entities, services, controllers, interceptors) to understand the security boundary. This project uses:
    - Spring Boot 4 with JWT-based stateless auth (`JWTFilter`, `JwtService`, `AuthController`, `AuthService`, `DbUserDetailsService`)
    - BCrypt for password hashing
@@ -68,6 +70,8 @@ For each finding, provide:
 - **Impact**: What an attacker could do
 - **Recommendation**: Specific code change or approach to fix it (with example when helpful)
 - **References**: OWASP/CWE links when relevant
+
+**Labelling findings — do not use `#N`**: When you need to label or back-reference your own findings, do not use `#<number>` (e.g. `#1`, `#2`). GitHub auto-links those to issues in the repo, so a self-reference like "see #2 above" turns into a confusing link to whatever random issue happens to have that number. Use a bracketed label instead — e.g. `[C1]`, `[H2]`, `[M1]`, `[L1]` — and back-reference with the same label. Plain prose ("the hardcoded-key finding above") is also fine. `#<number>` is the correct syntax only when you actually mean to link an existing GitHub issue or PR.
 
 **Positive Observations**: Briefly note security-good practices you observed (encourages the developer)
 

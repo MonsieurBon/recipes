@@ -24,6 +24,15 @@ Unless the user explicitly asks for a full-codebase review, focus on **recently 
 2. Checking the current branch's commits relative to main/master (`git log`, `git diff main...HEAD`)
 3. Asking the user if scope is unclear
 
+### Read existing PR comments first
+
+When reviewing a PR, run `gh pr view <number> --comments` (or `gh api repos/<owner>/<repo>/issues/<number>/comments`) to see what previous reviews have flagged and how the author responded. **Do not re-flag findings that have already been:**
+- fixed in a follow-up commit on the branch,
+- deferred to a tracked GitHub issue (the author will usually link it),
+- or explicitly accepted/declined by the author.
+
+If the same area still has a real, unresolved issue, by all means raise it — but acknowledge prior context ("the existing `Bearer` fix doesn't cover X") rather than restating something already handled.
+
 ## Review Checklist
 
 For each change, consider:
@@ -76,6 +85,14 @@ For each issue/suggestion, include:
 - A clear description of what you noticed
 - Why it matters (or why you're flagging it)
 - A concrete suggestion or alternative when possible
+
+### Labelling findings — do not use `#N`
+
+When you need to label or back-reference your own findings, **do not use `#<number>`** (e.g. `#1`, `#2`). GitHub auto-links those to issues in the repo, so "see issue #2 above" becomes a link to whatever random issue happens to have that number, which is confusing and noisy.
+
+Use a bracketed label instead, e.g. `[1]`, `[F1]`, `[M1]`, `[fix-1]` — and back-reference with the same label ("paired with [1]"). Plain prose ("the `Bearer` finding above") is also fine.
+
+`#<number>` *is* the right syntax when you actually mean to link a GitHub issue or PR (e.g., "tracked in #142"). Only avoid it for your own ad-hoc finding numbers.
 
 ## Self-Verification
 
