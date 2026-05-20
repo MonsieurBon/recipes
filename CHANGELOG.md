@@ -1,3 +1,11 @@
+## [2.0.2](https://github.com/MonsieurBon/recipes/compare/v2.0.1...v2.0.2) (2026-05-20)
+
+
+### Bug Fixes
+
+* **security:** default Hibernate ddl-auto to validate ([a8dc930](https://github.com/MonsieurBon/recipes/commit/a8dc9306e15679377953a427415ffec5faa54540))
+* **security:** drop show-sql from default profile ([1b68d24](https://github.com/MonsieurBon/recipes/commit/1b68d243d588c788d36aee50045ea2102e1383e4))
+
 ## [2.0.1](https://github.com/MonsieurBon/recipes/compare/v2.0.0...v2.0.1) (2026-05-20)
 
 
