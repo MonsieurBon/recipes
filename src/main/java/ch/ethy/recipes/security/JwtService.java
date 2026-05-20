@@ -19,16 +19,36 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
-  private static final String ENCODED_KEY = "tFwpdBXfdVp5ri4doCZdu8dKlFEl3+YgTI/aYiOQAmE=";
+  private static final int MIN_KEY_BYTES = 32;
 
   private final SecretKey key;
 
-  public JwtService() {
-    this.key = new SecretKeySpec(Decoders.BASE64.decode(ENCODED_KEY), "HmacSHA256");
+  public JwtService(@Value("${jwt.secret:}") String encodedKey) {
+    if (encodedKey == null || encodedKey.isBlank()) {
+      throw new JwtSecretMisconfigurationException(
+          "jwt.secret is not configured. Set the JWT_SECRET environment variable to a"
+              + " base64-encoded HMAC-SHA256 key.");
+    }
+    byte[] decoded;
+    try {
+      decoded = Decoders.BASE64.decode(encodedKey);
+    } catch (RuntimeException e) {
+      throw new JwtSecretMisconfigurationException(
+          "jwt.secret (JWT_SECRET) is not valid base64.", e);
+    }
+    if (decoded.length < MIN_KEY_BYTES) {
+      throw new JwtSecretMisconfigurationException(
+          "jwt.secret (JWT_SECRET) must decode to at least 32 bytes (256 bits) for HMAC-SHA256;"
+              + " got "
+              + decoded.length
+              + " byte(s).");
+    }
+    this.key = new SecretKeySpec(decoded, "HmacSHA256");
   }
 
   public String generateToken(String username, Set<Role> roles) {

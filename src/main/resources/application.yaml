@@ -22,3 +22,6 @@ spring:
     contentnegotiation:
       media-types:
         woff2: "font/woff2"
+
+jwt:
+  secret: ${JWT_SECRET:}
