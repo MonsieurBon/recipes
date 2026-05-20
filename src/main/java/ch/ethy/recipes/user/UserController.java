@@ -25,7 +25,7 @@ public class UserController {
   }
 
   @GetMapping("{id}")
-  @RolesAllowed("USER")
+  @RolesAllowed("ADMIN")
   public UserDto getUser(@PathVariable long id) {
     return userService
         .findUser(id)
