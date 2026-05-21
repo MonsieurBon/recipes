@@ -4,11 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import ch.ethy.recipes.user.Role;
+import io.jsonwebtoken.MalformedJwtException;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -16,11 +22,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@ExtendWith(MockitoExtension.class)
 class JWTFilterTest {
-  private static final String TEST_ENCODED_KEY =
-      "sPYf4F91EbSV6mfc+ZoqZhVuZih8mTiyx1jjPCq8qeuBaCnOlpq8gm3XwFPFo8Sj";
-  private final JwtService jwtService = new JwtService(TEST_ENCODED_KEY);
-  private final JWTFilter filter = new JWTFilter(jwtService);
+  @Mock private JwtService jwtService;
+  @InjectMocks private JWTFilter filter;
 
   @AfterEach
   void clearSecurityContext() {
@@ -29,9 +34,10 @@ class JWTFilterTest {
 
   @Test
   void populatesAuthoritiesFromTokenRoles() throws Exception {
-    String token = jwtService.generateToken("alice", Set.of(Role.ADMIN));
+    when(jwtService.parseToken("opaque-token"))
+        .thenReturn(new JwtService.TokenData("alice", Set.of(Role.ADMIN)));
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.addHeader("Authorization", "Bearer " + token);
+    request.addHeader("Authorization", "Bearer opaque-token");
     MockHttpServletResponse response = new MockHttpServletResponse();
     MockFilterChain chain = new MockFilterChain();
 
@@ -56,6 +62,8 @@ class JWTFilterTest {
 
   @Test
   void respondsUnauthorizedOnInvalidSignature() throws Exception {
+    when(jwtService.parseToken("not-a-real-token"))
+        .thenThrow(new MalformedJwtException("bad signature"));
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader("Authorization", "Bearer not-a-real-token");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -69,6 +77,8 @@ class JWTFilterTest {
 
   @Test
   void doesNotContinueFilterChainAfterInvalidTokenError() throws Exception {
+    when(jwtService.parseToken("not-a-real-token"))
+        .thenThrow(new MalformedJwtException("bad signature"));
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader("Authorization", "Bearer not-a-real-token");
     MockHttpServletResponse response = new MockHttpServletResponse();
