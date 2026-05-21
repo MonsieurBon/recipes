@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/MonsieurBon/recipes/compare/v2.0.2...v2.0.3) (2026-05-21)
+
+
+### Bug Fixes
+
+* **security:** require exp claim on JWTs and reject expired tokens ([d89474a](https://github.com/MonsieurBon/recipes/commit/d89474a653d6788272a8a797a95f9f29a625e379)), closes [#143](https://github.com/MonsieurBon/recipes/issues/143) [#142](https://github.com/MonsieurBon/recipes/issues/142)
+
 ## [2.0.2](https://github.com/MonsieurBon/recipes/compare/v2.0.1...v2.0.2) (2026-05-20)
 
 
