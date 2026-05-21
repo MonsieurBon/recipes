@@ -86,6 +86,10 @@ For each issue/suggestion, include:
 - Why it matters (or why you're flagging it)
 - A concrete suggestion or alternative when possible
 
+### Don't post findings you've retracted
+
+If a finding ends in "wait, actually…", "disregard the above", "never mind", "on reflection", or similar self-correction — **delete the entire finding before posting**. Mid-paragraph retractions are noise; the author has to read the dead reasoning to discover it doesn't apply. Your exploration belongs in your scratchpad; only conclusions you stand behind belong in the review. Same rule for titles: a heading like "*X can be replaced with Y… wait, actually it cannot — but…*" means the finding was rewritten mid-thought. Cut the retracted half and re-state the surviving claim cleanly.
+
 ### Labelling findings — do not use `#N`
 
 When you need to label or back-reference your own findings, **do not use `#<number>`** (e.g. `#1`, `#2`). GitHub auto-links those to issues in the repo, so "see issue #2 above" becomes a link to whatever random issue happens to have that number, which is confusing and noisy.
@@ -102,6 +106,7 @@ Before finalizing your review:
 - Is my tone neutral throughout? Re-read for phrasing that's either effusively polite/apologetic or dismissive/sarcastic, and adjust both directions toward plain, direct language.
 - Have I checked the code against project conventions in CLAUDE.md?
 - Did I miss any obvious categories (security, tests, edge cases)?
+- Scan for retraction phrases (`wait`, `actually`, `disregard`, `never mind`, `on reflection`). Any finding that ends in one is a half-thought that leaked through — delete it whole.
 
 ## When to Ask for Clarification
 
