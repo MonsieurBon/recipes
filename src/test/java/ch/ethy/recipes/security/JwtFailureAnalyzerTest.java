@@ -8,14 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
-class JwtSecretFailureAnalyzerTest {
+class JwtFailureAnalyzerTest {
 
-  private final JwtSecretFailureAnalyzer analyzer = new JwtSecretFailureAnalyzer();
+  private final JwtFailureAnalyzer analyzer = new JwtFailureAnalyzer();
 
   @Test
-  void describesTheMisconfigurationAndSuggestsTheGenerationCommand() {
-    JwtSecretMisconfigurationException cause =
-        new JwtSecretMisconfigurationException("jwt.secret is missing");
+  void describesSecretMisconfigurationAndSuggestsTheGenerationCommand() {
+    JwtMisconfigurationException cause = new JwtMisconfigurationException("jwt.secret is missing");
 
     FailureAnalysis analysis = analyzer.analyze(cause);
 
@@ -23,6 +22,20 @@ class JwtSecretFailureAnalyzerTest {
     assertEquals("jwt.secret is missing", analysis.getDescription());
     assertTrue(analysis.getAction().contains("openssl rand -base64 48"));
     assertEquals(cause, analysis.getCause());
+  }
+
+  @Test
+  void describesTtlMisconfigurationAndMentionsIsoDuration() {
+    JwtMisconfigurationException cause =
+        new JwtMisconfigurationException("jwt.ttl must be a positive duration");
+
+    FailureAnalysis analysis = analyzer.analyze(cause);
+
+    assertNotNull(analysis);
+    assertEquals("jwt.ttl must be a positive duration", analysis.getDescription());
+    assertTrue(analysis.getAction().contains("JWT_TTL"));
+    assertTrue(analysis.getAction().contains("PT24H"));
+    assertTrue(analysis.getAction().contains("P30D"));
   }
 
   @Test
