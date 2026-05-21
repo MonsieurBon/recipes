@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/MonsieurBon/recipes/compare/v2.0.3...v2.1.0) (2026-05-21)
+
+
+### Features
+
+* **security:** return user roles alongside token on login ([950a6b1](https://github.com/MonsieurBon/recipes/commit/950a6b189b61c98eb40227fe8c76800c4a95c62a)), closes [#85](https://github.com/MonsieurBon/recipes/issues/85) [#85](https://github.com/MonsieurBon/recipes/issues/85)
+
 ## [2.0.3](https://github.com/MonsieurBon/recipes/compare/v2.0.2...v2.0.3) (2026-05-21)
 
 
