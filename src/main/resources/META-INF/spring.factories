@@ -1,2 +1,2 @@
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-  ch.ethy.recipes.security.JwtSecretFailureAnalyzer
+  ch.ethy.recipes.security.JwtFailureAnalyzer

@@ -63,3 +63,4 @@ A recipe management web application with a Spring Boot 4 (Java 21) backend and A
 - `DB_PASSWORD` — MySQL app user password
 - `FLYWAY_PASSWORD` — Flyway migration user password
 - `JWT_SECRET` — Base64-encoded HMAC-SHA256 signing key for JWTs (required; minimum 32 bytes / 256 bits, but generate with `openssl rand -base64 48` for headroom)
+- `JWT_TTL` — Access-token lifetime as an ISO-8601 duration (default `PT24H`, maximum `P30D`). Tokens are rejected on parse once expired or missing the `exp` claim.
