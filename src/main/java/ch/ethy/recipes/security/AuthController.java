@@ -20,7 +20,7 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public String login(@RequestBody LoginCredentials credentials) {
+  public LoginResponse login(@RequestBody LoginCredentials credentials) {
     try {
       return authService.login(credentials);
     } catch (AuthenticationException e) {
