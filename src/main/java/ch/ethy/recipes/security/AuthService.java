@@ -36,7 +36,7 @@ public class AuthService {
     this.userRepository = userRepository;
   }
 
-  public String login(LoginCredentials credentials) {
+  public LoginResponse login(LoginCredentials credentials) {
     UsernamePasswordAuthenticationToken authToken =
         new UsernamePasswordAuthenticationToken(
             credentials.usernameOrEmail(), credentials.password());
@@ -54,7 +54,8 @@ public class AuthService {
             .filter(Role.class::isInstance)
             .map(Role.class::cast)
             .collect(Collectors.toCollection(() -> EnumSet.noneOf(Role.class)));
-    return jwtService.generateToken(user.getUsername(), roles);
+    String token = jwtService.generateToken(user.getUsername(), roles);
+    return new LoginResponse(token, roles);
   }
 
   public void register(RegistrationDetails registrationDetails) {

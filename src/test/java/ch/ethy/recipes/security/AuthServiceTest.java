@@ -64,9 +64,10 @@ class AuthServiceTest {
     when(authenticationManager.authenticate(any())).thenReturn(authenticated);
     when(jwtService.generateToken("alice", Set.of(Role.USER, Role.ADMIN))).thenReturn("token-xyz");
 
-    String token = authService.login(new LoginCredentials("alice", "pw"));
+    LoginResponse response = authService.login(new LoginCredentials("alice", "pw"));
 
-    assertEquals("token-xyz", token);
+    assertEquals("token-xyz", response.token());
+    assertEquals(Set.of(Role.USER, Role.ADMIN), response.roles());
   }
 
   @Test
