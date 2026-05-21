@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.crypto.SecretKey;
@@ -44,6 +45,24 @@ class JwtServiceTest {
     String token = jwtService.generateToken("alice", Set.of(Role.USER, Role.ADMIN));
 
     assertEquals(Set.of(Role.USER, Role.ADMIN), jwtService.parseToken(token).roles());
+  }
+
+  @Test
+  void generateTokenSerializesRolesAsEnumNameStrings() {
+    // Pins the JWT wire format: the 'roles' claim is a JSON array of Role.name() strings
+    // (e.g. "USER", "ADMIN"), not getAuthority() values ("ROLE_USER", ...). A rename of a
+    // Role constant changes the token payload and must break this test loudly.
+    String token = jwtService.generateToken("alice", Set.of(Role.USER, Role.ADMIN));
+
+    List<?> rolesClaim =
+        Jwts.parser()
+            .verifyWith(SIGNING_KEY)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .get("roles", List.class);
+
+    assertEquals(Set.of("USER", "ADMIN"), new HashSet<>(rolesClaim));
   }
 
   @Test
