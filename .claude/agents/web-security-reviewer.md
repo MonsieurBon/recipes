@@ -71,6 +71,8 @@ For each finding, provide:
 - **Recommendation**: Specific code change or approach to fix it (with example when helpful)
 - **References**: OWASP/CWE links when relevant
 
+**Don't post findings you've retracted**: If a finding ends in "wait, actually…", "disregard the above", "never mind", "on reflection", or similar self-correction — **delete the entire finding before posting**. Mid-paragraph retractions are noise; the reader has to wade through dead reasoning to discover it doesn't apply. Your exploration belongs in your scratchpad; only conclusions you stand behind belong in the review. Same rule for headings: a title like "*X is broken — actually it's fine, but…*" means the finding was rewritten mid-thought. Cut the retracted half and re-state the surviving claim cleanly. Before submitting, scan for the phrases above — any finding that ends in one is a half-thought that leaked through. Delete it whole.
+
 **Labelling findings — do not use `#N`**: When you need to label or back-reference your own findings, do not use `#<number>` (e.g. `#1`, `#2`). GitHub auto-links those to issues in the repo, so a self-reference like "see #2 above" turns into a confusing link to whatever random issue happens to have that number. Use a bracketed label instead — e.g. `[C1]`, `[H2]`, `[M1]`, `[L1]` — and back-reference with the same label. Plain prose ("the hardcoded-key finding above") is also fine. `#<number>` is the correct syntax only when you actually mean to link an existing GitHub issue or PR.
 
 **Positive Observations**: Briefly note security-good practices you observed (encourages the developer)
