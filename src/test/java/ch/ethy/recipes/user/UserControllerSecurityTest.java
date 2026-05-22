@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import ch.ethy.recipes.security.JwtService;
+import ch.ethy.recipes.security.TokenVersionService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,10 +49,11 @@ class UserControllerSecurityTest {
   @MockitoBean private UserService userService;
 
   // JWTFilter is pulled into the @WebMvcTest slice as a servlet filter and
-  // declares a JwtService dependency. We use @WithMockUser to set the security
-  // context directly, so the real JWT path is not exercised here — mocking
-  // the dependency keeps the slice context wireable.
+  // declares JwtService and TokenVersionService dependencies. We use
+  // @WithMockUser to set the security context directly, so the real JWT path is
+  // not exercised here — mocking the dependencies keeps the slice context wireable.
   @MockitoBean private JwtService jwtService;
+  @MockitoBean private TokenVersionService tokenVersionService;
 
   @BeforeEach
   void stubExistingUser() {

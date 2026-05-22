@@ -2,6 +2,7 @@ package ch.ethy.recipes.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,30 +30,49 @@ class JwtServiceTest {
   private static final SecretKey SIGNING_KEY =
       new SecretKeySpec(Decoders.BASE64.decode(TEST_ENCODED_KEY), "HmacSHA256");
 
-  private static final Duration TEST_TTL = Duration.ofHours(1);
+  private static final Duration ACCESS_TTL = Duration.ofMinutes(15);
+  private static final Duration REFRESH_TTL = Duration.ofDays(7);
 
-  private final JwtService jwtService = new JwtService(TEST_ENCODED_KEY, TEST_TTL);
+  private final JwtService jwtService = new JwtService(TEST_ENCODED_KEY, ACCESS_TTL, REFRESH_TTL);
 
   @Test
-  void generateTokenEncodesUsername() {
-    String token = jwtService.generateToken("alice", Set.of());
+  void accessTokenCarriesUserIdUsernameRolesAndVersion() {
+    String token = jwtService.generateAccessToken(42L, "alice", Set.of(Role.USER, Role.ADMIN), 3);
 
-    assertEquals("alice", jwtService.parseToken(token).username());
+    JwtService.TokenData data = jwtService.parseToken(token);
+    assertEquals(42L, data.userId());
+    assertEquals("alice", data.username());
+    assertEquals(Set.of(Role.USER, Role.ADMIN), data.roles());
+    assertEquals(3, data.version());
+    assertEquals(TokenType.ACCESS, data.type());
   }
 
   @Test
-  void generateTokenEncodesRoles() {
-    String token = jwtService.generateToken("alice", Set.of(Role.USER, Role.ADMIN));
+  void refreshTokenCarriesNoRolesAndIsTypedRefresh() {
+    String token = jwtService.generateRefreshToken(42L, "alice");
 
-    assertEquals(Set.of(Role.USER, Role.ADMIN), jwtService.parseToken(token).roles());
+    JwtService.TokenData data = jwtService.parseToken(token);
+    assertEquals(42L, data.userId());
+    assertEquals("alice", data.username());
+    assertTrue(data.roles().isEmpty());
+    assertEquals(TokenType.REFRESH, data.type());
   }
 
   @Test
-  void generateTokenSerializesRolesAsEnumNameStrings() {
-    // Pins the JWT wire format: the 'roles' claim is a JSON array of Role.name() strings
-    // (e.g. "USER", "ADMIN"), not getAuthority() values ("ROLE_USER", ...). A rename of a
-    // Role constant changes the token payload and must break this test loudly.
-    String token = jwtService.generateToken("alice", Set.of(Role.USER, Role.ADMIN));
+  void refreshTokenOmitsRolesAndVersionClaims() {
+    // The refresh path re-reads the user from the DB, so neither claim is read off the token;
+    // omitting them keeps the wire format honest about what is actually trusted.
+    String token = jwtService.generateRefreshToken(42L, "alice");
+
+    Claims claims = claimsOf(token);
+    assertNull(claims.get("roles"));
+    assertNull(claims.get("ver"));
+  }
+
+  @Test
+  void accessTokenSerializesRolesAsEnumNameStrings() {
+    // Pins the JWT wire format: 'roles' is a JSON array of Role.name() strings, not authorities.
+    String token = jwtService.generateAccessToken(1L, "alice", Set.of(Role.USER, Role.ADMIN), 0);
 
     List<?> rolesClaim =
         Jwts.parser()
@@ -66,45 +86,89 @@ class JwtServiceTest {
   }
 
   @Test
-  void parseTokenReturnsEmptyRolesWhenNoneEncoded() {
-    String token = jwtService.generateToken("alice", Set.of());
-
-    assertTrue(jwtService.parseToken(token).roles().isEmpty());
-  }
-
-  @Test
   void parseTokenIgnoresUnknownRoleStrings() {
     String tokenWithBogusRole =
-        Jwts.builder()
-            .subject("User Details")
-            .claim("usernameOrEmail", "alice")
-            .claim("roles", Arrays.asList("USER", "SUPERUSER", "ADMIN", null))
-            .issuer("recipes")
-            .expiration(Date.from(Instant.now().plus(TEST_TTL)))
-            .signWith(SIGNING_KEY)
-            .compact();
+        baseToken().claim("roles", Arrays.asList("USER", "X", null)).compact();
 
-    assertEquals(Set.of(Role.USER, Role.ADMIN), jwtService.parseToken(tokenWithBogusRole).roles());
+    assertEquals(Set.of(Role.USER), jwtService.parseToken(tokenWithBogusRole).roles());
   }
 
   @Test
   void parseTokenRejectsTokenMissingUsernameClaim() {
-    String tokenMissingUsername =
+    String token =
         Jwts.builder()
             .subject("User Details")
-            .claim("roles", List.of("USER"))
+            .claim("uid", 1L)
+            .claim("ver", 0)
+            .claim("type", "ACCESS")
             .issuer("recipes")
-            .expiration(Date.from(Instant.now().plus(TEST_TTL)))
+            .expiration(Date.from(Instant.now().plus(ACCESS_TTL)))
             .signWith(SIGNING_KEY)
             .compact();
 
-    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(tokenMissingUsername));
+    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(token));
+  }
+
+  @Test
+  void parseTokenRejectsTokenMissingUserId() {
+    String token =
+        Jwts.builder()
+            .subject("User Details")
+            .claim("usernameOrEmail", "alice")
+            .claim("ver", 0)
+            .claim("type", "ACCESS")
+            .issuer("recipes")
+            .expiration(Date.from(Instant.now().plus(ACCESS_TTL)))
+            .signWith(SIGNING_KEY)
+            .compact();
+
+    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(token));
+  }
+
+  @Test
+  void parseTokenRejectsTokenMissingVersion() {
+    String token =
+        Jwts.builder()
+            .subject("User Details")
+            .claim("uid", 1L)
+            .claim("usernameOrEmail", "alice")
+            .claim("type", "ACCESS")
+            .issuer("recipes")
+            .expiration(Date.from(Instant.now().plus(ACCESS_TTL)))
+            .signWith(SIGNING_KEY)
+            .compact();
+
+    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(token));
+  }
+
+  @Test
+  void parseTokenRejectsTokenMissingType() {
+    String token =
+        Jwts.builder()
+            .subject("User Details")
+            .claim("uid", 1L)
+            .claim("usernameOrEmail", "alice")
+            .claim("ver", 0)
+            .issuer("recipes")
+            .expiration(Date.from(Instant.now().plus(ACCESS_TTL)))
+            .signWith(SIGNING_KEY)
+            .compact();
+
+    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(token));
+  }
+
+  @Test
+  void parseTokenRejectsUnknownType() {
+    String token = baseToken().claim("type", "BOGUS").compact();
+
+    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(token));
   }
 
   @Test
   void constructorRejectsMissingSecret() {
     JwtMisconfigurationException thrown =
-        assertThrows(JwtMisconfigurationException.class, () -> new JwtService("", TEST_TTL));
+        assertThrows(
+            JwtMisconfigurationException.class, () -> new JwtService("", ACCESS_TTL, REFRESH_TTL));
 
     assertTrue(thrown.getMessage().toLowerCase().contains("jwt.secret"));
     assertTrue(thrown.getMessage().toLowerCase().contains("jwt_secret"));
@@ -115,7 +179,9 @@ class JwtServiceTest {
     String shortKey = Base64.getEncoder().encodeToString(new byte[16]);
 
     JwtMisconfigurationException thrown =
-        assertThrows(JwtMisconfigurationException.class, () -> new JwtService(shortKey, TEST_TTL));
+        assertThrows(
+            JwtMisconfigurationException.class,
+            () -> new JwtService(shortKey, ACCESS_TTL, REFRESH_TTL));
 
     assertTrue(thrown.getMessage().contains("32 bytes"));
   }
@@ -124,101 +190,124 @@ class JwtServiceTest {
   void constructorRejectsInvalidBase64() {
     assertThrows(
         JwtMisconfigurationException.class,
-        () -> new JwtService("not valid base64 !@#$", TEST_TTL));
+        () -> new JwtService("not valid base64 !@#$", ACCESS_TTL, REFRESH_TTL));
   }
 
   @Test
-  void constructorRejectsZeroTtl() {
+  void constructorRejectsNonPositiveAccessTtl() {
     JwtMisconfigurationException thrown =
         assertThrows(
             JwtMisconfigurationException.class,
-            () -> new JwtService(TEST_ENCODED_KEY, Duration.ZERO));
+            () -> new JwtService(TEST_ENCODED_KEY, Duration.ZERO, REFRESH_TTL));
 
-    assertTrue(thrown.getMessage().toLowerCase().contains("jwt.ttl"));
+    assertTrue(thrown.getMessage().toLowerCase().contains("access"));
   }
 
   @Test
-  void constructorRejectsNegativeTtl() {
-    assertThrows(
-        JwtMisconfigurationException.class,
-        () -> new JwtService(TEST_ENCODED_KEY, Duration.ofSeconds(-1)));
-  }
-
-  @Test
-  void constructorRejectsTtlAboveCeiling() {
+  void constructorRejectsNonPositiveRefreshTtl() {
     JwtMisconfigurationException thrown =
         assertThrows(
             JwtMisconfigurationException.class,
-            () -> new JwtService(TEST_ENCODED_KEY, Duration.ofDays(31)));
+            () -> new JwtService(TEST_ENCODED_KEY, ACCESS_TTL, Duration.ofSeconds(-1)));
 
-    assertTrue(thrown.getMessage().toLowerCase().contains("jwt.ttl"));
+    assertTrue(thrown.getMessage().toLowerCase().contains("refresh"));
+  }
+
+  @Test
+  void constructorRejectsAccessTtlAboveCeiling() {
+    JwtMisconfigurationException thrown =
+        assertThrows(
+            JwtMisconfigurationException.class,
+            () -> new JwtService(TEST_ENCODED_KEY, Duration.ofDays(31), REFRESH_TTL));
+
     assertTrue(thrown.getMessage().contains("P30D"));
   }
 
   @Test
-  void constructorAcceptsTtlAtCeiling() {
-    new JwtService(TEST_ENCODED_KEY, Duration.ofDays(30));
+  void constructorRejectsRefreshTtlAboveCeiling() {
+    JwtMisconfigurationException thrown =
+        assertThrows(
+            JwtMisconfigurationException.class,
+            () -> new JwtService(TEST_ENCODED_KEY, ACCESS_TTL, Duration.ofDays(31)));
+
+    assertTrue(thrown.getMessage().contains("P30D"));
   }
 
   @Test
-  void generateTokenSetsExpClaimInFuture() {
+  void constructorAcceptsRefreshTtlAtCeiling() {
+    new JwtService(TEST_ENCODED_KEY, ACCESS_TTL, Duration.ofDays(30));
+  }
+
+  @Test
+  void accessTokenExpiresByAccessTtl() {
     Instant before = Instant.now();
-    String token = jwtService.generateToken("alice", Set.of());
+    String token = jwtService.generateAccessToken(1L, "alice", Set.of(), 0);
     Instant after = Instant.now();
 
-    Claims claims =
-        Jwts.parser().verifyWith(SIGNING_KEY).build().parseSignedClaims(token).getPayload();
-    Date exp = claims.getExpiration();
+    Date exp = claimsOf(token).getExpiration();
     assertNotNull(exp);
-    // exp should fall in [before+TTL, after+TTL]
     Instant expInstant = exp.toInstant();
-    assertTrue(
-        !expInstant.isBefore(before.plus(TEST_TTL).minusSeconds(1)),
-        "exp " + expInstant + " is earlier than before+TTL " + before.plus(TEST_TTL));
-    assertTrue(
-        !expInstant.isAfter(after.plus(TEST_TTL).plusSeconds(1)),
-        "exp " + expInstant + " is later than after+TTL " + after.plus(TEST_TTL));
+    assertTrue(!expInstant.isBefore(before.plus(ACCESS_TTL).minusSeconds(1)));
+    assertTrue(!expInstant.isAfter(after.plus(ACCESS_TTL).plusSeconds(1)));
+  }
+
+  @Test
+  void refreshTokenExpiresByRefreshTtl() {
+    Instant before = Instant.now();
+    String token = jwtService.generateRefreshToken(1L, "alice");
+    Instant after = Instant.now();
+
+    Date exp = claimsOf(token).getExpiration();
+    assertNotNull(exp);
+    Instant expInstant = exp.toInstant();
+    assertTrue(!expInstant.isBefore(before.plus(REFRESH_TTL).minusSeconds(1)));
+    assertTrue(!expInstant.isAfter(after.plus(REFRESH_TTL).plusSeconds(1)));
   }
 
   @Test
   void parseTokenRejectsExpiredToken() {
-    String expired =
-        Jwts.builder()
-            .subject("User Details")
-            .claim("usernameOrEmail", "alice")
-            .issuer("recipes")
-            .expiration(Date.from(Instant.now().minusSeconds(60)))
-            .signWith(SIGNING_KEY)
-            .compact();
+    String expired = baseToken().expiration(Date.from(Instant.now().minusSeconds(60))).compact();
 
     assertThrows(ExpiredJwtException.class, () -> jwtService.parseToken(expired));
   }
 
   @Test
   void parseTokenRejectsTokenWithoutExpClaim() {
-    String tokenWithoutExp =
+    String token =
         Jwts.builder()
             .subject("User Details")
+            .claim("uid", 1L)
             .claim("usernameOrEmail", "alice")
+            .claim("ver", 0)
+            .claim("type", "ACCESS")
             .issuer("recipes")
             .signWith(SIGNING_KEY)
             .compact();
 
-    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(tokenWithoutExp));
+    assertThrows(MalformedJwtException.class, () -> jwtService.parseToken(token));
   }
 
   @Test
   void parseTokenRejectsTokenWithWrongSubject() {
-    String tampered =
-        Jwts.builder()
-            .subject("Not User Details")
-            .claim("usernameOrEmail", "alice")
-            .issuer("recipes")
-            .expiration(Date.from(Instant.now().plus(TEST_TTL)))
-            .signWith(SIGNING_KEY)
-            .compact();
+    String tampered = baseToken().subject("Not User Details").compact();
 
     assertThrows(
         io.jsonwebtoken.IncorrectClaimException.class, () -> jwtService.parseToken(tampered));
+  }
+
+  private static io.jsonwebtoken.JwtBuilder baseToken() {
+    return Jwts.builder()
+        .subject("User Details")
+        .claim("uid", 1L)
+        .claim("usernameOrEmail", "alice")
+        .claim("ver", 0)
+        .claim("type", "ACCESS")
+        .issuer("recipes")
+        .expiration(Date.from(Instant.now().plus(ACCESS_TTL)))
+        .signWith(SIGNING_KEY);
+  }
+
+  private static Claims claimsOf(String token) {
+    return Jwts.parser().verifyWith(SIGNING_KEY).build().parseSignedClaims(token).getPayload();
   }
 }

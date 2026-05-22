@@ -22,6 +22,10 @@ spring:
       media-types:
         woff2: "font/woff2"
 
-jwt:
-  secret: ${JWT_SECRET:}
-  ttl: ${JWT_TTL:PT24H}
+auth:
+  jwt:
+    secret: ${JWT_SECRET:}
+    access-ttl: ${JWT_ACCESS_TTL:PT15M}
+    refresh-ttl: ${JWT_REFRESH_TTL:P7D}
+  refresh-cookie:
+    secure: ${REFRESH_COOKIE_SECURE:true}

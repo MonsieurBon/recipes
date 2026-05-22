@@ -16,9 +16,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Service
 public class JWTFilter extends OncePerRequestFilter {
   private final JwtService jwtService;
+  private final TokenVersionService tokenVersionService;
 
-  public JWTFilter(JwtService jwtService) {
+  public JWTFilter(JwtService jwtService, TokenVersionService tokenVersionService) {
     this.jwtService = jwtService;
+    this.tokenVersionService = tokenVersionService;
   }
 
   @Override
@@ -34,13 +36,17 @@ public class JWTFilter extends OncePerRequestFilter {
       }
       try {
         JwtService.TokenData tokenData = jwtService.parseToken(token);
+        if (!isUsableAccessToken(tokenData)) {
+          response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+          return;
+        }
         UserDetails userDetails = new User(tokenData.username(), "", tokenData.roles());
         Authentication authentication = new JWTAuthenticationToken(userDetails, token);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
           SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-      } catch (JwtException e) {
+      } catch (JwtException | UnknownUserException e) {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
         return;
       }
@@ -49,5 +55,12 @@ public class JWTFilter extends OncePerRequestFilter {
     // Requests without a Bearer header pass through unauthenticated; Spring Security's
     // authorizeHttpRequests rules decide whether the target endpoint requires auth.
     filterChain.doFilter(request, response);
+  }
+
+  // Only access tokens authenticate requests, and only while their version still matches the
+  // user's current token version — a revocation bumps that version and invalidates the token.
+  private boolean isUsableAccessToken(JwtService.TokenData tokenData) {
+    return tokenData.type() == TokenType.ACCESS
+        && tokenData.version() == tokenVersionService.getCurrentVersion(tokenData.userId());
   }
 }

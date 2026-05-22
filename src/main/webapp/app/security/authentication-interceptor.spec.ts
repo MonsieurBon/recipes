@@ -1,32 +1,25 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { of } from 'rxjs';
+import { Mocked } from 'vitest';
 
 import { authenticationInterceptor } from './authentication-interceptor';
-import { LocalStorage } from '../utility/local-storage';
-import { Mocked } from 'vitest';
-import { of } from 'rxjs';
+import { AuthService } from './auth.service';
 
 describe('authenticationInterceptor', () => {
   const interceptor: HttpInterceptorFn = (req, next) =>
     TestBed.runInInjectionContext(() => authenticationInterceptor(req, next));
-  let localStorageServiceSpy: Mocked<LocalStorage>;
+  let authServiceSpy: Mocked<Pick<AuthService, 'getAccessToken'>>;
 
   beforeEach(() => {
-    const spy: Mocked<LocalStorage> = { getItem: vi.fn(), setItem: vi.fn() };
-
+    authServiceSpy = { getAccessToken: vi.fn() };
     TestBed.configureTestingModule({
-      providers: [{ provide: LocalStorage, useValue: spy }],
+      providers: [{ provide: AuthService, useValue: authServiceSpy }],
     });
-
-    localStorageServiceSpy = TestBed.inject(LocalStorage) as Mocked<LocalStorage>;
   });
 
-  it('should be created', () => {
-    expect(interceptor).toBeTruthy();
-  });
-
-  it('should add the authentication header if JWT is present in localStorage', () => {
-    localStorageServiceSpy.getItem.mockReturnValue('token');
+  it('adds the authentication header when an access token is held', () => {
+    authServiceSpy.getAccessToken.mockReturnValue('token');
     const httpRequest = new HttpRequest<unknown>('GET', '/api/test');
     let modifiedRequest: HttpRequest<unknown> = httpRequest;
     interceptor(httpRequest, (req) => {
@@ -37,8 +30,8 @@ describe('authenticationInterceptor', () => {
     expect(modifiedRequest.headers.get('Authorization')).toEqual('Bearer token');
   });
 
-  it('should not add the authentication header if JWT is not present in localStorage', () => {
-    localStorageServiceSpy.getItem.mockReturnValue(null);
+  it('does not add the authentication header when no access token is held', () => {
+    authServiceSpy.getAccessToken.mockReturnValue(null);
     const httpRequest = new HttpRequest<unknown>('GET', '/api/test');
     let modifiedRequest: HttpRequest<unknown> = httpRequest;
     interceptor(httpRequest, (req) => {
