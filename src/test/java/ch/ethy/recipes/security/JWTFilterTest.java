@@ -25,7 +25,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ExtendWith(MockitoExtension.class)
 class JWTFilterTest {
   @Mock private JwtService jwtService;
+  @Mock private TokenVersionService tokenVersionService;
   @InjectMocks private JWTFilter filter;
+
+  private static JwtService.TokenData accessToken(long userId, int version) {
+    return new JwtService.TokenData(userId, "alice", Set.of(Role.ADMIN), version, TokenType.ACCESS);
+  }
 
   @AfterEach
   void clearSecurityContext() {
@@ -34,8 +39,8 @@ class JWTFilterTest {
 
   @Test
   void populatesAuthoritiesFromTokenRoles() throws Exception {
-    when(jwtService.parseToken("opaque-token"))
-        .thenReturn(new JwtService.TokenData("alice", Set.of(Role.ADMIN)));
+    when(jwtService.parseToken("opaque-token")).thenReturn(accessToken(42L, 5));
+    when(tokenVersionService.getCurrentVersion(42L)).thenReturn(5);
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader("Authorization", "Bearer opaque-token");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -47,6 +52,38 @@ class JWTFilterTest {
     assertNotNull(auth);
     assertEquals("alice", ((UserDetails) auth.getPrincipal()).getUsername());
     assertTrue(auth.getAuthorities().contains(Role.ADMIN));
+  }
+
+  @Test
+  void rejectsAccessTokenWhoseVersionIsStale() throws Exception {
+    when(jwtService.parseToken("stale-token")).thenReturn(accessToken(42L, 5));
+    when(tokenVersionService.getCurrentVersion(42L)).thenReturn(6);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer stale-token");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockFilterChain chain = new MockFilterChain();
+
+    filter.doFilter(request, response, chain);
+
+    assertEquals(401, response.getStatus());
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertNull(chain.getRequest());
+  }
+
+  @Test
+  void rejectsRefreshTokenPresentedAsAccessToken() throws Exception {
+    when(jwtService.parseToken("refresh-token"))
+        .thenReturn(new JwtService.TokenData(42L, "alice", Set.of(), 5, TokenType.REFRESH));
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer refresh-token");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockFilterChain chain = new MockFilterChain();
+
+    filter.doFilter(request, response, chain);
+
+    assertEquals(401, response.getStatus());
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertNull(chain.getRequest());
   }
 
   @Test

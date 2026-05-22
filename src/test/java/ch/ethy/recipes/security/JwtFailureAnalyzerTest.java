@@ -27,14 +27,14 @@ class JwtFailureAnalyzerTest {
   @Test
   void describesTtlMisconfigurationAndMentionsIsoDuration() {
     JwtMisconfigurationException cause =
-        new JwtMisconfigurationException("jwt.ttl must be a positive duration");
+        new JwtMisconfigurationException("jwt.access-ttl must be a positive duration");
 
     FailureAnalysis analysis = analyzer.analyze(cause);
 
     assertNotNull(analysis);
-    assertEquals("jwt.ttl must be a positive duration", analysis.getDescription());
-    assertTrue(analysis.getAction().contains("JWT_TTL"));
-    assertTrue(analysis.getAction().contains("PT24H"));
+    assertEquals("jwt.access-ttl must be a positive duration", analysis.getDescription());
+    assertTrue(analysis.getAction().contains("JWT_ACCESS_TTL"));
+    assertTrue(analysis.getAction().contains("JWT_REFRESH_TTL"));
     assertTrue(analysis.getAction().contains("P30D"));
   }
 

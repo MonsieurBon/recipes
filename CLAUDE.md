@@ -63,4 +63,6 @@ A recipe management web application with a Spring Boot 4 (Java 21) backend and A
 - `DB_PASSWORD` — MySQL app user password
 - `FLYWAY_PASSWORD` — Flyway migration user password
 - `JWT_SECRET` — Base64-encoded HMAC-SHA256 signing key for JWTs (required; minimum 32 bytes / 256 bits, but generate with `openssl rand -base64 48` for headroom)
-- `JWT_TTL` — Access-token lifetime as an ISO-8601 duration (default `PT24H`, maximum `P30D`). Tokens are rejected on parse once expired or missing the `exp` claim.
+- `JWT_ACCESS_TTL` — Access-token lifetime as an ISO-8601 duration (default `PT15M`, maximum `P30D`). The access token is sent on every request and is rejected once expired, missing its `exp` claim, or once its embedded per-user token version no longer matches the user's current version (revocation).
+- `JWT_REFRESH_TTL` — Refresh-token lifetime as an ISO-8601 duration (default `P7D`, maximum `P30D`). The refresh token is delivered as an `HttpOnly` cookie; the client exchanges it at `POST /api/auth/refresh` for a fresh access token (and a rotated refresh cookie). The refresh re-reads the user, so a role change takes effect on the next refresh.
+- `REFRESH_COOKIE_SECURE` — Whether the refresh-token cookie carries the `Secure` attribute (default `true`). The `dev` profile sets it to `false` so the cookie works over plain-HTTP localhost. Keep it `true` behind an SSL-terminating reverse proxy: the browser↔proxy connection is HTTPS, so `Secure` still applies even though the proxy forwards plain HTTP internally.

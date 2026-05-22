@@ -9,7 +9,12 @@
 - Role-based authorization: every endpoint under `/api/admin/**` additionally requires the `ADMIN` role; enforced in `SecurityConfig` and mirrored in the frontend by `AdminGuard`
 - The user's role is included as a claim in the JWT so the frontend can render admin navigation without an extra API call
 - The HMAC-SHA256 signing key is supplied via the `JWT_SECRET` environment variable (no default); a `FailureAnalyzer` surfaces missing or undersized keys as a Spring Boot `APPLICATION FAILED TO START` banner at startup
-- Tokens carry an `exp` claim and are rejected on parse if expired or if `exp` is missing. Lifetime is `JWT_TTL` (ISO-8601 duration, default `PT24H`, capped at `P30D` to prevent practically-non-expiring tokens)
+- Two token types are issued: a short-lived **access token** sent on every request and a longer-lived **refresh token** the client exchanges for a new pair at `/api/auth/refresh`. Lifetimes come from `JWT_ACCESS_TTL` (default `PT15M`) and `JWT_REFRESH_TTL` (default `P7D`), each an ISO-8601 duration capped at `P30D`
+- The refresh token is delivered as an `HttpOnly`, `SameSite=Strict` cookie scoped to `/api/auth`, so it is never readable by JavaScript; the access token is returned in the response body and held only in memory on the client. `Secure` is on by default (configurable via `REFRESH_COOKIE_SECURE`; off only for local plain-HTTP development). Logout clears the cookie via `/api/auth/logout`
+- Every token carries an `exp` claim and is rejected on parse if expired or if `exp` is missing
+- Each user has a server-side **token version** embedded in their tokens; it is bumped whenever the user's access must be revoked (e.g. a role change). A request authenticates only while the access token's version still matches the user's current version, so revocation invalidates outstanding access tokens within a short, bounded window. The current version is read through a short-lived local cache to avoid a database lookup on every request
+- Refresh is not version-gated: it re-reads the user, so a mid-session role change is reflected in the next access token — a demotion downgrades the session on the next refresh rather than forcing an immediate re-login
+- The refresh lifetime is **rolling (sliding)**: every successful refresh issues a new refresh token whose lifetime restarts from `JWT_REFRESH_TTL`. A continuously active session therefore never expires from age alone; only an inactivity gap longer than the refresh lifetime forces re-authentication
 
 ## 8.2 Domain Model
 

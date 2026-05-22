@@ -3,11 +3,10 @@ package ch.ethy.recipes.security;
 import ch.ethy.recipes.user.Role;
 import ch.ethy.recipes.user.User;
 import ch.ethy.recipes.user.UserRepository;
+import io.jsonwebtoken.JwtException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,26 +35,56 @@ public class AuthService {
     this.userRepository = userRepository;
   }
 
-  public LoginResponse login(LoginCredentials credentials) {
+  public AuthTokens login(LoginCredentials credentials) {
     UsernamePasswordAuthenticationToken authToken =
         new UsernamePasswordAuthenticationToken(
             credentials.usernameOrEmail(), credentials.password());
 
     Authentication authentication = authenticationManager.authenticate(authToken);
     if (!(authentication.getPrincipal()
-        instanceof org.springframework.security.core.userdetails.User user)) {
+        instanceof org.springframework.security.core.userdetails.User principal)) {
       log.error(
           "Authentication returned unexpected principal type: {}",
           authentication.getPrincipal().getClass().getName());
       throw new IllegalStateException("Authentication principal has unexpected type");
     }
-    Set<Role> roles =
-        user.getAuthorities().stream()
-            .filter(Role.class::isInstance)
-            .map(Role.class::cast)
-            .collect(Collectors.toCollection(() -> EnumSet.noneOf(Role.class)));
-    String token = jwtService.generateToken(user.getUsername(), roles);
-    return new LoginResponse(token, roles);
+    User user =
+        userRepository
+            .findByUsernameOrEmail(principal.getUsername())
+            .orElseThrow(() -> new IllegalStateException("Authenticated user no longer exists"));
+    return issueTokens(user);
+  }
+
+  public AuthTokens refresh(String refreshToken) {
+    if (refreshToken == null || refreshToken.isBlank()) {
+      throw new InvalidRefreshTokenException("No refresh token provided");
+    }
+    JwtService.TokenData tokenData;
+    try {
+      tokenData = jwtService.parseToken(refreshToken);
+    } catch (JwtException e) {
+      throw new InvalidRefreshTokenException("Refresh token is malformed or expired");
+    }
+    if (tokenData.type() != TokenType.REFRESH) {
+      throw new InvalidRefreshTokenException("Token is not a refresh token");
+    }
+    // Only the access token is version-gated. A refresh always re-reads the user, so the new
+    // access token reflects the current role and token version even if the role changed since
+    // this refresh token was issued (e.g. a mid-session demotion is picked up here).
+    User user =
+        userRepository
+            .findById(tokenData.userId())
+            .orElseThrow(() -> new InvalidRefreshTokenException("User no longer exists"));
+    return issueTokens(user);
+  }
+
+  private AuthTokens issueTokens(User user) {
+    Set<Role> roles = user.getRoles();
+    String accessToken =
+        jwtService.generateAccessToken(
+            user.getId(), user.getUsername(), roles, user.getTokenVersion());
+    String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getUsername());
+    return new AuthTokens(accessToken, refreshToken, roles);
   }
 
   public void register(RegistrationDetails registrationDetails) {

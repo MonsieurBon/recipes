@@ -8,11 +8,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import ch.ethy.recipes.user.Role;
+import ch.ethy.recipes.user.User;
 import ch.ethy.recipes.user.UserRepository;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import io.jsonwebtoken.MalformedJwtException;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,19 +58,27 @@ class AuthServiceTest {
   }
 
   @Test
-  void loginAsksJwtServiceToTokenizeAuthenticatedUsernameAndRoles() {
+  void loginIssuesAccessAndRefreshTokensForTheAuthenticatedUser() {
     var principal =
         new org.springframework.security.core.userdetails.User(
             "alice", "pw", Set.of(Role.USER, Role.ADMIN));
     Authentication authenticated =
         new UsernamePasswordAuthenticationToken(principal, "pw", principal.getAuthorities());
     when(authenticationManager.authenticate(any())).thenReturn(authenticated);
-    when(jwtService.generateToken("alice", Set.of(Role.USER, Role.ADMIN))).thenReturn("token-xyz");
 
-    LoginResponse response = authService.login(new LoginCredentials("alice", "pw"));
+    User user = new User();
+    user.setId(42L);
+    user.setUsername("alice");
+    user.addRole(Role.ADMIN);
+    when(userRepository.findByUsernameOrEmail("alice")).thenReturn(Optional.of(user));
+    when(jwtService.generateAccessToken(42L, "alice", user.getRoles(), 0)).thenReturn("access-xyz");
+    when(jwtService.generateRefreshToken(42L, "alice")).thenReturn("refresh-xyz");
 
-    assertEquals("token-xyz", response.token());
-    assertEquals(Set.of(Role.USER, Role.ADMIN), response.roles());
+    AuthTokens response = authService.login(new LoginCredentials("alice", "pw"));
+
+    assertEquals("access-xyz", response.accessToken());
+    assertEquals("refresh-xyz", response.refreshToken());
+    assertEquals(user.getRoles(), response.roles());
   }
 
   @Test
@@ -102,5 +113,76 @@ class AuthServiceTest {
 
     assertFalse(thrown.getMessage().contains(sensitivePrincipal));
     assertFalse(thrown.getMessage().contains(String.class.getName()));
+  }
+
+  @Test
+  void refreshIssuesNewTokensFromAValidRefreshToken() {
+    when(jwtService.parseToken("refresh-abc"))
+        .thenReturn(new JwtService.TokenData(42L, "alice", Set.of(), 0, TokenType.REFRESH));
+    User user = userEntity(42L, "alice");
+    when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+    when(jwtService.generateAccessToken(42L, "alice", user.getRoles(), 0)).thenReturn("new-access");
+    when(jwtService.generateRefreshToken(42L, "alice")).thenReturn("new-refresh");
+
+    AuthTokens response = authService.refresh("refresh-abc");
+
+    assertEquals("new-access", response.accessToken());
+    assertEquals("new-refresh", response.refreshToken());
+    assertEquals(user.getRoles(), response.roles());
+  }
+
+  @Test
+  void refreshRejectsAnAccessTokenPresentedAsRefreshToken() {
+    when(jwtService.parseToken("access-abc"))
+        .thenReturn(new JwtService.TokenData(42L, "alice", Set.of(Role.USER), 0, TokenType.ACCESS));
+
+    assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("access-abc"));
+  }
+
+  @Test
+  void refreshIgnoresTheRefreshTokensVersionAndMintsFromCurrentState() {
+    // A refresh token minted at an older version still works; the new tokens reflect the
+    // user's current state rather than the (possibly stale) claims in the refresh token.
+    when(jwtService.parseToken("stale"))
+        .thenReturn(new JwtService.TokenData(42L, "alice", Set.of(), 5, TokenType.REFRESH));
+    User user = userEntity(42L, "alice");
+    when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+    when(jwtService.generateAccessToken(42L, "alice", user.getRoles(), 0)).thenReturn("fresh");
+    when(jwtService.generateRefreshToken(42L, "alice")).thenReturn("fresh-refresh");
+
+    AuthTokens response = authService.refresh("stale");
+
+    assertEquals("fresh", response.accessToken());
+    assertEquals("fresh-refresh", response.refreshToken());
+  }
+
+  @Test
+  void refreshRejectsATokenForAnUnknownUser() {
+    when(jwtService.parseToken("orphan"))
+        .thenReturn(new JwtService.TokenData(99L, "ghost", Set.of(), 0, TokenType.REFRESH));
+    when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+    assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("orphan"));
+  }
+
+  @Test
+  void refreshRejectsAnUnparseableToken() {
+    when(jwtService.parseToken("garbage")).thenThrow(new MalformedJwtException("bad"));
+
+    assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("garbage"));
+  }
+
+  @Test
+  void refreshRejectsAMissingToken() {
+    assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh(null));
+    assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("  "));
+  }
+
+  private static User userEntity(long id, String username) {
+    User user = new User();
+    user.setId(id);
+    user.setUsername(username);
+    user.addRole(Role.ADMIN);
+    return user;
   }
 }

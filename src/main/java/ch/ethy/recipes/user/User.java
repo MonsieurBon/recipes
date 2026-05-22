@@ -30,6 +30,11 @@ public class User extends BaseEntity {
   @Nonnull
   private Set<Role> roles = new HashSet<>(List.of(USER));
 
+  // Bumped only via UserRepository#incrementTokenVersion (an atomic DB increment), never through a
+  // setter, so concurrent revocations cannot lose updates.
+  @Column(name = "token_version", nullable = false)
+  private int tokenVersion = 0;
+
   public String getUsername() {
     return username;
   }
@@ -56,6 +61,10 @@ public class User extends BaseEntity {
 
   public Set<Role> getRoles() {
     return roles;
+  }
+
+  public int getTokenVersion() {
+    return tokenVersion;
   }
 
   public void addRole(Role role) {

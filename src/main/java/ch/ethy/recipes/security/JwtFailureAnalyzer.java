@@ -9,8 +9,9 @@ public class JwtFailureAnalyzer extends AbstractFailureAnalyzer<JwtMisconfigurat
   protected FailureAnalysis analyze(Throwable rootFailure, JwtMisconfigurationException cause) {
     String action =
         "Check JWT configuration. JWT_SECRET must be a base64-encoded HMAC-SHA256 key (generate"
-            + " one with: openssl rand -base64 48). JWT_TTL must be a positive ISO-8601 duration"
-            + " no longer than P30D (default: PT24H).";
+            + " one with: openssl rand -base64 48). JWT_ACCESS_TTL and JWT_REFRESH_TTL must each be"
+            + " a positive ISO-8601 duration no longer than P30D (defaults: PT15M access, P7D"
+            + " refresh).";
     return new FailureAnalysis(cause.getMessage(), action, cause);
   }
 }
