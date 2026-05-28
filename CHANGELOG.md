@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/MonsieurBon/recipes/compare/v2.1.0...v2.2.0) (2026-05-28)
+
+
+### Features
+
+* **security:** access/refresh token split with bounded token revocation ([49d8274](https://github.com/MonsieurBon/recipes/commit/49d8274eb2487eac5cee4d710cda9791d89cb1ef)), closes [#173](https://github.com/MonsieurBon/recipes/issues/173) [#177](https://github.com/MonsieurBon/recipes/issues/177) [#178](https://github.com/MonsieurBon/recipes/issues/178) [#179](https://github.com/MonsieurBon/recipes/issues/179) [#143](https://github.com/MonsieurBon/recipes/issues/143) [#145](https://github.com/MonsieurBon/recipes/issues/145)
+
 # [2.1.0](https://github.com/MonsieurBon/recipes/compare/v2.0.3...v2.1.0) (2026-05-21)
 
 
