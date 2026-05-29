@@ -1,6 +1,7 @@
 package ch.ethy.recipes.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class AuthController {
 
   @PostMapping("/login")
   public LoginResponse login(
-      @RequestBody LoginCredentials credentials, HttpServletResponse response) {
+      @RequestBody @Valid LoginCredentials credentials, HttpServletResponse response) {
     try {
       return respondWithTokens(authService.login(credentials), response);
     } catch (AuthenticationException e) {

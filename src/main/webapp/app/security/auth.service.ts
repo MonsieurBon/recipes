@@ -9,6 +9,7 @@ import {
   of,
   shareReplay,
   switchMap,
+  tap,
 } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -20,6 +21,11 @@ export interface RegistrationDetails {
 
 export interface DuplicateUserError {
   conflictingFields: string[];
+}
+
+export interface LoginCredentials {
+  usernameOrEmail: string;
+  password: string;
 }
 
 export interface LoginResponse {
@@ -51,6 +57,26 @@ export class AuthService {
         catchError((error: HttpErrorResponse) => {
           if (error.status === 409) {
             return of(error.error as DuplicateUserError);
+          }
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  // Resolves true on success (token stored, routed to the landing page) and false on invalid
+  // credentials (401) so the form can show an inline error. Other failures propagate.
+  async login(credentials: LoginCredentials): Promise<boolean> {
+    return firstValueFrom(
+      this.http.post<LoginResponse>('/api/auth/login', credentials, { withCredentials: true }).pipe(
+        tap((response) => (this.accessToken = response.token)),
+        switchMap(() => this.router.navigate(['/'])),
+        // Resolve a definite "auth succeeded" rather than navigate()'s result, so a navigation
+        // hiccup can't masquerade as bad credentials.
+        map(() => true),
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401) {
+            return of(false);
           }
           throw error;
         }),
