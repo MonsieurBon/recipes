@@ -1,0 +1,44 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Login</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formRoot]="loginForm">
+      <mat-form-field>
+        <mat-label>Benutzername oder Email</mat-label>
+        <input
+          matInput
+          type="text"
+          autocomplete="username"
+          [formField]="loginForm.usernameOrEmail"
+        />
+        @if (
+          loginForm.usernameOrEmail().touched() && loginForm.usernameOrEmail().errors().length > 0
+        ) {
+          <mat-error>{{ loginForm.usernameOrEmail().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Passwort</mat-label>
+        <input
+          matInput
+          type="password"
+          autocomplete="current-password"
+          [formField]="loginForm.password"
+        />
+        @if (loginForm.password().touched() && loginForm.password().errors().length > 0) {
+          <mat-error>{{ loginForm.password().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+      @if (loginFailed()) {
+        <p class="login-error" data-test-id="loginError">Ungültige Anmeldedaten</p>
+      }
+      <div class="submit-row">
+        @if (loginForm().submitting()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        <button mat-flat-button type="submit" [disabled]="loginForm().submitting()">Login</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

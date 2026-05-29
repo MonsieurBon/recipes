@@ -11,7 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.ethy.recipes.user.Role;
 import jakarta.servlet.http.Cookie;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -79,6 +82,23 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"usernameOrEmail\":\"alice\",\"password\":\"wrong\"}"))
         .andExpect(status().isUnauthorized());
+  }
+
+  static Stream<String> invalidLoginInputs() {
+    String overlong = "a".repeat(257);
+    return Stream.of(
+        "{\"usernameOrEmail\":\"\",\"password\":\"\"}", // blank fields
+        "{}", // fields missing entirely (null)
+        "{\"usernameOrEmail\":\"alice\",\"password\":\"" + overlong + "\"}", // password too long
+        "{\"usernameOrEmail\":\"" + overlong + "\",\"password\":\"pw\"}"); // username too long
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidLoginInputs")
+  void loginWithInvalidInputReturns400(String body) throws Exception {
+    mockMvc
+        .perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
+        .andExpect(status().isBadRequest());
   }
 
   @Test

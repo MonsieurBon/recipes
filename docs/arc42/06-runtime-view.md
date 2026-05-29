@@ -14,7 +14,8 @@ Browser                  AuthController      AuthService       JwtService       
 ```
 
 The access token is returned in the body; the refresh token is delivered out-of-band as an
-`HttpOnly` cookie, so it is never readable by JavaScript.
+`HttpOnly` cookie, so it is never readable by JavaScript. Invalid credentials yield 401; a request
+missing or blanking either field is rejected with 400 before authentication is attempted.
 
 ## 6.2 Token Refresh
 
