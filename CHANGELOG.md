@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/MonsieurBon/recipes/compare/v2.2.0...v2.3.0) (2026-06-03)
+
+
+### Features
+
+* **security:** implement login feature with credential validation ([b8cb033](https://github.com/MonsieurBon/recipes/commit/b8cb0338142def9d942a3e54c176e879fcdb8365)), closes [#178](https://github.com/MonsieurBon/recipes/issues/178)
+
 # [2.2.0](https://github.com/MonsieurBon/recipes/compare/v2.1.0...v2.2.0) (2026-05-28)
 
 
