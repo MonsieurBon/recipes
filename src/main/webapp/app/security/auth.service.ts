@@ -50,10 +50,15 @@ export class AuthService {
   // when the request settles so the next burst starts fresh.
   private refreshInFlight$: Observable<string> | null = null;
 
+  // Resolves true on success (routed to the success page) and the conflicting fields on a duplicate
+  // (409) so the form can flag them. Other failures propagate.
   async register(details: RegistrationDetails): Promise<DuplicateUserError | boolean> {
     return firstValueFrom(
       this.http.post('/api/auth/register', details).pipe(
         switchMap(() => this.router.navigate(['register', 'success'])),
+        // Resolve a definite "registration succeeded" rather than navigate()'s result, so a
+        // navigation hiccup can't masquerade as a failed registration.
+        map(() => true),
         catchError((error: HttpErrorResponse) => {
           if (error.status === 409) {
             return of(error.error as DuplicateUserError);

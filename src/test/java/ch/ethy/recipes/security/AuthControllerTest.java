@@ -3,6 +3,7 @@ package ch.ethy.recipes.security;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import ch.ethy.recipes.user.Role;
 import jakarta.servlet.http.Cookie;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -99,6 +101,92 @@ class AuthControllerTest {
     mockMvc
         .perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void loginAtTheMaxLengthBoundaryIsAccepted() throws Exception {
+    when(authService.login(any()))
+        .thenReturn(new AuthTokens("access-1", "refresh-1", Set.of(Role.USER)));
+    String maxLength = "a".repeat(256); // exactly the @Size(max) cap — must pass, not 400
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"usernameOrEmail\":\""
+                        + maxLength
+                        + "\",\"password\":\""
+                        + maxLength
+                        + "\"}"))
+        .andExpect(status().isOk());
+  }
+
+  static Stream<String> invalidRegisterInputs() {
+    String overlong = "a".repeat(256); // one over the 255 cap (and the VARCHAR(255) column width)
+    String overlongEmail = "a".repeat(249) + "@ex.com"; // 256 chars, still a valid address shape
+    return Stream.of(
+        "{\"username\":\"\",\"email\":\"\",\"password\":\"\"}", // blank fields
+        "{}", // fields missing entirely (null)
+        "{\"username\":\"alice\",\"email\":\"not-an-email\",\"password\":\"pw\"}", // malformed
+        // email
+        "{\"username\":\""
+            + overlong
+            + "\",\"email\":\"a@b.com\",\"password\":\"pw\"}", // username too long
+        "{\"username\":\"alice\",\"email\":\""
+            + overlongEmail
+            + "\",\"password\":\"pw\"}", // email too long
+        "{\"username\":\"alice\",\"email\":\"a@b.com\",\"password\":\""
+            + overlong
+            + "\"}"); // password too long
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidRegisterInputs")
+  void registerWithInvalidInputReturns400(String body) throws Exception {
+    mockMvc
+        .perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void registerWithValidInputReturns200() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"pw\"}"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void registerWithDuplicateUserReturns409() throws Exception {
+    doThrow(new DuplicateUserException(List.of("username"))).when(authService).register(any());
+
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\"taken\",\"email\":\"alice@example.com\",\"password\":\"pw\"}"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.conflictingFields[0]").value("username"));
+  }
+
+  @Test
+  void registerAtTheMaxLengthBoundaryIsAccepted() throws Exception {
+    String maxUsername = "a".repeat(255); // exactly the @Size(max) cap — must pass, not 400
+
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\""
+                        + maxUsername
+                        + "\",\"email\":\"alice@example.com\",\"password\":\"pw\"}"))
+        .andExpect(status().isOk());
   }
 
   @Test

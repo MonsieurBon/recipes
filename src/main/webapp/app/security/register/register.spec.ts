@@ -40,6 +40,34 @@ describe('Register', () => {
     expect(component.registerForm.email().errors().length).toBe(0);
   });
 
+  it('caps every field at 255 characters in the DOM, mirroring the backend', () => {
+    // Signal forms emit a generated name like "ng.form0.username"; match the stable leaf suffix so
+    // the assertion targets each field explicitly rather than relying on DOM order.
+    const field = (name: string): HTMLInputElement =>
+      fixture.nativeElement.querySelector(`input[name$=".${name}"]`);
+
+    expect(field('username').maxLength).toBe(255);
+    expect(field('email').maxLength).toBe(255);
+    expect(field('password').maxLength).toBe(255);
+  });
+
+  it('rejects values over 255 characters with a maxlength error set through the model', () => {
+    component.registerModel.set({
+      username: 'a'.repeat(256),
+      email: 'a'.repeat(249) + '@ex.com',
+      password: 'b'.repeat(256),
+    });
+    TestBed.flushEffects();
+
+    const maxLengthFired = (errors: { kind: string }[]): boolean =>
+      errors.some((e) => e.kind === 'maxLength');
+
+    expect(maxLengthFired(component.registerForm.username().errors())).toBe(true);
+    expect(maxLengthFired(component.registerForm.email().errors())).toBe(true);
+    expect(maxLengthFired(component.registerForm.password().errors())).toBe(true);
+    expect(component.registerForm().valid()).toBe(false);
+  });
+
   it('should be valid when all fields are filled with valid data', () => {
     component.registerModel.set({ username: 'user', email: 'user@example.com', password: 'pass' });
     TestBed.flushEffects();
