@@ -96,6 +96,43 @@ describe('AuthService', () => {
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
+  it("register routes to the success page and resolves a definite success, not navigation()'s result", async () => {
+    // A navigation hiccup must not masquerade as a failed registration.
+    routerSpy.navigate.mockResolvedValue(false);
+
+    const promise = service.register({ username: 'u', email: 'u@example.com', password: 'pw' });
+
+    const req = httpMock.expectOne('/api/auth/register');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ username: 'u', email: 'u@example.com', password: 'pw' });
+    req.flush(null);
+
+    expect(await promise).toBe(true);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['register', 'success']);
+  });
+
+  it('register surfaces a 409 as the conflicting fields without navigating', async () => {
+    const promise = service.register({ username: 'taken', email: 'u@example.com', password: 'pw' });
+
+    httpMock
+      .expectOne('/api/auth/register')
+      .flush({ conflictingFields: ['username'] }, { status: 409, statusText: 'Conflict' });
+
+    expect(await promise).toEqual({ conflictingFields: ['username'] });
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
+  });
+
+  it('register propagates non-409 errors instead of swallowing them', async () => {
+    const promise = service.register({ username: 'u', email: 'u@example.com', password: 'pw' });
+
+    httpMock
+      .expectOne('/api/auth/register')
+      .flush(null, { status: 500, statusText: 'Server Error' });
+
+    await expect(promise).rejects.toBeTruthy();
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
+  });
+
   it('logout clears the in-memory token, asks the backend to drop the cookie, and routes to login', () => {
     service.logout();
 
