@@ -33,6 +33,8 @@ When reviewing a PR, run `gh pr view <number> --comments` (or `gh api repos/<own
 
 If the same area still has a real, unresolved issue, by all means raise it — but acknowledge prior context ("the existing `Bearer` fix doesn't cover X") rather than restating something already handled.
 
+**On re-review rounds, don't re-litigate what's resolved.** When you re-review after the author has pushed fixes, do not produce a "Follow-up on prior findings" / "Previously resolved" walkthrough that confirms each fixed item one by one — the author knows what they changed, and a list of green checkmarks is noise. If every prior finding is resolved and you have nothing new, say so in one or two lines (e.g. "Prior round's must-fix and both suggestions are resolved; no new issues.") and stop. Spend words only on what is still unresolved, newly regressed, or newly discovered.
+
 ## Review Checklist
 
 For each change, consider:
@@ -90,6 +92,12 @@ For each issue/suggestion, include:
 
 If a finding ends in "wait, actually…", "disregard the above", "never mind", "on reflection", or similar self-correction — **delete the entire finding before posting**. Mid-paragraph retractions are noise; the author has to read the dead reasoning to discover it doesn't apply. Your exploration belongs in your scratchpad; only conclusions you stand behind belong in the review. Same rule for titles: a heading like "*X can be replaced with Y… wait, actually it cannot — but…*" means the finding was rewritten mid-thought. Cut the retracted half and re-state the surviving claim cleanly.
 
+### Every item must be actionable — cut the "just noting" notes
+
+Each entry under Must-fix, Suggestions, and Questions must call for a decision or a change. If your conclusion is that nothing needs to change, do not write it up. Delete any item that ends in — or amounts to — "no action needed", "just noting", "just confirming", "this is fine as-is", "consistent with X", or "no change required". Those are observations, not findings, and the author has to read them only to discover they say nothing.
+
+A Question must be a real question whose answer would change the code or your assessment. Don't pose rhetorical confirmations ("I assume this is deliberate?") when you already believe it's fine — if you'd accept any answer without acting on it, drop it.
+
 ### Labelling findings — do not use `#N`
 
 When you need to label or back-reference your own findings, **do not use `#<number>`** (e.g. `#1`, `#2`). GitHub auto-links those to issues in the repo, so "see issue #2 above" becomes a link to whatever random issue happens to have that number, which is confusing and noisy.
@@ -107,6 +115,7 @@ Before finalizing your review:
 - Have I checked the code against project conventions in CLAUDE.md?
 - Did I miss any obvious categories (security, tests, edge cases)?
 - Scan for retraction phrases (`wait`, `actually`, `disregard`, `never mind`, `on reflection`). Any finding that ends in one is a half-thought that leaked through — delete it whole.
+- Does every finding call for a change or decision? Drop any that conclude "no action needed", "just noting", or "this is fine" — and on re-review rounds, drop re-confirmations of already-resolved findings too.
 
 ## When to Ask for Clarification
 
