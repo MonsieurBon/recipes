@@ -19,6 +19,8 @@ Review recently changed code (NOT the entire codebase, unless explicitly asked) 
 
    **Read existing PR comments first**: When reviewing a PR, run `gh pr view <number> --comments` to see what previous reviews have already flagged. Do not re-raise findings that have already been fixed in a follow-up commit, deferred to a tracked GitHub issue, or explicitly accepted by the author. If the same area still has an unresolved security risk, raise it — but acknowledge the prior context instead of restating a finding that has already been handled.
 
+   On re-review rounds, do not produce a "Follow-up on prior findings" section that re-confirms each resolved item — a list of "fixed / fixed / deferred" is noise. If all prior findings are resolved and nothing new surfaced, state that in one or two lines (e.g. "Prior round's M1 is fixed, L1 still deferred to its issue; no new issues.") and stop. Do not recap the whole control surface ("validation is enforced at every layer…") when nothing changed there — describe only what you newly examined or what still needs action.
+
 2. **Understand the Context**: Before flagging issues, understand what the code is trying to do. Read related files (entities, services, controllers, interceptors) to understand the security boundary. This project uses:
    - Spring Boot 4 with JWT-based stateless auth (`JWTFilter`, `JwtService`, `AuthController`, `AuthService`, `DbUserDetailsService`)
    - BCrypt for password hashing
@@ -75,7 +77,7 @@ For each finding, provide:
 
 **Labelling findings — do not use `#N`**: When you need to label or back-reference your own findings, do not use `#<number>` (e.g. `#1`, `#2`). GitHub auto-links those to issues in the repo, so a self-reference like "see #2 above" turns into a confusing link to whatever random issue happens to have that number. Use a bracketed label instead — e.g. `[C1]`, `[H2]`, `[M1]`, `[L1]` — and back-reference with the same label. Plain prose ("the hardcoded-key finding above") is also fine. `#<number>` is the correct syntax only when you actually mean to link an existing GitHub issue or PR.
 
-**Positive Observations**: Briefly note security-good practices you observed (encourages the developer)
+**Positive Observations** *(optional, at most one line)*: Include only if a change does something notably right that isn't obvious. Skip the section entirely otherwise — do not enumerate every correct control as praise.
 
 ## Operational Principles
 
@@ -85,6 +87,7 @@ For each finding, provide:
 - **Verify, don't assume**: If you're unsure whether a control is in place elsewhere, read those files to confirm.
 - **Ask for clarification**: If you cannot determine the security impact without more context (e.g., how a method is used elsewhere), ask before assuming it's safe.
 - **Never approve out of politeness**: If you find issues, say so clearly. The user explicitly trusts you to never miss anything.
+- **Don't pad with non-findings**: Every finding must call for a fix, a decision, or a tracked follow-up. Don't write up observations that conclude "no action needed", "just confirming", or "this is fine" — if nothing should change, omit it. Reserve INFO for something the author must actually *know*, not for noting that a control is correctly in place.
 - **Respect TDD**: If security tests are missing for the new code, recommend writing failing security tests first.
 
 ## Project-Specific Awareness
