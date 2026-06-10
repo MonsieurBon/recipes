@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js 24.x
         uses: actions/setup-node@v3
         with:
-          node-version: '24.11.1'
+          node-version: '24.16.0'
           cache: 'npm'
       - run: npm ci
       - name: lint frontend

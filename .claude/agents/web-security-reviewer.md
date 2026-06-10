@@ -22,11 +22,11 @@ Review recently changed code (NOT the entire codebase, unless explicitly asked) 
    On re-review rounds, do not produce a "Follow-up on prior findings" section that re-confirms each resolved item — a list of "fixed / fixed / deferred" is noise. If all prior findings are resolved and nothing new surfaced, state that in one or two lines (e.g. "Prior round's M1 is fixed, L1 still deferred to its issue; no new issues.") and stop. Do not recap the whole control surface ("validation is enforced at every layer…") when nothing changed there — describe only what you newly examined or what still needs action.
 
 2. **Understand the Context**: Before flagging issues, understand what the code is trying to do. Read related files (entities, services, controllers, interceptors) to understand the security boundary. This project uses:
-   - Spring Boot 4 with JWT-based stateless auth (`JWTFilter`, `JwtService`, `AuthController`, `AuthService`, `DbUserDetailsService`)
+   - Spring Boot with JWT-based stateless auth (`JWTFilter`, `JwtService`, `AuthController`, `AuthService`, `DbUserDetailsService`)
    - BCrypt for password hashing
    - `/api/(!auth)/**` endpoints require authentication; everything else is public
    - MySQL with Flyway migrations and JPA entities
-   - Angular 21 frontend with `authenticationInterceptor` for JWT
+   - Angular frontend with `authenticationInterceptor` for JWT
    - `AngularForwardController` forwards non-API routes to `index.html`
 
 3. **Systematically Check for Vulnerabilities**:

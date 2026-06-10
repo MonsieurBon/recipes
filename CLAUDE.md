@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A recipe management web application with a Spring Boot 4 (Java 21) backend and Angular 21 frontend, using MySQL with Flyway migrations and JWT-based authentication.
+A recipe management web application with a Spring Boot (Java) backend and Angular frontend, using MySQL with Flyway migrations and JWT-based authentication.
 
 ## Build & Development Commands
 
