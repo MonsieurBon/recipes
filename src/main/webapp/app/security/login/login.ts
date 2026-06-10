@@ -4,6 +4,7 @@ import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/in
 import { disabled, form, FormField, FormRoot, maxLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -28,6 +29,7 @@ import { AuthService } from '../auth.service';
 })
 export class Login {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   // Mirrors the backend @Size cap on LoginCredentials so an over-long value can never be submitted,
   // however it reaches the model (typing, paste, autofill, or a programmatic set).
@@ -73,7 +75,9 @@ export class Login {
         action: async () => {
           this.loginFailed.set(false);
           const success = await this.authService.login(this.loginModel());
-          if (!success) {
+          if (success) {
+            await this.router.navigate(['/']);
+          } else {
             this.loginFailed.set(true);
           }
         },

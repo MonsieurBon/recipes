@@ -1,11 +1,12 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // On a 401 for a protected request, obtain a usable access token and retry the request once. Auth
 // endpoints are excluded so a failed login/refresh is not retried. A failed refresh, or a retry
-// that still 401s, logs the user out.
+// that still 401s, logs the user out and routes to the login page.
 //
 // Two paths avoid redundant refreshes when several requests 401 around the same time:
 //  - if a concurrent refresh already minted a newer token while this request was in flight (the
@@ -16,7 +17,13 @@ import { AuthService } from './auth.service';
 //    AuthService collapses simultaneous refreshes into a single request.
 export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
   const sentToken = req.headers.get('Authorization');
+
+  const logoutToLogin = () => {
+    authService.logout();
+    router.navigate(['login']);
+  };
 
   return next(req).pipe(
     catchError((error: unknown) => {
@@ -30,7 +37,7 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
         ).pipe(
           catchError((retryError: unknown) => {
             if (isUnauthorized(retryError)) {
-              authService.logout();
+              logoutToLogin();
             }
             return throwError(() => retryError);
           }),
@@ -43,7 +50,7 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
 
       return authService.refresh().pipe(
         catchError((refreshError: unknown) => {
-          authService.logout();
+          logoutToLogin();
           return throwError(() => refreshError);
         }),
         switchMap(retryWith),

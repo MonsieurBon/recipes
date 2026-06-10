@@ -12,6 +12,7 @@ import {
 } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -36,6 +37,7 @@ import { AuthService } from '../auth.service';
 })
 export class Register {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   // Mirrors the backend @Size cap on RegistrationDetails (itself aligned to the VARCHAR(255)
   // column width) so an over-long value can never be submitted, however it reaches the model
@@ -87,12 +89,13 @@ export class Register {
     {
       submission: {
         action: async (field) => {
-          const result = await this.authService.register(this.registerModel());
-          if (typeof result === 'boolean') {
+          const error = await this.authService.register(this.registerModel());
+          if (!error) {
+            await this.router.navigate(['register', 'success']);
             return;
           }
 
-          return result.conflictingFields.map((f) => ({
+          return error.conflictingFields.map((f) => ({
             kind: 'duplicate',
             message: this.errorMessages[f]['duplicate'],
             fieldTree: field[f as keyof typeof field] as never,

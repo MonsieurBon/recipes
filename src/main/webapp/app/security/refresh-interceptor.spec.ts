@@ -9,6 +9,7 @@ import {
 } from '@angular/common/http';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { Mocked } from 'vitest';
+import { Router } from '@angular/router';
 
 import { refreshInterceptor } from './refresh-interceptor';
 import { AuthService } from './auth.service';
@@ -17,11 +18,16 @@ describe('refreshInterceptor', () => {
   const interceptor: HttpInterceptorFn = (req, next) =>
     TestBed.runInInjectionContext(() => refreshInterceptor(req, next));
   let authServiceSpy: Mocked<Pick<AuthService, 'refresh' | 'logout' | 'getAccessToken'>>;
+  let routerSpy: Mocked<Pick<Router, 'navigate'>>;
 
   beforeEach(() => {
     authServiceSpy = { refresh: vi.fn(), logout: vi.fn(), getAccessToken: vi.fn() };
+    routerSpy = { navigate: vi.fn().mockResolvedValue(true) };
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy },
+      ],
     });
   });
 
@@ -42,6 +48,7 @@ describe('refreshInterceptor', () => {
     expect(authServiceSpy.refresh).toHaveBeenCalledOnce();
     expect(retried).toBeDefined();
     expect((result as HttpResponse<unknown>).status).toBe(200);
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
   it('retries with the current token without refreshing when it advanced since the request was sent', async () => {
@@ -65,7 +72,7 @@ describe('refreshInterceptor', () => {
     expect((result as HttpResponse<unknown>).status).toBe(200);
   });
 
-  it('logs out and propagates the error when the refresh itself fails', async () => {
+  it('logs out, routes to login, and propagates the error when the refresh itself fails', async () => {
     authServiceSpy.refresh.mockReturnValue(throwError(() => new Error('refresh failed')));
     const next: HttpHandlerFn = () => throwError(() => new HttpErrorResponse({ status: 401 }));
 
@@ -73,9 +80,10 @@ describe('refreshInterceptor', () => {
       firstValueFrom(interceptor(new HttpRequest('GET', '/api/recipes'), next)),
     ).rejects.toBeTruthy();
     expect(authServiceSpy.logout).toHaveBeenCalledOnce();
+    expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['login']);
   });
 
-  it('logs out when the retried request also returns 401', async () => {
+  it('logs out and routes to login when the retried request also returns 401', async () => {
     authServiceSpy.refresh.mockReturnValue(of('new-access'));
     // next always rejects with 401, including the retry.
     const next: HttpHandlerFn = () => throwError(() => new HttpErrorResponse({ status: 401 }));
@@ -84,6 +92,7 @@ describe('refreshInterceptor', () => {
       firstValueFrom(interceptor(new HttpRequest('GET', '/api/recipes'), next)),
     ).rejects.toBeTruthy();
     expect(authServiceSpy.logout).toHaveBeenCalledOnce();
+    expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['login']);
   });
 
   it('does not attempt a refresh for auth endpoints', async () => {

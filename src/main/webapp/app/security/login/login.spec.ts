@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Mocked } from 'vitest';
+import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 import { Login } from './login';
@@ -8,13 +9,18 @@ describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
   let authServiceSpy: Mocked<Pick<AuthService, 'login'>>;
+  let routerSpy: Mocked<Pick<Router, 'navigate'>>;
 
   beforeEach(async () => {
     authServiceSpy = { login: vi.fn() };
+    routerSpy = { navigate: vi.fn().mockResolvedValue(true) };
 
     await TestBed.configureTestingModule({
       imports: [Login],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Login);
@@ -77,6 +83,7 @@ describe('Login', () => {
     fixture.detectChanges();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({ usernameOrEmail: 'alice', password: 'pw' });
+    expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
     expect(fixture.nativeElement.querySelector('[data-test-id="loginError"]')).toBeNull();
   });
 
@@ -95,6 +102,7 @@ describe('Login', () => {
     const error = fixture.nativeElement.querySelector('[data-test-id="loginError"]');
     expect(error).toBeTruthy();
     expect(error.textContent).toContain('Ungültige Anmeldedaten');
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
   it('should hide the rejected-credentials error once the user edits a field', async () => {

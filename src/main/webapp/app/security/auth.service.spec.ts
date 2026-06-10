@@ -1,26 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { Mocked } from 'vitest';
 
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-  let routerSpy: Mocked<Pick<Router, 'navigate'>>;
 
   beforeEach(() => {
-    routerSpy = { navigate: vi.fn().mockResolvedValue(true) };
-
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: Router, useValue: routerSpy },
-      ],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(AuthService);
@@ -62,7 +53,7 @@ describe('AuthService', () => {
     expect(await third).toBe('again');
   });
 
-  it('login sends credentials, holds the access token in memory, and routes to the landing page', async () => {
+  it('login sends credentials and holds the access token in memory', async () => {
     const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
 
     const req = httpMock.expectOne('/api/auth/login');
@@ -73,17 +64,15 @@ describe('AuthService', () => {
 
     expect(await promise).toBe(true);
     expect(service.getAccessToken()).toBe('access-1');
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 
-  it('login returns false on invalid credentials without storing a token or navigating', async () => {
+  it('login returns false on invalid credentials without storing a token', async () => {
     const promise = service.login({ usernameOrEmail: 'alice', password: 'wrong' });
 
     httpMock.expectOne('/api/auth/login').flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(await promise).toBe(false);
     expect(service.getAccessToken()).toBeNull();
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
   it('login propagates non-401 errors instead of swallowing them', async () => {
@@ -93,13 +82,9 @@ describe('AuthService', () => {
 
     await expect(promise).rejects.toBeTruthy();
     expect(service.getAccessToken()).toBeNull();
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
-  it("register routes to the success page and resolves a definite success, not navigation()'s result", async () => {
-    // A navigation hiccup must not masquerade as a failed registration.
-    routerSpy.navigate.mockResolvedValue(false);
-
+  it('register resolves null on success', async () => {
     const promise = service.register({ username: 'u', email: 'u@example.com', password: 'pw' });
 
     const req = httpMock.expectOne('/api/auth/register');
@@ -107,11 +92,10 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual({ username: 'u', email: 'u@example.com', password: 'pw' });
     req.flush(null);
 
-    expect(await promise).toBe(true);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['register', 'success']);
+    expect(await promise).toBeNull();
   });
 
-  it('register surfaces a 409 as the conflicting fields without navigating', async () => {
+  it('register surfaces a 409 as the conflicting fields', async () => {
     const promise = service.register({ username: 'taken', email: 'u@example.com', password: 'pw' });
 
     httpMock
@@ -119,7 +103,6 @@ describe('AuthService', () => {
       .flush({ conflictingFields: ['username'] }, { status: 409, statusText: 'Conflict' });
 
     expect(await promise).toEqual({ conflictingFields: ['username'] });
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
   it('register propagates non-409 errors instead of swallowing them', async () => {
@@ -130,10 +113,19 @@ describe('AuthService', () => {
       .flush(null, { status: 500, statusText: 'Server Error' });
 
     await expect(promise).rejects.toBeTruthy();
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
-  it('logout clears the in-memory token, asks the backend to drop the cookie, and routes to login', () => {
+  it('register propagates a 409 whose body lacks the conflicting fields instead of treating it as duplicates', async () => {
+    const promise = service.register({ username: 'u', email: 'u@example.com', password: 'pw' });
+
+    httpMock
+      .expectOne('/api/auth/register')
+      .flush({ message: 'conflict' }, { status: 409, statusText: 'Conflict' });
+
+    await expect(promise).rejects.toBeTruthy();
+  });
+
+  it('logout clears the in-memory token and asks the backend to drop the cookie', () => {
     service.logout();
 
     const req = httpMock.expectOne('/api/auth/logout');
@@ -142,6 +134,5 @@ describe('AuthService', () => {
     req.flush(null);
 
     expect(service.getAccessToken()).toBeNull();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['login']);
   });
 });
