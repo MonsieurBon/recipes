@@ -83,6 +83,7 @@ jobs:
             reviewer, e.g. `## pr-code-reviewer`, `## web-security-reviewer`. Do
             not merge them into a single comment — keep each review distinct.
           claude_args: >-
+            --model fable
             --max-turns 25
             --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh api:*)"
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
