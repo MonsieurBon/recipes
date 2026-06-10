@@ -4,8 +4,8 @@
 
 | Constraint | Explanation |
 |---|---|
-| Java 21 / Spring Boot 4 | Backend runtime and framework |
-| Angular 21 | Frontend SPA framework |
+| Java / Spring Boot | Backend runtime and framework |
+| Angular | Frontend SPA framework |
 | MySQL | Relational database for persistence |
 | Single deployable | Frontend is built into the Spring Boot JAR and served as static resources |
 | JWT authentication | Stateless authentication; no server-side session store |
