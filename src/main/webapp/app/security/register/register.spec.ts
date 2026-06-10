@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { Mocked } from 'vitest';
+import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 import { Register } from './register';
@@ -7,11 +8,19 @@ import { Register } from './register';
 describe('Register', () => {
   let component: Register;
   let fixture: ComponentFixture<Register>;
+  let authServiceSpy: Mocked<Pick<AuthService, 'register'>>;
+  let routerSpy: Mocked<Pick<Router, 'navigate'>>;
 
   beforeEach(async () => {
+    authServiceSpy = { register: vi.fn() };
+    routerSpy = { navigate: vi.fn().mockResolvedValue(true) };
+
     await TestBed.configureTestingModule({
       imports: [Register],
-      providers: [provideHttpClient()],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Register);
@@ -100,10 +109,9 @@ describe('Register', () => {
 
   it('should disable form fields and button and show spinner during submission', async () => {
     let resolveRegister!: () => void;
-    const authService = TestBed.inject(AuthService);
-    vi.spyOn(authService, 'register').mockReturnValue(
-      new Promise<boolean>((resolve) => {
-        resolveRegister = () => resolve(true);
+    authServiceSpy.register.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRegister = () => resolve(null);
       }),
     );
 
@@ -136,8 +144,7 @@ describe('Register', () => {
   });
 
   it('should show duplicate username error from server', async () => {
-    const authService = TestBed.inject(AuthService);
-    vi.spyOn(authService, 'register').mockResolvedValue({
+    authServiceSpy.register.mockResolvedValue({
       conflictingFields: ['username'],
     });
 
@@ -158,8 +165,7 @@ describe('Register', () => {
   });
 
   it('should show duplicate email error from server', async () => {
-    const authService = TestBed.inject(AuthService);
-    vi.spyOn(authService, 'register').mockResolvedValue({
+    authServiceSpy.register.mockResolvedValue({
       conflictingFields: ['email'],
     });
 
@@ -177,6 +183,27 @@ describe('Register', () => {
     const errorElements = fixture.nativeElement.querySelectorAll('mat-error');
     expect(errorElements.length).toBe(1);
     expect(errorElements[0].textContent).toContain('Email ist bereits vergeben');
+  });
+
+  it('navigates to the success page on successful registration', async () => {
+    authServiceSpy.register.mockResolvedValue(null);
+
+    component.registerModel.set({ username: 'user', email: 'user@example.com', password: 'pass' });
+    TestBed.flushEffects();
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('button[type="submit"]').click();
+    await new Promise((r) => setTimeout(r));
+    TestBed.flushEffects();
+    fixture.detectChanges();
+
+    expect(authServiceSpy.register).toHaveBeenCalledWith({
+      username: 'user',
+      email: 'user@example.com',
+      password: 'pass',
+    });
+    expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['register', 'success']);
+    expect(fixture.nativeElement.querySelectorAll('mat-error').length).toBe(0);
   });
 
   it('should hide error messages when fields become valid', () => {
