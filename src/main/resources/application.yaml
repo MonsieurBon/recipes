@@ -27,5 +27,7 @@ auth:
     secret: ${JWT_SECRET:}
     access-ttl: ${JWT_ACCESS_TTL:PT15M}
     refresh-ttl: ${JWT_REFRESH_TTL:P7D}
+  login:
+    failure-delay: ${LOGIN_FAILURE_DELAY:PT1S}
   refresh-cookie:
     secure: ${REFRESH_COOKIE_SECURE:true}

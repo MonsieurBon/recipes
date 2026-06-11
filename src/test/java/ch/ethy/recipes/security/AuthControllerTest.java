@@ -1,18 +1,24 @@
 package ch.ethy.recipes.security;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import ch.ethy.recipes.user.Role;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -56,14 +62,22 @@ class AuthControllerTest {
   @Test
   void loginSetsTheRefreshCookieAndReturnsTheAccessToken() throws Exception {
     when(authService.login(any()))
-        .thenReturn(new AuthTokens("access-1", "refresh-1", Set.of(Role.USER)));
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                new AuthTokens("access-1", "refresh-1", Set.of(Role.USER))));
 
-    MvcResult result =
+    MvcResult suspended =
         mockMvc
             .perform(
                 post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{\"usernameOrEmail\":\"alice\",\"password\":\"pw\"}"))
+            .andExpect(request().asyncStarted())
+            .andReturn();
+
+    MvcResult result =
+        mockMvc
+            .perform(asyncDispatch(suspended))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").value("access-1"))
             .andReturn();
@@ -76,14 +90,40 @@ class AuthControllerTest {
 
   @Test
   void loginWithBadCredentialsReturns401() throws Exception {
-    when(authService.login(any())).thenThrow(new BadCredentialsException("nope"));
+    when(authService.login(any()))
+        .thenReturn(CompletableFuture.failedFuture(new BadCredentialsException("nope")));
 
-    mockMvc
-        .perform(
-            post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"usernameOrEmail\":\"alice\",\"password\":\"wrong\"}"))
-        .andExpect(status().isUnauthorized());
+    MvcResult suspended =
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"usernameOrEmail\":\"alice\",\"password\":\"wrong\"}"))
+            .andExpect(request().asyncStarted())
+            .andReturn();
+
+    mockMvc.perform(asyncDispatch(suspended)).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void loginWithAnUnexpectedFailureIsNotMaskedAsInvalidCredentials() throws Exception {
+    when(authService.login(any()))
+        .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("user vanished")));
+
+    MvcResult suspended =
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"usernameOrEmail\":\"alice\",\"password\":\"pw\"}"))
+            .andExpect(request().asyncStarted())
+            .andReturn();
+
+    // No resolver maps IllegalStateException, so MockMvc surfaces it as a ServletException where
+    // a real container would render a 500 — the point is it must not become a 401.
+    ServletException thrown =
+        assertThrows(ServletException.class, () -> mockMvc.perform(asyncDispatch(suspended)));
+    assertInstanceOf(IllegalStateException.class, thrown.getRootCause());
   }
 
   static Stream<String> invalidLoginInputs() {
@@ -100,26 +140,35 @@ class AuthControllerTest {
   void loginWithInvalidInputReturns400(String body) throws Exception {
     mockMvc
         .perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(body))
+        // Validation rejects the request before the handler runs, so the 400 is synchronous —
+        // malformed requests never enter the delayed (suspended) failure path.
+        .andExpect(request().asyncNotStarted())
         .andExpect(status().isBadRequest());
   }
 
   @Test
   void loginAtTheMaxLengthBoundaryIsAccepted() throws Exception {
     when(authService.login(any()))
-        .thenReturn(new AuthTokens("access-1", "refresh-1", Set.of(Role.USER)));
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                new AuthTokens("access-1", "refresh-1", Set.of(Role.USER))));
     String maxLength = "a".repeat(256); // exactly the @Size(max) cap — must pass, not 400
 
-    mockMvc
-        .perform(
-            post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    "{\"usernameOrEmail\":\""
-                        + maxLength
-                        + "\",\"password\":\""
-                        + maxLength
-                        + "\"}"))
-        .andExpect(status().isOk());
+    MvcResult suspended =
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        "{\"usernameOrEmail\":\""
+                            + maxLength
+                            + "\",\"password\":\""
+                            + maxLength
+                            + "\"}"))
+            .andExpect(request().asyncStarted())
+            .andReturn();
+
+    mockMvc.perform(asyncDispatch(suspended)).andExpect(status().isOk());
   }
 
   static Stream<String> invalidRegisterInputs() {

@@ -3,6 +3,8 @@ package ch.ethy.recipes.security;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +28,34 @@ public class AuthController {
     this.refreshTokenCookieFactory = refreshTokenCookieFactory;
   }
 
+  /**
+   * Logs the user in.
+   *
+   * <p>Returning a future lets Spring MVC suspend the request instead of blocking a request thread:
+   * a failed login completes only once the configured failure delay has elapsed, and the 401 is
+   * dispatched then. A successful login completes immediately.
+   */
   @PostMapping("/login")
-  public LoginResponse login(
+  public CompletableFuture<LoginResponse> login(
       @RequestBody @Valid LoginCredentials credentials, HttpServletResponse response) {
-    try {
-      return respondWithTokens(authService.login(credentials), response);
-    } catch (AuthenticationException e) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-    }
+    return authService
+        .login(credentials)
+        .handle(
+            (tokens, failure) -> {
+              if (failure == null) {
+                return respondWithTokens(tokens, response);
+              }
+              if (unwrap(failure) instanceof AuthenticationException) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+              }
+              throw new CompletionException(failure);
+            });
+  }
+
+  private static Throwable unwrap(Throwable failure) {
+    return failure instanceof CompletionException && failure.getCause() != null
+        ? failure.getCause()
+        : failure;
   }
 
   @PostMapping("/refresh")
