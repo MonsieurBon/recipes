@@ -128,17 +128,22 @@ class AuthControllerTest {
     return Stream.of(
         "{\"username\":\"\",\"email\":\"\",\"password\":\"\"}", // blank fields
         "{}", // fields missing entirely (null)
-        "{\"username\":\"alice\",\"email\":\"not-an-email\",\"password\":\"pw\"}", // malformed
-        // email
+        "{\"username\":\"alice\",\"email\":\"not-an-email\",\"password\":\"long-enough-pw\"}", // malformed email
         "{\"username\":\""
             + overlong
-            + "\",\"email\":\"a@b.com\",\"password\":\"pw\"}", // username too long
+            + "\",\"email\":\"a@b.com\",\"password\":\"long-enough-pw\"}", // username too long
         "{\"username\":\"alice\",\"email\":\""
             + overlongEmail
-            + "\",\"password\":\"pw\"}", // email too long
+            + "\",\"password\":\"long-enough-pw\"}", // email too long
         "{\"username\":\"alice\",\"email\":\"a@b.com\",\"password\":\""
-            + overlong
-            + "\"}"); // password too long
+            + "a".repeat(73)
+            + "\"}", // password one over the 72-byte BCrypt ceiling
+        "{\"username\":\"alice\",\"email\":\"a@b.com\",\"password\":\""
+            + ("ä".repeat(36) + "a")
+            + "\"}", // 37 chars but 73 UTF-8 bytes — one over the ceiling despite under 72 chars
+        "{\"username\":\"alice\",\"email\":\"a@b.com\",\"password\":\""
+            + "a".repeat(11)
+            + "\"}"); // password one under the 12-char minimum
   }
 
   @ParameterizedTest
@@ -156,7 +161,37 @@ class AuthControllerTest {
             post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
-                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"pw\"}"))
+                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"long-enough-pw\"}"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void registerAtTheMinPasswordLengthBoundaryIsAccepted() throws Exception {
+    String minPassword = "a".repeat(12); // exactly the @Size(min) floor — must pass, not 400
+
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\""
+                        + minPassword
+                        + "\"}"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void registerAtTheMaxPasswordLengthBoundaryIsAccepted() throws Exception {
+    String maxPassword = "a".repeat(72); // exactly the BCrypt byte ceiling — must pass, not 400
+
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\""
+                        + maxPassword
+                        + "\"}"))
         .andExpect(status().isOk());
   }
 
@@ -169,7 +204,7 @@ class AuthControllerTest {
             post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
-                    "{\"username\":\"taken\",\"email\":\"alice@example.com\",\"password\":\"pw\"}"))
+                    "{\"username\":\"taken\",\"email\":\"alice@example.com\",\"password\":\"long-enough-pw\"}"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.conflictingFields[0]").value("username"));
   }
@@ -185,7 +220,7 @@ class AuthControllerTest {
                 .content(
                     "{\"username\":\""
                         + maxUsername
-                        + "\",\"email\":\"alice@example.com\",\"password\":\"pw\"}"))
+                        + "\",\"email\":\"alice@example.com\",\"password\":\"long-enough-pw\"}"))
         .andExpect(status().isOk());
   }
 
