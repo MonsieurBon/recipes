@@ -40,16 +40,24 @@ describe('Register', () => {
   });
 
   it('should validate email format', () => {
-    component.registerModel.set({ username: 'user', email: 'not-an-email', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'not-an-email',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     expect(component.registerForm.email().errors().length).toBeGreaterThan(0);
 
-    component.registerModel.set({ username: 'user', email: 'user@example.com', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     expect(component.registerForm.email().errors().length).toBe(0);
   });
 
-  it('caps every field at 255 characters in the DOM, mirroring the backend', () => {
+  it('caps every field in the DOM, mirroring the backend limits', () => {
     // Signal forms emit a generated name like "ng.form0.username"; match the stable leaf suffix so
     // the assertion targets each field explicitly rather than relying on DOM order.
     const field = (name: string): HTMLInputElement =>
@@ -57,7 +65,7 @@ describe('Register', () => {
 
     expect(field('username').maxLength).toBe(255);
     expect(field('email').maxLength).toBe(255);
-    expect(field('password').maxLength).toBe(255);
+    expect(field('password').maxLength).toBe(72);
   });
 
   it('rejects values over 255 characters with a maxlength error set through the model', () => {
@@ -77,8 +85,52 @@ describe('Register', () => {
     expect(component.registerForm().valid()).toBe(false);
   });
 
+  it('rejects a password under 12 characters with a minlength error set through the model', () => {
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      password: 'a'.repeat(11),
+    });
+    TestBed.flushEffects();
+
+    const errors = component.registerForm.password().errors();
+    expect(errors.some((e) => e.kind === 'minLength')).toBe(true);
+    expect(component.registerForm().valid()).toBe(false);
+  });
+
+  it('rejects a password over 72 UTF-8 bytes even when under 72 characters', () => {
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      // 37 characters — passes the length checks — but exactly one byte over the 72-byte ceiling
+      password: 'ä'.repeat(36) + 'a',
+    });
+    TestBed.flushEffects();
+
+    const errors = component.registerForm.password().errors();
+    expect(errors.some((e) => e.kind === 'maxBytes')).toBe(true);
+    expect(component.registerForm().valid()).toBe(false);
+  });
+
+  it('accepts a password of exactly 72 UTF-8 bytes', () => {
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      // 36 characters at 2 bytes each — exactly the 72-byte BCrypt ceiling
+      password: 'ä'.repeat(36),
+    });
+    TestBed.flushEffects();
+
+    expect(component.registerForm.password().errors()).toEqual([]);
+    expect(component.registerForm().valid()).toBe(true);
+  });
+
   it('should be valid when all fields are filled with valid data', () => {
-    component.registerModel.set({ username: 'user', email: 'user@example.com', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     expect(component.registerForm().valid()).toBe(true);
   });
@@ -97,7 +149,11 @@ describe('Register', () => {
   });
 
   it('should show email format error when email is invalid', () => {
-    component.registerModel.set({ username: 'user', email: 'not-an-email', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'not-an-email',
+      password: 'long-enough-pw',
+    });
     component.registerForm.email().markAsTouched();
     TestBed.flushEffects();
     fixture.detectChanges();
@@ -115,7 +171,11 @@ describe('Register', () => {
       }),
     );
 
-    component.registerModel.set({ username: 'user', email: 'user@example.com', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     fixture.detectChanges();
 
@@ -148,7 +208,11 @@ describe('Register', () => {
       conflictingFields: ['username'],
     });
 
-    component.registerModel.set({ username: 'taken', email: 'user@example.com', password: 'pass' });
+    component.registerModel.set({
+      username: 'taken',
+      email: 'user@example.com',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     fixture.detectChanges();
 
@@ -169,7 +233,11 @@ describe('Register', () => {
       conflictingFields: ['email'],
     });
 
-    component.registerModel.set({ username: 'user', email: 'taken@example.com', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'taken@example.com',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     fixture.detectChanges();
 
@@ -188,7 +256,11 @@ describe('Register', () => {
   it('navigates to the success page on successful registration', async () => {
     authServiceSpy.register.mockResolvedValue(null);
 
-    component.registerModel.set({ username: 'user', email: 'user@example.com', password: 'pass' });
+    component.registerModel.set({
+      username: 'user',
+      email: 'user@example.com',
+      password: 'long-enough-pw',
+    });
     TestBed.flushEffects();
     fixture.detectChanges();
 
@@ -200,7 +272,7 @@ describe('Register', () => {
     expect(authServiceSpy.register).toHaveBeenCalledWith({
       username: 'user',
       email: 'user@example.com',
-      password: 'pass',
+      password: 'long-enough-pw',
     });
     expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['register', 'success']);
     expect(fixture.nativeElement.querySelectorAll('mat-error').length).toBe(0);
