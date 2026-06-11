@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/MonsieurBon/recipes/compare/v2.4.0...v2.5.0) (2026-06-11)
+
+
+### Features
+
+* enforce password length bounds on registration ([01e8aa7](https://github.com/MonsieurBon/recipes/commit/01e8aa7a687b7c280f00af52bf91deba8e3b8eb9)), closes [#187](https://github.com/MonsieurBon/recipes/issues/187)
+
 # [2.4.0](https://github.com/MonsieurBon/recipes/compare/v2.3.0...v2.4.0) (2026-06-04)
 
 
