@@ -7,11 +7,13 @@ import io.jsonwebtoken.JwtException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,39 +22,57 @@ public class AuthService {
   private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
   private final AuthenticationManager authenticationManager;
+  private final FailedLoginDelay failedLoginDelay;
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
 
   public AuthService(
       AuthenticationManager authenticationManager,
+      FailedLoginDelay failedLoginDelay,
       JwtService jwtService,
       PasswordEncoder passwordEncoder,
       UserRepository userRepository) {
     this.authenticationManager = authenticationManager;
+    this.failedLoginDelay = failedLoginDelay;
     this.jwtService = jwtService;
     this.passwordEncoder = passwordEncoder;
     this.userRepository = userRepository;
   }
 
-  public AuthTokens login(LoginCredentials credentials) {
+  /**
+   * Authenticates the credentials and issues tokens.
+   *
+   * <p>A successful login completes immediately. Bad credentials complete the future exceptionally
+   * with the {@link AuthenticationException} only once the configured failure delay has elapsed,
+   * slowing online guessing without holding a request thread during the wait.
+   */
+  public CompletableFuture<AuthTokens> login(LoginCredentials credentials) {
     UsernamePasswordAuthenticationToken authToken =
         new UsernamePasswordAuthenticationToken(
             credentials.usernameOrEmail(), credentials.password());
 
-    Authentication authentication = authenticationManager.authenticate(authToken);
+    Authentication authentication;
+    try {
+      authentication = authenticationManager.authenticate(authToken);
+    } catch (AuthenticationException e) {
+      return failedLoginDelay.failAfterDelay(e);
+    }
     if (!(authentication.getPrincipal()
         instanceof org.springframework.security.core.userdetails.User principal)) {
       log.error(
           "Authentication returned unexpected principal type: {}",
           authentication.getPrincipal().getClass().getName());
-      throw new IllegalStateException("Authentication principal has unexpected type");
+      return CompletableFuture.failedFuture(
+          new IllegalStateException("Authentication principal has unexpected type"));
     }
-    User user =
-        userRepository
-            .findByUsernameOrEmail(principal.getUsername())
-            .orElseThrow(() -> new IllegalStateException("Authenticated user no longer exists"));
-    return issueTokens(user);
+    return userRepository
+        .findByUsernameOrEmail(principal.getUsername())
+        .map(user -> CompletableFuture.completedFuture(issueTokens(user)))
+        .orElseGet(
+            () ->
+                CompletableFuture.failedFuture(
+                    new IllegalStateException("Authenticated user no longer exists")));
   }
 
   public AuthTokens refresh(String refreshToken) {

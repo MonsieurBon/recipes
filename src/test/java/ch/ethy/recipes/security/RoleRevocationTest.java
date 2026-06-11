@@ -52,8 +52,11 @@ class RoleRevocationTest {
   void setUp() {
     tokenVersionService = new TokenVersionService(userRepository);
     filter = new JWTFilter(jwtService, tokenVersionService);
+    // This test only exercises refresh, so the login failure delay is wired inert.
+    FailedLoginDelay noDelay = new FailedLoginDelay(Duration.ZERO, (task, delay) -> task.run());
     authService =
-        new AuthService(authenticationManager, jwtService, passwordEncoder, userRepository);
+        new AuthService(
+            authenticationManager, noDelay, jwtService, passwordEncoder, userRepository);
   }
 
   @AfterEach
