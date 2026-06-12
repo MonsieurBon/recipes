@@ -1,6 +1,17 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { catchError, finalize, firstValueFrom, map, Observable, of, shareReplay, tap } from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+  catchError,
+  finalize,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  tap,
+  throwError,
+} from 'rxjs';
+import { LocalStorage } from '../utility/local-storage';
 
 export interface RegistrationDetails {
   username: string;
@@ -26,12 +37,33 @@ export interface LoginResponse {
   providedIn: 'root',
 })
 export class AuthService {
+  // The HttpOnly refresh cookie cannot be cleared by JavaScript, so when the backend logout call
+  // fails the cookie outlives the logout. This marker remembers the user's explicit logout across
+  // reloads and keeps every refresh — the startup restore as well as 401-triggered ones — from
+  // silently resurrecting the session with the leftover cookie; the next successful login lifts
+  // it. Set only on user-initiated logout, never by automatic session cleanup.
+  private static readonly LOGGED_OUT_KEY = 'loggedOut';
+
   private http = inject(HttpClient);
+  private localStorage = inject(LocalStorage);
+
+  constructor() {
+    // The storage event fires only in the tabs that did not perform the write, so this mirrors an
+    // explicit logout from another tab: without it, this tab's in-memory access token would stay
+    // usable until it expires.
+    window.addEventListener('storage', (event) => {
+      if (event.key === AuthService.LOGGED_OUT_KEY && event.newValue) {
+        this.clearLocalSession();
+      }
+    });
+  }
 
   // The access token lives only in memory: it is never written to localStorage, so an XSS payload
-  // cannot exfiltrate it. After a page reload it starts null, so the first protected request 401s
-  // and the refresh interceptor transparently re-acquires it from the refresh cookie.
-  private accessToken: string | null = null;
+  // cannot exfiltrate it. After a page reload it starts null until restoreSession() re-acquires it
+  // from the refresh cookie. A signal, so auth-state-dependent UI reacts to it.
+  private readonly accessToken = signal<string | null>(null);
+
+  readonly isLoggedIn = computed(() => this.accessToken() !== null);
 
   // Holds the in-flight refresh so a burst of simultaneous 401s (e.g. several requests firing
   // after a reload) shares one POST /api/auth/refresh instead of each rotating the cookie. Reset
@@ -56,45 +88,83 @@ export class AuthService {
   // Resolves true on success (token stored) and false on invalid credentials (401) so the form can
   // show an inline error. Other failures propagate.
   async login(credentials: LoginCredentials): Promise<boolean> {
-    return firstValueFrom(
-      this.http.post<LoginResponse>('/api/auth/login', credentials, { withCredentials: true }).pipe(
-        tap((response) => (this.accessToken = response.token)),
-        map(() => true),
-        catchError((error: HttpErrorResponse) => {
-          if (error.status === 401) {
-            return of(false);
-          }
-          throw error;
-        }),
-      ),
-    );
+    try {
+      const response = await firstValueFrom(
+        this.http.post<LoginResponse>('/api/auth/login', credentials, { withCredentials: true }),
+      );
+      this.accessToken.set(response.token);
+      this.localStorage.removeItem(AuthService.LOGGED_OUT_KEY);
+      return true;
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        return false;
+      }
+      throw error;
+    }
   }
 
   getAccessToken(): string | null {
-    return this.accessToken;
+    return this.accessToken();
+  }
+
+  // Called once at startup: the refresh cookie is HttpOnly and invisible to JS, so attempting a
+  // refresh is the only way to learn whether a session survived the reload. Failure is swallowed
+  // and the user simply stays anonymous — typically a 401 because there is no session, or the
+  // logged-out marker blocking the refresh after an explicit logout.
+  restoreSession(): void {
+    this.refresh()
+      .pipe(catchError(() => of(null)))
+      .subscribe();
+  }
+
+  // Automatic cleanup when the server has rejected the session (or a refresh failed): drops only
+  // this tab's in-memory token. Unlike logout(), it sets no logged-out marker — the user did not
+  // ask to leave, so a still-valid session may be silently restored on the next load.
+  clearLocalSession(): void {
+    this.accessToken.set(null);
   }
 
   refresh(): Observable<string> {
+    if (this.localStorage.getItem(AuthService.LOGGED_OUT_KEY)) {
+      return throwError(() => AuthService.loggedOutError());
+    }
     // The refresh token rides along as an HttpOnly cookie; withCredentials lets the browser send it.
     this.refreshInFlight$ ??= this.http
       .post<LoginResponse>('/api/auth/refresh', {}, { withCredentials: true })
       .pipe(
-        map((response) => {
-          this.accessToken = response.token;
-          return response.token;
+        map((response) => response.token),
+        // Re-checked mid-stream: a logout performed while this refresh was in flight (in this tab
+        // or, via the shared marker, in another one) must win. Erroring discards the late token
+        // for every consumer — it is neither stored below nor handed to callers such as the
+        // interceptor's retry.
+        map((token) => {
+          if (this.localStorage.getItem(AuthService.LOGGED_OUT_KEY)) {
+            throw AuthService.loggedOutError();
+          }
+          return token;
         }),
+        tap((token) => this.accessToken.set(token)),
         finalize(() => (this.refreshInFlight$ = null)),
         shareReplay(1),
       );
     return this.refreshInFlight$;
   }
 
-  logout(): void {
-    // Best-effort cookie clear; local state is dropped regardless of the backend result.
-    this.http
-      .post('/api/auth/logout', {}, { withCredentials: true })
-      .pipe(catchError(() => of(null)))
-      .subscribe();
-    this.accessToken = null;
+  private static loggedOutError(): Error {
+    return new Error('Session was ended by an explicit logout');
+  }
+
+  // Local session state is dropped up front regardless of the backend result — the user asked to
+  // leave. Resolves whether the backend confirmed clearing the refresh cookie, so the caller can
+  // warn the user that the session may still be alive on this machine when it did not.
+  async logout(): Promise<boolean> {
+    this.clearLocalSession();
+    this.localStorage.setItem(AuthService.LOGGED_OUT_KEY, true);
+    try {
+      await firstValueFrom(this.http.post('/api/auth/logout', {}, { withCredentials: true }));
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
