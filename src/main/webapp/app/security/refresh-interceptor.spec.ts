@@ -17,11 +17,11 @@ import { AuthService } from './auth.service';
 describe('refreshInterceptor', () => {
   const interceptor: HttpInterceptorFn = (req, next) =>
     TestBed.runInInjectionContext(() => refreshInterceptor(req, next));
-  let authServiceSpy: Mocked<Pick<AuthService, 'refresh' | 'logout' | 'getAccessToken'>>;
+  let authServiceSpy: Mocked<Pick<AuthService, 'refresh' | 'clearLocalSession' | 'getAccessToken'>>;
   let routerSpy: Mocked<Pick<Router, 'navigate'>>;
 
   beforeEach(() => {
-    authServiceSpy = { refresh: vi.fn(), logout: vi.fn(), getAccessToken: vi.fn() };
+    authServiceSpy = { refresh: vi.fn(), clearLocalSession: vi.fn(), getAccessToken: vi.fn() };
     routerSpy = { navigate: vi.fn().mockResolvedValue(true) };
     TestBed.configureTestingModule({
       providers: [
@@ -72,18 +72,18 @@ describe('refreshInterceptor', () => {
     expect((result as HttpResponse<unknown>).status).toBe(200);
   });
 
-  it('logs out, routes to login, and propagates the error when the refresh itself fails', async () => {
+  it('drops the local session, routes to login, and propagates the error when the refresh itself fails', async () => {
     authServiceSpy.refresh.mockReturnValue(throwError(() => new Error('refresh failed')));
     const next: HttpHandlerFn = () => throwError(() => new HttpErrorResponse({ status: 401 }));
 
     await expect(
       firstValueFrom(interceptor(new HttpRequest('GET', '/api/recipes'), next)),
     ).rejects.toBeTruthy();
-    expect(authServiceSpy.logout).toHaveBeenCalledOnce();
+    expect(authServiceSpy.clearLocalSession).toHaveBeenCalledOnce();
     expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['login']);
   });
 
-  it('logs out and routes to login when the retried request also returns 401', async () => {
+  it('drops the local session and routes to login when the retried request also returns 401', async () => {
     authServiceSpy.refresh.mockReturnValue(of('new-access'));
     // next always rejects with 401, including the retry.
     const next: HttpHandlerFn = () => throwError(() => new HttpErrorResponse({ status: 401 }));
@@ -91,7 +91,7 @@ describe('refreshInterceptor', () => {
     await expect(
       firstValueFrom(interceptor(new HttpRequest('GET', '/api/recipes'), next)),
     ).rejects.toBeTruthy();
-    expect(authServiceSpy.logout).toHaveBeenCalledOnce();
+    expect(authServiceSpy.clearLocalSession).toHaveBeenCalledOnce();
     expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['login']);
   });
 

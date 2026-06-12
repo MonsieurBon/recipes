@@ -20,9 +20,12 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const sentToken = req.headers.get('Authorization');
 
+  // Deliberately not authService.logout(): the user did not ask to leave, so no logged-out marker
+  // is set and the cookie is left alone — after a merely transient refresh failure the session is
+  // still valid and may be silently restored on the next load.
   const logoutToLogin = () => {
-    authService.logout();
-    router.navigate(['login']);
+    authService.clearLocalSession();
+    void router.navigate(['login']);
   };
 
   return next(req).pipe(

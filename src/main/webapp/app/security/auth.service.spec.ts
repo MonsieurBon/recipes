@@ -10,6 +10,8 @@ describe('AuthService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
+    localStorage.clear();
+
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
@@ -125,14 +127,173 @@ describe('AuthService', () => {
     await expect(promise).rejects.toBeTruthy();
   });
 
-  it('logout clears the in-memory token and asks the backend to drop the cookie', () => {
-    service.logout();
+  it('refresh fails without a request while an explicit logout is in effect', async () => {
+    // The marker must guard every refresh, not just the startup restore: a 401-triggered refresh
+    // from the interceptor would otherwise resurrect the session a failed logout left alive.
+    const loggedOut = service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null, { status: 500, statusText: 'Server Error' });
+    expect(await loggedOut).toBe(false);
+
+    const promise = firstValueFrom(service.refresh());
+
+    httpMock.expectNone('/api/auth/refresh');
+    await expect(promise).rejects.toBeTruthy();
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('rejects a refresh that was still in flight when the user logged out', async () => {
+    // The marker guard at call time cannot catch this: the refresh request is already on the wire
+    // when the logout happens. The late token must not flip the UI back to logged in, and must
+    // not reach callers either — the interceptor would retry a request with it.
+    const refreshed = firstValueFrom(service.refresh());
+
+    const loggedOut = service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null);
+    expect(await loggedOut).toBe(true);
+
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'too-late', roles: ['USER'] });
+
+    await expect(refreshed).rejects.toBeTruthy();
+    expect(service.getAccessToken()).toBeNull();
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('clearLocalSession drops the token without marking an explicit logout', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await refreshed).toBe('access-1');
+
+    service.clearLocalSession();
+
+    expect(service.getAccessToken()).toBeNull();
+    expect(service.isLoggedIn()).toBe(false);
+    httpMock.expectNone('/api/auth/logout');
+
+    // No marker was set, so the session may still be restored later (e.g. after a transient
+    // refresh failure logged the user out automatically).
+    service.restoreSession();
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'recovered', roles: ['USER'] });
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
+  it('drops the in-memory token when another tab logs out', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await refreshed).toBe('access-1');
+
+    // The storage event only fires in tabs that did not perform the write themselves.
+    window.dispatchEvent(new StorageEvent('storage', { key: 'loggedOut', newValue: 'true' }));
+
+    expect(service.getAccessToken()).toBeNull();
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('keeps the token on storage events for unrelated keys', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await refreshed).toBe('access-1');
+
+    window.dispatchEvent(new StorageEvent('storage', { key: 'somethingElse', newValue: 'true' }));
+
+    expect(service.getAccessToken()).toBe('access-1');
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
+  it('logout clears the in-memory token and resolves true when the backend drops the cookie', async () => {
+    const promise = service.logout();
 
     const req = httpMock.expectOne('/api/auth/logout');
     expect(req.request.method).toBe('POST');
     expect(req.request.withCredentials).toBe(true);
     req.flush(null);
 
+    expect(await promise).toBe(true);
+    expect(service.getAccessToken()).toBeNull();
+  });
+
+  it('exposes a logged-in signal that follows login and logout', async () => {
+    expect(service.isLoggedIn()).toBe(false);
+
+    const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await promise).toBe(true);
+    expect(service.isLoggedIn()).toBe(true);
+
+    service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null);
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('restoreSession restores the session from the refresh cookie', () => {
+    service.restoreSession();
+
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'restored', roles: ['USER'] });
+
+    expect(service.isLoggedIn()).toBe(true);
+    expect(service.getAccessToken()).toBe('restored');
+  });
+
+  it('restoreSession leaves the user anonymous when no session exists', () => {
+    service.restoreSession();
+
+    httpMock
+      .expectOne('/api/auth/refresh')
+      .flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(service.isLoggedIn()).toBe(false);
+    expect(service.getAccessToken()).toBeNull();
+  });
+
+  it('restoreSession does not resurrect a session ended by an explicit logout', () => {
+    // The failed backend call leaves the HttpOnly refresh cookie alive in the browser; the local
+    // logout marker must keep the silent startup restore from logging the user back in with it.
+    service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null, { status: 500, statusText: 'Server Error' });
+
+    service.restoreSession();
+
+    httpMock.expectNone('/api/auth/refresh');
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('a successful login lifts the logout marker so the next restoreSession works again', async () => {
+    service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null);
+
+    const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await promise).toBe(true);
+
+    service.restoreSession();
+
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'restored', roles: ['USER'] });
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
+  it('a rejected login leaves the logout marker in place', async () => {
+    service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null);
+
+    const promise = service.login({ usernameOrEmail: 'alice', password: 'wrong' });
+    httpMock.expectOne('/api/auth/login').flush(null, { status: 401, statusText: 'Unauthorized' });
+    expect(await promise).toBe(false);
+
+    service.restoreSession();
+
+    httpMock.expectNone('/api/auth/refresh');
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
+  it('logout drops the token but resolves false when the backend call fails', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await refreshed).toBe('access-1');
+
+    const promise = service.logout();
+
+    httpMock.expectOne('/api/auth/logout').flush(null, { status: 500, statusText: 'Server Error' });
+
+    expect(await promise).toBe(false);
     expect(service.getAccessToken()).toBeNull();
   });
 });

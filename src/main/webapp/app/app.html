@@ -8,12 +8,18 @@
     <mat-icon>person</mat-icon>
   </button>
   <mat-menu #userMenu="matMenu" class="user-menu">
-    <button mat-menu-item data-test-id="foobar" routerLink="register">
-      <mat-icon>person_add</mat-icon><span>Registrieren</span>
-    </button>
-    <button mat-menu-item data-test-id="login" routerLink="login">
-      <mat-icon>login</mat-icon><span>Login</span>
-    </button>
+    @if (loggedIn()) {
+      <button mat-menu-item data-test-id="logout" (click)="logout()">
+        <mat-icon>logout</mat-icon><span>Logout</span>
+      </button>
+    } @else {
+      <button mat-menu-item data-test-id="register" routerLink="register">
+        <mat-icon>person_add</mat-icon><span>Registrieren</span>
+      </button>
+      <button mat-menu-item data-test-id="login" routerLink="login">
+        <mat-icon>login</mat-icon><span>Login</span>
+      </button>
+    }
   </mat-menu>
   <!--  <button matIconButton data-test-id="profileImage">-->
   <!--    <img class="profile-image" src="assets/images/avatar.png" alt="Profile" />-->
