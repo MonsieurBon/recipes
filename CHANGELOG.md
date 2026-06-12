@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/MonsieurBon/recipes/compare/v2.5.0...v2.6.0) (2026-06-12)
+
+
+### Features
+
+* delay failed-login responses to slow online brute-force ([b1a9977](https://github.com/MonsieurBon/recipes/commit/b1a99773bba3f50943ef1c7b87c26ed501144073)), closes [#189](https://github.com/MonsieurBon/recipes/issues/189)
+
 # [2.5.0](https://github.com/MonsieurBon/recipes/compare/v2.4.0...v2.5.0) (2026-06-11)
 
 
