@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/MonsieurBon/recipes/compare/v2.6.0...v2.7.0) (2026-06-12)
+
+
+### Features
+
+* user-initiated logout with auth-state-aware menu ([2a77b5e](https://github.com/MonsieurBon/recipes/commit/2a77b5e44146335a55dbc8daec5acc3bad201e50)), closes [#179](https://github.com/MonsieurBon/recipes/issues/179)
+
 # [2.6.0](https://github.com/MonsieurBon/recipes/compare/v2.5.0...v2.6.0) (2026-06-12)
 
 
