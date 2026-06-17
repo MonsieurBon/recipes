@@ -40,6 +40,9 @@ public class JWTFilter extends OncePerRequestFilter {
           response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
           return;
         }
+        // The principal authenticates solely via the validated JWT, so its password is never
+        // checked. The {noop} prefix keeps that explicit and degrades gracefully (a non-match,
+        // not a DelegatingPasswordEncoder parse failure) if it ever reaches a password check.
         UserDetails userDetails =
             User.withUsername(tokenData.username())
                 .password("{noop}NONE")

@@ -40,8 +40,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(
     controllers = UserController.class,
     // The production JWTFilter is a Filter bean, so the slice would otherwise auto-register it as a
-    // top-level servlet filter. We exclude it and add our own instance inside the security chain
-    // (mirroring SecurityConfig) so it runs at the right point, after the context-holder filter.
+    // top-level servlet filter. We exclude it and add our own instance inside the security chain so
+    // it runs at the same point as SecurityConfig: before the context-holder filter clears it.
     excludeFilters =
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JWTFilter.class))
 class JwtBearerAuthorizationTest {
@@ -61,6 +61,10 @@ class JwtBearerAuthorizationTest {
     SecurityFilterChain testSecurityFilterChain(
         HttpSecurity http, JwtService jwtService, TokenVersionService tokenVersionService)
         throws Exception {
+      // Only the parts that decide this test's outcome mirror the production SecurityConfig: the
+      // STATELESS policy, disabled anonymous access, the 401 entry point, and the JWTFilter
+      // placement. The URL rules are not under test here, so authenticating every request is
+      // enough to exercise the method-security/role path against the protected endpoint.
       return http.csrf(AbstractHttpConfigurer::disable)
           .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
           .anonymous(AbstractHttpConfigurer::disable)
