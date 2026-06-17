@@ -40,7 +40,11 @@ public class JWTFilter extends OncePerRequestFilter {
           response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
           return;
         }
-        UserDetails userDetails = new User(tokenData.username(), "", tokenData.roles());
+        UserDetails userDetails =
+            User.withUsername(tokenData.username())
+                .password("{noop}NONE")
+                .authorities(tokenData.roles())
+                .build();
         Authentication authentication = new JWTAuthenticationToken(userDetails, token);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
