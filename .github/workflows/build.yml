@@ -38,3 +38,9 @@ jobs:
 
       - name: build backend
         run: mvn -B -DskipTests=true clean install
+
+      # Exercises the same Dockerfile the release builds (semantic-release
+      # publishCmd in package.json). The jar is packaged by a different
+      # maven command there, so this validates the Dockerfile, not that build.
+      - name: build Docker image
+        run: docker build -t recipes:ci .
