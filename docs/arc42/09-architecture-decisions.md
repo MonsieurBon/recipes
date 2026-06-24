@@ -16,7 +16,7 @@
 
 **Context:** Meal suggestions require access to the user's favorites, recent meal history, and seasonal data.
 
-**Decision:** Implement suggestion logic in a server-side `SuggestionService` rather than in the frontend.
+**Decision:** Implement suggestion logic server-side rather than in the frontend.
 
 **Consequences:** The algorithm has direct access to all required data without extra API calls. The logic can be tested with unit tests against the service. The frontend remains a thin presentation layer.
 
@@ -34,8 +34,8 @@
 
 **Status:** Accepted
 
-**Context:** Administrators need to curate the shared recipe/ingredient library and manage user accounts (e.g. promote to admin, disable, delete). The existing `Role` enum already distinguishes `USER` and `ADMIN`.
+**Context:** Administrators need to curate the shared recipe/ingredient library and manage user accounts (e.g. promote to admin, disable, delete). The role model already distinguishes `USER` and `ADMIN`.
 
-**Decision:** Ship the administration UI as an `/admin` area inside the same Angular SPA, backed by dedicated REST endpoints under `/api/admin/**` that require the `ADMIN` role. Admin endpoints delegate to the existing domain services (`UserService`, `RecipeService`, `IngredientService`) rather than introducing parallel data-access code.
+**Decision:** Ship the administration UI as an `/admin` area inside the same Angular SPA, backed by dedicated REST endpoints under `/api/admin/**` that require the `ADMIN` role. Admin endpoints delegate to the existing user, recipe, and ingredient domain services rather than introducing parallel data-access code.
 
-**Consequences:** One deployment, one codebase, one auth mechanism. Role-based access control is enforced in `SecurityConfig` and in an `AdminGuard` on the frontend. Admin operations share validation, mapping, and persistence with the regular endpoints, so behavior stays consistent. The downside is that a compromised admin account has full access through the same UI as normal users -- acceptable for a single-operator deployment.
+**Consequences:** One deployment, one codebase, one auth mechanism. Role-based access control is enforced server-side in the security configuration and by a guard in the frontend router. Admin operations share validation, mapping, and persistence with the regular endpoints, so behavior stays consistent. The downside is that a compromised admin account has full access through the same UI as normal users -- acceptable for a single-operator deployment.
