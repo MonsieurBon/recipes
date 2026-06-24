@@ -60,13 +60,21 @@ A recipe management web application with a Spring Boot (Java) backend and Angula
 - **Angular components**: Use standalone components (no NgModules) and `ChangeDetectionStrategy.OnPush`
 - **Backend DTOs**: Use Jakarta Bean Validation annotations on request DTOs; invalid input yields a 400 with field-level errors
 
-## Environment Variables
+## Configuration
 
-- `DB_HOST` / `DB_PORT` — MySQL connection (defaults: localhost:3306)
-- `DB_PASSWORD` — MySQL app user password
-- `FLYWAY_PASSWORD` — Flyway migration user password
-- `JWT_SECRET` — Base64-encoded HMAC-SHA256 signing key for JWTs (required; minimum 32 bytes / 256 bits, but generate with `openssl rand -base64 48` for headroom)
-- `JWT_ACCESS_TTL` — Access-token lifetime as an ISO-8601 duration (default `PT15M`, maximum `P30D`). The access token is sent on every request and is rejected once expired, missing its `exp` claim, or once its embedded per-user token version no longer matches the user's current version (revocation).
-- `JWT_REFRESH_TTL` — Refresh-token lifetime as an ISO-8601 duration (default `P7D`, maximum `P30D`). The refresh token is delivered as an `HttpOnly` cookie; the client exchanges it at `POST /api/auth/refresh` for a fresh access token (and a rotated refresh cookie). The refresh re-reads the user, so a role change takes effect on the next refresh.
-- `REFRESH_COOKIE_SECURE` — Whether the refresh-token cookie carries the `Secure` attribute (default `true`). The `dev` profile sets it to `false` so the cookie works over plain-HTTP localhost. Keep it `true` behind an SSL-terminating reverse proxy: the browser↔proxy connection is HTTPS, so `Secure` still applies even though the proxy forwards plain HTTP internally.
-- `LOGIN_FAILURE_DELAY` — How long a failed login (bad credentials) is held before its 401 is returned, as an ISO-8601 duration (default `PT1S`, maximum `PT10S`, `PT0S` disables). Slows online brute-force/credential-stuffing; successful logins and validation 400s are unaffected. The wait is asynchronous (the suspended request holds no request thread).
+Runtime config is supplied via environment variables. `src/main/resources/application.yaml`
+is the source of truth; the README lists every variable with its default. Don't re-document
+the full list or defaults here — keep them in one place to avoid drift.
+
+Behavioral facts worth keeping in mind when touching auth (canonical detail in arc42 §8.1):
+
+- **Access token** (`JWT_ACCESS_TTL`): sent on every request; rejected once expired, missing
+  its `exp` claim, or once its embedded per-user **token version** no longer matches the user's
+  current version (this is the revocation mechanism).
+- **Refresh token** (`JWT_REFRESH_TTL`): `HttpOnly` cookie exchanged at `POST /api/auth/refresh`
+  for a fresh access token and a rotated cookie. Refresh **re-reads the user**, so a role change
+  takes effect on the next refresh. Lifetime is rolling (each refresh restarts it).
+- **`REFRESH_COOKIE_SECURE`**: the `dev` profile sets it `false` for plain-HTTP localhost; keep
+  it `true` in production (still applies behind an HTTPS-terminating reverse proxy).
+- **`LOGIN_FAILURE_DELAY`**: failed logins are held before the 401; the wait is asynchronous, so
+  it holds no request thread and can't be turned into a thread-pool exhaustion lever.
