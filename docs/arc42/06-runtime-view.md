@@ -3,14 +3,14 @@
 ## 6.1 User Login
 
 ```
-Browser                  AuthController      AuthService       JwtService          DB
-  |-- POST /api/auth/login -->|                   |                   |             |
-  |                           |-- authenticate -->|                   |             |
-  |                           |                   |--- loadUser ------|------------>|
-  |                           |                   |<--- User ---------|-------------|
-  |                           |                   |-- issue tokens -->|             |
-  |                           |<- access+refresh -|<------------------|             |
-  |<-- 200 { token, roles } + Set-Cookie: refreshToken (HttpOnly) ----|             |
+Browser                 Auth API                 Tokens                  DB
+  |- POST /api/auth/login ---->                       |                   |
+  |                           |- verify credentials -->                   |
+  |                           |                       |- load user ------->
+  |                           |                       <- user ------------|
+  |                           |- issue tokens -------->                   |
+  |                           <- access + refresh ----|                   |
+  |<- 200 { token, roles } + Set-Cookie: refreshToken (HttpOnly)          |
 ```
 
 The access token is returned in the body; the refresh token is delivered out-of-band as an
@@ -20,15 +20,15 @@ missing or blanking either field is rejected with 400 before authentication is a
 ## 6.2 Token Refresh
 
 ```
-Browser                  AuthController      AuthService       JwtService          DB
-  |-- POST /api/auth/refresh ->|                  |                   |             |
-  |   Cookie: refreshToken     |-- refresh ------>|                   |             |
-  |                            |                  |-- parse/verify -->|             |
-  |                            |                  |--- loadUser ------|------------>|
-  |                            |                  |<--- User ---------|-------------|
-  |                            |                  |-- issue tokens -->|             |
-  |                            |<- access+refresh-|<------------------|             |
-  |<-- 200 { token, roles } + Set-Cookie: refreshToken (HttpOnly) ----|             |
+Browser                 Auth API                 Tokens                  DB
+  |- POST /api/auth/refresh -->                       |                   |
+  |  Cookie: refreshToken     |                       |                   |
+  |                           |- parse / verify token >                   |
+  |                           |                       |- load user ------->
+  |                           |                       <- user ------------|
+  |                           |- issue tokens -------->                   |
+  |                           <- access + refresh ----|                   |
+  |<- 200 { token, roles } + Set-Cookie: refreshToken (HttpOnly)          |
 ```
 
 The refresh token arrives as a cookie (not a request body) and a rotated one is set on the
@@ -37,34 +37,33 @@ response. A missing cookie yields 401.
 ## 6.3 Generate Meal Plan Suggestions
 
 ```
-Browser                       MealPlanController    MealPlanService            SuggestionService       DB
-  |-- POST /api/meal-plans/suggest -->|                    |                           |               |
-  |                                   |--- generate ------>|                           |               |
-  |                                   |                    |--- getSlotConfig ---------|-------------->|
-  |                                   |                    |<-- slots -----------------|---------------|
-  |                                   |                    |--- getFavorites ----------|-------------->|
-  |                                   |                    |<-- favorites -------------|---------------|
-  |                                   |                    |--- getRecent -------------|-------------->|
-  |                                   |                    |<-- recent ----------------|---------------|
-  |                                   |                    |--- suggest -------------->|               |
-  |                                   |                    |  (filter by ingredient    |               |
-  |                                   |                    |   seasonality,            |               |
-  |                                   |                    |   exclude recent,         |               |
-  |                                   |                    |   mix favorites + others) |               |
-  |                                   |                    |<-- suggestions -----------|               |
-  |                                   |<-- plan draft -----|                           |               |
-  |<-- 200 { plan } ------------------|                    |                           |               |
+Browser                   Meal-plan API            Plan logic             Suggestions                  DB
+  |- POST /api/meal-plans/suggest >                       |                       |                     |
+  |                               |- generate ------------>                       |                     |
+  |                               |                       |- read slot config -------------------------->
+  |                               |                       <- slots -------------------------------------|
+  |                               |                       |- read favorites ---------------------------->
+  |                               |                       <- favorites ---------------------------------|
+  |                               |                       |- read recent history ----------------------->
+  |                               |                       <- recent ------------------------------------|
+  |                               |                       |- rank candidates ----->                     |
+  |                               |                       | (filter by seasonality,                     |
+  |                               |                       |  exclude recent,      |                     |
+  |                               |                       |  mix favorites + others)                    |
+  |                               |                       <- suggestions ---------|                     |
+  |                               <- plan draft ----------|                       |                     |
+  |<- 200 { plan }                |                       |                       |                     |
 ```
 
 ## 6.4 Adjust Meal Plan
 
 ```
-Browser                              MealPlanController  MealPlanService         DB
-  |--- PATCH /api/meal-plans/{id} --------->|                   |                |
-  |   { replace: [slotId], with: recipeId } |                   |                |
-  |                                         |--- update ------->|                |
-  |                                         |                   |--- save ------>|
-  |                                         |                   |<-- ok ---------|
-  |                                         |<-- updated plan --|                |
-  |<-- 200 { plan } ------------------------|                   |                |
+Browser                         Meal-plan API            Plan logic                DB
+  |- PATCH /api/meal-plans/{id} -------->                       |                   |
+  |  { replace: [slotId], with: recipeId }                      |                   |
+  |                                     |- update -------------->                   |
+  |                                     |                       |- save ------------>
+  |                                     |                       <- ok --------------|
+  |                                     <- updated plan --------|                   |
+  |<- 200 { plan }                      |                       |                   |
 ```

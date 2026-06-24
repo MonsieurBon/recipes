@@ -3,12 +3,12 @@
 ## 8.1 Authentication and Authorization
 
 - Stateless JWT-based authentication
-- `JWTFilter` intercepts every request, validates the token, and sets the Spring Security context
+- Every request is intercepted, its token validated, and the Spring Security context populated before the request reaches application code
 - Public endpoints: `/api/auth/**` and all static resources
 - All other `/api/**` endpoints require a valid JWT
-- Role-based authorization: every endpoint under `/api/admin/**` additionally requires the `ADMIN` role; enforced in `SecurityConfig` and mirrored in the frontend by `AdminGuard`
+- Role-based authorization: every endpoint under `/api/admin/**` additionally requires the `ADMIN` role; enforced server-side in the security configuration and mirrored by a guard in the frontend router
 - The user's role is included as a claim in the JWT so the frontend can render admin navigation without an extra API call
-- The HMAC-SHA256 signing key is supplied via the `JWT_SECRET` environment variable (no default); a `FailureAnalyzer` surfaces missing or undersized keys as a Spring Boot `APPLICATION FAILED TO START` banner at startup
+- The HMAC-SHA256 signing key is supplied via the `JWT_SECRET` environment variable (no default); a startup check surfaces missing or undersized keys as a Spring Boot `APPLICATION FAILED TO START` banner
 - Two token types are issued: a short-lived **access token** sent on every request and a longer-lived **refresh token** the client exchanges for a new pair at `/api/auth/refresh`. Lifetimes come from `JWT_ACCESS_TTL` (default `PT15M`) and `JWT_REFRESH_TTL` (default `P7D`), each an ISO-8601 duration capped at `P30D`
 - The refresh token is delivered as an `HttpOnly`, `SameSite=Strict` cookie scoped to `/api/auth`, so it is never readable by JavaScript; the access token is returned in the response body and held only in memory on the client. `Secure` is on by default (configurable via `REFRESH_COOKIE_SECURE`; off only for local plain-HTTP development). Logout clears the cookie via `/api/auth/logout`
 - The client derives its login state reactively from the presence of the in-memory access token and renders auth-dependent UI (such as the user menu) from it — login/register affordances while anonymous, logout while authenticated, never both. Because the refresh cookie is invisible to JavaScript, a page reload starts without a client-visible session; the app attempts one silent, non-blocking token refresh at startup to restore it, staying anonymous if none exists. A user-initiated logout always drops local session state, propagates immediately to other open tabs, and is remembered locally so no silent refresh — neither the startup restore nor a 401-triggered one — can resurrect a deliberately ended session; the next successful login lifts that marker. Automatic cleanup after a rejected session sets no such marker, since the user did not ask to leave. If the backend cannot confirm clearing the refresh cookie, the user is sent to a page explaining that the session may still be alive on the device, with instructions to clear the site's cookies and a retry option
