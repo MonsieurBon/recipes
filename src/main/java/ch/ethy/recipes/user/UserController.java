@@ -1,6 +1,5 @@
 package ch.ethy.recipes.user;
 
-import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,13 +18,11 @@ public class UserController {
   }
 
   @GetMapping()
-  @RolesAllowed("ADMIN")
   public List<UserDto> getAllUsers() {
     return userService.getAllUsers();
   }
 
   @GetMapping("{id}")
-  @RolesAllowed("ADMIN")
   public UserDto getUser(@PathVariable long id) {
     return userService
         .findUser(id)

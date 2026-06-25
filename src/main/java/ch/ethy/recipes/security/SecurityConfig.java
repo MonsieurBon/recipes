@@ -2,12 +2,12 @@ package ch.ethy.recipes.security;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import ch.ethy.recipes.user.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
   private final AccessDeniedHandler accessDeniedHandler;
   private final AuthenticationEntryPoint authenticationEntryPoint;
@@ -45,7 +44,14 @@ public class SecurityConfig {
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/(!auth)/**").authenticated().anyRequest().permitAll())
+                auth.requestMatchers("/api/auth/**")
+                    .permitAll()
+                    .requestMatchers("/api/admin/**", "/api/users/**")
+                    .hasAuthority(Role.ADMIN.getAuthority())
+                    .requestMatchers("/api/**")
+                    .authenticated()
+                    .anyRequest()
+                    .permitAll())
         .anonymous(AbstractHttpConfigurer::disable)
         .userDetailsService(userDetailsService)
         .exceptionHandling(
