@@ -1,7 +1,6 @@
 package ch.ethy.recipes.security;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,69 +17,57 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * End-to-end test of the access-token authorization path: a real token is minted, presented in the
  * {@code Authorization} header, parsed and validated by the real {@code JWTFilter}, and the
- * resulting authorities are checked against a {@code @RolesAllowed("ADMIN")} endpoint. The
- * role-string encoding crosses the JWT wire format, the filter, and Spring's method security with
- * no other test guarding the full path.
+ * resulting authorities are checked against the production {@link SecurityConfig} rule that gates
+ * {@code /api/users/**} on the {@code ADMIN} role. The role-string encoding crosses the JWT wire
+ * format, the filter, and Spring Security's authorization with no other test minting a real token
+ * over the full path.
  */
-@WebMvcTest(
-    controllers = UserController.class,
-    // The production JWTFilter is a Filter bean, so the slice would otherwise auto-register it as a
-    // top-level servlet filter. We exclude it and add our own instance inside the security chain so
-    // it runs at the same point as SecurityConfig: before the context-holder filter clears it.
-    excludeFilters =
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JWTFilter.class))
+@WebMvcTest(controllers = UserController.class)
+@Import(SecurityConfig.class)
 class JwtBearerAuthorizationTest {
 
   private static final String TEST_ENCODED_KEY =
       "sPYf4F91EbSV6mfc+ZoqZhVuZih8mTiyx1jjPCq8qeuBaCnOlpq8gm3XwFPFo8Sj";
 
+  /**
+   * Supplies the production security collaborators the web slice does not component-scan. {@link
+   * JwtService} is real (with a test key) so tokens are genuinely minted and parsed.
+   */
   @TestConfiguration
-  @EnableMethodSecurity(jsr250Enabled = true)
-  static class SecurityTestConfig {
+  static class SecurityCollaborators {
     @Bean
     JwtService jwtService() {
       return new JwtService(TEST_ENCODED_KEY, Duration.ofMinutes(15), Duration.ofDays(7));
     }
 
     @Bean
-    SecurityFilterChain testSecurityFilterChain(
-        HttpSecurity http, JwtService jwtService, TokenVersionService tokenVersionService)
-        throws Exception {
-      // Only the parts that decide this test's outcome mirror the production SecurityConfig: the
-      // STATELESS policy, disabled anonymous access, the 401 entry point, and the JWTFilter
-      // placement. The URL rules are not under test here, so authenticating every request is
-      // enough to exercise the method-security/role path against the protected endpoint.
-      return http.csrf(AbstractHttpConfigurer::disable)
-          .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-          .anonymous(AbstractHttpConfigurer::disable)
-          .exceptionHandling(
-              eh -> eh.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-          .sessionManagement(sm -> sm.sessionCreationPolicy(STATELESS))
-          .addFilterBefore(
-              new JWTFilter(jwtService, tokenVersionService),
-              UsernamePasswordAuthenticationFilter.class)
-          .build();
+    AccessDeniedHandler accessDeniedHandler() {
+      return new AccessDeniedHandler();
+    }
+
+    @Bean
+    AuthenticationEntryPoint authenticationEntryPoint() {
+      return new AuthenticationEntryPoint();
+    }
+
+    @Bean
+    JWTFilter jwtFilter(JwtService jwtService, TokenVersionService tokenVersionService) {
+      return new JWTFilter(jwtService, tokenVersionService);
     }
   }
 
   @Autowired private MockMvc mockMvc;
   @Autowired private JwtService jwtService;
   @MockitoBean private UserService userService;
+  @MockitoBean private UserDetailsService userDetailsService;
   @MockitoBean private TokenVersionService tokenVersionService;
 
   @BeforeEach
@@ -91,7 +78,7 @@ class JwtBearerAuthorizationTest {
   }
 
   @Test
-  void adminTokenReachesRolesAllowedEndpoint() throws Exception {
+  void adminTokenReachesAdminEndpoint() throws Exception {
     String token = jwtService.generateAccessToken(1L, "alice", Set.of(Role.ADMIN), 0);
 
     mockMvc
@@ -111,5 +98,16 @@ class JwtBearerAuthorizationTest {
   @Test
   void requestWithoutTokenIsUnauthorized() throws Exception {
     mockMvc.perform(get("/api/users/1")).andExpect(status().isUnauthorized());
+  }
+
+  // The list endpoint sits at the bare /api/users path (no trailing segment); guard that the
+  // /api/users/** rule still gates it, so a non-admin cannot enumerate users.
+  @Test
+  void userTokenIsForbiddenFromUserListEndpoint() throws Exception {
+    String token = jwtService.generateAccessToken(1L, "alice", Set.of(Role.USER), 0);
+
+    mockMvc
+        .perform(get("/api/users").header("Authorization", "Bearer " + token))
+        .andExpect(status().isForbidden());
   }
 }
