@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/MonsieurBon/recipes/compare/v2.7.0...v2.8.0) (2026-06-25)
+
+
+### Features
+
+* **security:** centralize API authorization in SecurityConfig ([e747d49](https://github.com/MonsieurBon/recipes/commit/e747d49493fd367c445a6fa30f89cb1e1e0468ce)), closes [#86](https://github.com/MonsieurBon/recipes/issues/86)
+
 # [2.7.0](https://github.com/MonsieurBon/recipes/compare/v2.6.0...v2.7.0) (2026-06-12)
 
 
