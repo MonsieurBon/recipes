@@ -39,7 +39,7 @@ jobs:
       # custom-Mistral workflow can't satisfy this cache and make us skip by mistake.
       - name: Look up cache for this diff
         id: diff-cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: .mistral-pr-agent-marker
           key: mistral-pr-agent-pr-${{ github.event.pull_request.number }}-${{ steps.diff-hash.outputs.hash }}
