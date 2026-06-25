@@ -39,7 +39,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          hash=$(gh pr diff "${{ github.event.pull_request.number }}" | sha256sum | cut -d' ' -f1)
+          set -euo pipefail
+          diff=$(gh pr diff "${{ github.event.pull_request.number }}")
+          hash=$(printf '%s' "$diff" | sha256sum | cut -d' ' -f1)
           echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Look up cache for this diff
@@ -48,10 +50,6 @@ jobs:
         with:
           path: .claude-review-marker
           key: claude-review-pr-${{ github.event.pull_request.number }}-${{ steps.diff-hash.outputs.hash }}
-
-      - name: Mark this diff as reviewed
-        if: steps.diff-cache.outputs.cache-hit != 'true'
-        run: touch .claude-review-marker
 
       - name: Run Claude Code Review
         if: steps.diff-cache.outputs.cache-hit != 'true'
@@ -88,4 +86,10 @@ jobs:
             --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh api:*)"
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
+
+      # Mark the diff reviewed only after a successful review, so a failed run isn't
+      # cached as "done" — it will be retried on the next run of the same diff.
+      - name: Mark this diff as reviewed
+        if: steps.diff-cache.outputs.cache-hit != 'true'
+        run: touch .claude-review-marker
 
