@@ -11,7 +11,14 @@ describe('admin routes', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter(routes),
-        { provide: AuthService, useValue: { isAdmin: signal(true) } },
+        {
+          provide: AuthService,
+          useValue: {
+            isLoggedIn: signal(true),
+            isAdmin: signal(true),
+            whenSessionRestored: () => Promise.resolve(),
+          },
+        },
       ],
     });
   });

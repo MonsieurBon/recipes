@@ -77,6 +77,12 @@ export class AuthService {
   // when the request settles so the next burst starts fresh.
   private refreshInFlight$: Observable<string> | null = null;
 
+  // Resolves once the startup session restore has settled (whether it found a session or not), so
+  // route guards can await it before deciding — a hard navigation straight to a guarded route can
+  // otherwise outrun the restore and judge a legitimate user against the empty pre-restore state.
+  // Starts resolved so awaiting before restoreSession() ran never blocks.
+  private sessionRestored: Promise<void> = Promise.resolve();
+
   // Resolves null on success (the endpoint returns an empty body) and the conflicting fields on a
   // duplicate (409) so the form can flag them. Other failures propagate.
   async register(details: RegistrationDetails): Promise<DuplicateUserError | null> {
@@ -120,9 +126,18 @@ export class AuthService {
   // and the user simply stays anonymous — typically a 401 because there is no session, or the
   // logged-out marker blocking the refresh after an explicit logout.
   restoreSession(): void {
-    this.refresh()
-      .pipe(catchError(() => of(null)))
-      .subscribe();
+    this.sessionRestored = firstValueFrom(
+      this.refresh().pipe(
+        map(() => undefined),
+        catchError(() => of(undefined)),
+      ),
+    );
+  }
+
+  // Awaited by route guards so a deep-link or refresh into a guarded route decides against the
+  // real auth state rather than the empty pre-restore one. Resolves on success or failure alike.
+  whenSessionRestored(): Promise<void> {
+    return this.sessionRestored;
   }
 
   // Automatic cleanup when the server has rejected the session (or a refresh failed): drops only
