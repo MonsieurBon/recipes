@@ -1,6 +1,6 @@
 name: Mistral Review (PR-Agent)
 
-# Experimental — evaluating PR-Agent with Mistral's codestral-latest as a reviewer
+# Experimental — evaluating PR-Agent with Mistral's mistral-large-latest as a reviewer
 # alongside the Claude review. Runs in parallel with mistral-custom-review.yml so
 # their output can be compared; delete the loser once the bake-off concludes.
 #
@@ -50,9 +50,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-          # Route through LiteLLM to Mistral's code-specialized model.
-          config.model: "mistral/codestral-latest"
-          config.fallback_models: '["mistral/codestral-latest"]'
+          # Route through LiteLLM to Mistral's flagship reasoning model.
+          config.model: "mistral/mistral-large-latest"
+          config.fallback_models: '["mistral/mistral-large-latest"]'
           # Mistral models aren't in PR-Agent's built-in token-limit map, so set it explicitly.
           config.custom_model_max_tokens: "128000"
           # Review only — don't rewrite the PR description or push code suggestions, to keep

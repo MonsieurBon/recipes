@@ -1,6 +1,6 @@
 name: Mistral Review (custom)
 
-# Experimental — a self-contained Mistral reviewer (codestral-latest) that depends on
+# Experimental — a self-contained Mistral reviewer (mistral-large-latest) that depends on
 # no third-party action: gh pr diff -> Mistral chat API -> gh pr comment. The API key
 # and write token never leave steps we control. Runs in parallel with
 # mistral-pr-agent-review.yml for comparison; delete the loser once the bake-off ends.
@@ -42,7 +42,7 @@ jobs:
           path: .mistral-custom-marker
           key: mistral-custom-pr-${{ github.event.pull_request.number }}-${{ steps.diff-hash.outputs.hash }}
 
-      - name: Review with Mistral (codestral-latest)
+      - name: Review with Mistral (mistral-large-latest)
         if: steps.diff-cache.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,7 +76,7 @@ jobs:
           request=$(jq -n \
             --arg sys "$system_prompt" \
             --arg user "$user_content" \
-            '{model: "codestral-latest",
+            '{model: "mistral-large-latest",
               temperature: 0.2,
               messages: [
                 {role: "system", content: $sys},
@@ -97,7 +97,7 @@ jobs:
           fi
 
           {
-            echo "## 🤖 Mistral review · codestral-latest"
+            echo "## 🤖 Mistral review · mistral-large-latest"
             echo "<sub>Automated review via the custom workflow (experimental).</sub>"
             echo
             printf '%s\n' "$review"
