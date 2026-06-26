@@ -9,11 +9,12 @@ describe('App', () => {
   let fixture: ComponentFixture<App>;
   let authServiceSpy: Mocked<Pick<AuthService, 'logout'>> & {
     isLoggedIn: WritableSignal<boolean>;
+    isAdmin: WritableSignal<boolean>;
   };
   let navigateSpy: MockInstance;
 
   beforeEach(async () => {
-    authServiceSpy = { isLoggedIn: signal(false), logout: vi.fn() };
+    authServiceSpy = { isLoggedIn: signal(false), isAdmin: signal(false), logout: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [App],
@@ -59,6 +60,25 @@ describe('App', () => {
     expect(menuItem('logout')).toBeTruthy();
     expect(menuItem('register')).toBeNull();
     expect(menuItem('login')).toBeNull();
+  });
+
+  const adminLink = () =>
+    fixture.nativeElement.querySelector('[data-test-id="adminLink"]') as HTMLAnchorElement | null;
+
+  it('hides the admin link from non-admins', () => {
+    authServiceSpy.isAdmin.set(false);
+    fixture.detectChanges();
+
+    expect(adminLink()).toBeNull();
+  });
+
+  it('shows the admin link to admins', () => {
+    authServiceSpy.isAdmin.set(true);
+    fixture.detectChanges();
+
+    const link = adminLink();
+    expect(link).toBeTruthy();
+    expect(link!.getAttribute('href')).toContain('admin');
   });
 
   it('logs out via the user menu and routes to the login page', async () => {

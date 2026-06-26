@@ -3,6 +3,9 @@
   <!--    <mat-icon>menu</mat-icon>-->
   <!--  </button>-->
   <span data-test-id="appTitle">Rezepte</span>
+  @if (isAdmin()) {
+    <a mat-button routerLink="admin" data-test-id="adminLink">Admin</a>
+  }
   <span class="spacer"></span>
   <button matIconButton data-test-id="profileIcon" [matMenuTriggerFor]="userMenu">
     <mat-icon>person</mat-icon>

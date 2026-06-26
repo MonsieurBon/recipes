@@ -85,13 +85,13 @@ src/main/webapp/app/
 |    Suggestion handling                         |
 |    API communication                           |
 |                                                |
-|  admin/ (planned)                              |
+|  admin/                                        |
 |    Admin area layout and navigation            |
-|    User list and edit                          |
-|    Recipe list and edit                        |
-|    Ingredient list and edit                    |
 |    Route guard restricting area to ADMIN role  |
-|    API communication                           |
+|    User list and edit (planned)                |
+|    Recipe list and edit (planned)              |
+|    Ingredient list and edit (planned)          |
+|    API communication (planned)                 |
 |                                                |
 |  utility/                                      |
 |    Browser storage                             |

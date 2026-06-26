@@ -63,7 +63,14 @@ export class AuthService {
   // from the refresh cookie. A signal, so auth-state-dependent UI reacts to it.
   private readonly accessToken = signal<string | null>(null);
 
+  // The user's roles, refreshed from every login and refresh response (the access token holds the
+  // authoritative copy server-side; this is only a UI hint for gating admin-only navigation). Like
+  // the token it lives in memory and starts empty after a reload until restoreSession() runs.
+  private readonly roles = signal<readonly string[]>([]);
+
   readonly isLoggedIn = computed(() => this.accessToken() !== null);
+
+  readonly isAdmin = computed(() => this.roles().includes('ADMIN'));
 
   // Holds the in-flight refresh so a burst of simultaneous 401s (e.g. several requests firing
   // after a reload) shares one POST /api/auth/refresh instead of each rotating the cookie. Reset
@@ -93,6 +100,7 @@ export class AuthService {
         this.http.post<LoginResponse>('/api/auth/login', credentials, { withCredentials: true }),
       );
       this.accessToken.set(response.token);
+      this.roles.set(response.roles);
       this.localStorage.removeItem(AuthService.LOGGED_OUT_KEY);
       return true;
     } catch (error) {
@@ -122,6 +130,7 @@ export class AuthService {
   // ask to leave, so a still-valid session may be silently restored on the next load.
   clearLocalSession(): void {
     this.accessToken.set(null);
+    this.roles.set([]);
   }
 
   refresh(): Observable<string> {
@@ -132,18 +141,21 @@ export class AuthService {
     this.refreshInFlight$ ??= this.http
       .post<LoginResponse>('/api/auth/refresh', {}, { withCredentials: true })
       .pipe(
-        map((response) => response.token),
         // Re-checked mid-stream: a logout performed while this refresh was in flight (in this tab
-        // or, via the shared marker, in another one) must win. Erroring discards the late token
-        // for every consumer — it is neither stored below nor handed to callers such as the
-        // interceptor's retry.
-        map((token) => {
+        // or, via the shared marker, in another one) must win. Erroring discards the late response
+        // for every consumer — neither token nor roles are stored below, and the token is not
+        // handed to callers such as the interceptor's retry.
+        map((response) => {
           if (this.localStorage.getItem(AuthService.LOGGED_OUT_KEY)) {
             throw AuthService.loggedOutError();
           }
-          return token;
+          return response;
         }),
-        tap((token) => this.accessToken.set(token)),
+        tap((response) => {
+          this.accessToken.set(response.token);
+          this.roles.set(response.roles);
+        }),
+        map((response) => response.token),
         finalize(() => (this.refreshInFlight$ = null)),
         shareReplay(1),
       );
