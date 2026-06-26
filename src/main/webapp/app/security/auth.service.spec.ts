@@ -284,6 +284,28 @@ describe('AuthService', () => {
     expect(service.isLoggedIn()).toBe(false);
   });
 
+  it('whenSessionRestored resolves once a successful startup restore settles', async () => {
+    service.restoreSession();
+    const settled = service.whenSessionRestored();
+
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'restored', roles: ['USER'] });
+    await settled;
+
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
+  it('whenSessionRestored resolves (does not reject) when the startup restore fails', async () => {
+    service.restoreSession();
+    const settled = service.whenSessionRestored();
+
+    httpMock
+      .expectOne('/api/auth/refresh')
+      .flush(null, { status: 401, statusText: 'Unauthorized' });
+    await settled;
+
+    expect(service.isLoggedIn()).toBe(false);
+  });
+
   it('is not admin before authenticating', () => {
     expect(service.isAdmin()).toBe(false);
   });

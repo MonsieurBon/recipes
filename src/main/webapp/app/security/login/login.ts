@@ -4,7 +4,7 @@ import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/in
 import { disabled, form, FormField, FormRoot, maxLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -29,6 +29,7 @@ import { AuthService } from '../auth.service';
 })
 export class Login {
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   // Mirrors the backend @Size cap on LoginCredentials so an over-long value can never be submitted,
@@ -76,7 +77,7 @@ export class Login {
           this.loginFailed.set(false);
           const success = await this.authService.login(this.loginModel());
           if (success) {
-            await this.router.navigate(['/']);
+            await this.router.navigateByUrl(this.returnUrl());
           } else {
             this.loginFailed.set(true);
           }
@@ -84,6 +85,21 @@ export class Login {
       },
     },
   );
+
+  // The post-login destination: the URL a guard captured when it bounced an anonymous visitor here
+  // (the returnUrl query param), or the home page otherwise. The value is resolved against the
+  // current origin and only accepted while it stays on it, so a crafted returnUrl — an absolute,
+  // protocol-relative, or backslash-obscured URL — cannot turn the login into an open redirect.
+  private returnUrl(): string {
+    const requested = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (!requested) {
+      return '/';
+    }
+    const resolved = new URL(requested, window.location.origin);
+    return resolved.origin === window.location.origin
+      ? resolved.pathname + resolved.search + resolved.hash
+      : '/';
+  }
 
   constructor() {
     // A rejected-credentials message is form-level state; clear it as soon as the user edits either
