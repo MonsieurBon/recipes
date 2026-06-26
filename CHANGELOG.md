@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/MonsieurBon/recipes/compare/v2.9.0...v2.10.0) (2026-06-26)
+
+
+### Features
+
+* **security:** preserve requested URL through login and await session restore in route guards ([d6f583e](https://github.com/MonsieurBon/recipes/commit/d6f583e4c17651e02b4e0b9800452ac9c449aba6)), closes [#244](https://github.com/MonsieurBon/recipes/issues/244)
+
 # [2.9.0](https://github.com/MonsieurBon/recipes/compare/v2.8.0...v2.9.0) (2026-06-26)
 
 
