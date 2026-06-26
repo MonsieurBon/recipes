@@ -1,6 +1,6 @@
 {
   "name": "recipes",
-  "version": "2.10.0",
+  "version": "2.10.1-SNAPSHOT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
