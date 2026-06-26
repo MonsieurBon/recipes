@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/MonsieurBon/recipes/compare/v2.8.0...v2.9.0) (2026-06-26)
+
+
+### Features
+
+* **admin:** add gated admin area shell with role-aware nav ([9f8f3e4](https://github.com/MonsieurBon/recipes/commit/9f8f3e4f078ec9f3000d28533025f69affe6c1ad)), closes [#87](https://github.com/MonsieurBon/recipes/issues/87)
+
 # [2.8.0](https://github.com/MonsieurBon/recipes/compare/v2.7.0...v2.8.0) (2026-06-25)
 
 
