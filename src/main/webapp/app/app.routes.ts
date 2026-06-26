@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './admin/admin-guard';
+import { AdminShell } from './admin/admin-shell';
+import { AdminUsers } from './admin/users/admin-users';
 import { Login } from './security/login/login';
 import { LogoutFailed } from './security/logout-failed/logout-failed';
 import { Register } from './security/register/register';
@@ -24,5 +27,20 @@ export const routes: Routes = [
     title: 'Rezepte - Registrierung erfolgreich',
     path: 'register/success',
     component: RegisterSuccess,
+  },
+  {
+    title: 'Rezepte - Administration',
+    path: 'admin',
+    component: AdminShell,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', redirectTo: 'users', pathMatch: 'full' },
+      {
+        title: 'Rezepte - Benutzer',
+        path: 'users',
+        component: AdminUsers,
+      },
+      { path: '**', redirectTo: 'users' },
+    ],
   },
 ];

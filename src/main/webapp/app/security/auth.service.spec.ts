@@ -284,6 +284,57 @@ describe('AuthService', () => {
     expect(service.isLoggedIn()).toBe(false);
   });
 
+  it('is not admin before authenticating', () => {
+    expect(service.isAdmin()).toBe(false);
+  });
+
+  it('exposes an admin signal that follows a login carrying the ADMIN role', async () => {
+    const promise = service.login({ usernameOrEmail: 'root', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({ token: 'access-1', roles: ['USER', 'ADMIN'] });
+    expect(await promise).toBe(true);
+
+    expect(service.isAdmin()).toBe(true);
+  });
+
+  it('stays non-admin after a login that carries no ADMIN role', async () => {
+    const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({ token: 'access-1', roles: ['USER'] });
+    expect(await promise).toBe(true);
+
+    expect(service.isAdmin()).toBe(false);
+  });
+
+  it('restores the admin state from the refresh cookie', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'restored', roles: ['ADMIN'] });
+    await refreshed;
+
+    expect(service.isAdmin()).toBe(true);
+  });
+
+  it('drops the admin state when the local session is cleared', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['ADMIN'] });
+    await refreshed;
+    expect(service.isAdmin()).toBe(true);
+
+    service.clearLocalSession();
+
+    expect(service.isAdmin()).toBe(false);
+  });
+
+  it('drops the admin state on logout', async () => {
+    const promise = service.login({ usernameOrEmail: 'root', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({ token: 'access-1', roles: ['ADMIN'] });
+    await promise;
+    expect(service.isAdmin()).toBe(true);
+
+    service.logout();
+    httpMock.expectOne('/api/auth/logout').flush(null);
+
+    expect(service.isAdmin()).toBe(false);
+  });
+
   it('logout drops the token but resolves false when the backend call fails', async () => {
     const refreshed = firstValueFrom(service.refresh());
     httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });
