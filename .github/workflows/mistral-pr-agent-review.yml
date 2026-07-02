@@ -46,7 +46,7 @@ jobs:
 
       - name: Run PR-Agent review
         if: steps.diff-cache.outputs.cache-hit != 'true'
-        uses: the-pr-agent/pr-agent@65715b0187fd2a8ede2a3b2f9952990e9e71121e # v0.38.0
+        uses: the-pr-agent/pr-agent@4263175b521a15b7dbe9caad6a60fe9803817aeb # v0.38.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
