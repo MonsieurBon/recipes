@@ -88,3 +88,7 @@ All configuration is supplied through environment variables. Durations use
 
 Architecture and design decisions are documented using the
 [arc42](https://arc42.org/) template in [`docs/arc42/`](docs/arc42/).
+
+The target UI design (palette, typography, key screens, navigation) lives in
+[`docs/design/design-spec.html`](docs/design/design-spec.html) — a self-contained
+page; open it locally in a browser to view it rendered.
