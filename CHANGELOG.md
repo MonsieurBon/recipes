@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/MonsieurBon/recipes/compare/v2.10.0...v2.11.0) (2026-07-03)
+
+
+### Features
+
+* **admin:** show all users in the admin user list ([#265](https://github.com/MonsieurBon/recipes/issues/265)) ([9cac57a](https://github.com/MonsieurBon/recipes/commit/9cac57a2c1d9777b302dbb3aac58489a8022accf)), closes [#88](https://github.com/MonsieurBon/recipes/issues/88)
+
 # [2.10.0](https://github.com/MonsieurBon/recipes/compare/v2.9.0...v2.10.0) (2026-06-26)
 
 
