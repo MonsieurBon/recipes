@@ -1,9 +1,24 @@
 @use '@angular/material' as mat;
+@use 'assets/icons/material-icons';
+@use 'assets/fonts/roboto';
+@use 'assets/fonts/fraunces';
 
-@import 'assets/icons/material-icons';
-@import 'assets/fonts/roboto';
+h1 {
+  font: var(--mat-sys-headline-medium);
+}
+
+h2 {
+  font: var(--mat-sys-headline-small);
+}
 
 :root {
+  @include mat.card-overrides(
+    (
+      elevated-container-shape: 18px,
+      outlined-container-shape: 18px,
+    )
+  );
+
   .user-menu {
     @include mat.menu-overrides(
       (
