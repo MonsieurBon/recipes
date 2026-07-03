@@ -61,7 +61,10 @@ jobs:
           plugins: 'code-review@claude-code-plugins'
           prompt: |
             Review PR ${{ github.repository }}#${{ github.event.pull_request.number }}
-            by delegating to TWO subagents in parallel via the Task tool. Each
+            by delegating to TWO subagents in parallel via the Task tool. Run
+            them synchronously (`run_in_background: false`) — background
+            subagents die when this CI job ends, so do not end your turn until
+            both subagents have finished and both comments are posted. Each
             subagent is defined in .claude/agents/ and must be invoked with its
             exact name as `subagent_type`:
 
@@ -84,6 +87,7 @@ jobs:
             --model fable
             --max-turns 25
             --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh api:*)"
+            --append-system-prompt "You run in an ephemeral CI job that terminates the moment your turn ends. Never launch background subagents or background shell tasks — run everything synchronously (run_in_background: false) and do not end your turn while any delegated work is still pending."
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 

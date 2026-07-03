@@ -43,8 +43,8 @@ jobs:
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
           # prompt: 'Update the pull request description to include a summary of changes.'
 
-          # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
+          claude_args: >-
+            --append-system-prompt "You run in an ephemeral CI job that terminates the moment your turn ends. Never launch background subagents or background shell tasks — run everything synchronously (run_in_background: false) and do not end your turn while any delegated work is still pending."
 
