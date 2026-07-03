@@ -48,7 +48,7 @@ ch.ethy.recipes
 |    Plan CRUD, persistence                              |
 |    Meal-suggestion logic                               |
 |                                                        |
-|  admin/ (planned)                                      |
+|  admin/                                                |
 |    Admin endpoints (REST: /api/admin/**)               |
 |    ADMIN role required; reuses domain services         |
 |                                                        |
@@ -88,10 +88,11 @@ src/main/webapp/app/
 |  admin/                                        |
 |    Admin area layout and navigation            |
 |    Route guard restricting area to ADMIN role  |
-|    User list and edit (planned)                |
+|    User list                                   |
+|    User edit (planned)                         |
 |    Recipe list and edit (planned)              |
 |    Ingredient list and edit (planned)          |
-|    API communication (planned)                 |
+|    API communication                           |
 |                                                |
 |  utility/                                      |
 |    Browser storage                             |
