@@ -1,0 +1,50 @@
+h1 {
+  margin: 0.5rem 0 0.75rem;
+  font: var(--mat-sys-headline-small);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0.4rem 0 1rem;
+
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+    font: var(--mat-sys-title-large);
+  }
+
+  .identity {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .name {
+    font: var(--mat-sys-title-medium);
+  }
+
+  .email {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-medium);
+  }
+}
+
+mat-action-list [mat-list-item] {
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.row-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .chevron {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}

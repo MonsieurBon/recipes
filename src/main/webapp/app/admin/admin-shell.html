@@ -1,17 +1,28 @@
-<mat-sidenav-container class="admin-shell">
-  <mat-sidenav mode="side" opened>
-    <mat-nav-list>
-      <a
-        mat-list-item
-        routerLink="users"
-        routerLinkActive="active-link"
-        data-test-id="adminNavUsers"
-      >
-        Benutzer
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
-  <mat-sidenav-content class="admin-content">
-    <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+<header class="admin-header">
+  @if (isCompact()) {
+    <button matIconButton aria-label="Zurück" data-test-id="adminBack" (click)="back()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+  }
+  <h1>Administration</h1>
+</header>
+<nav
+  mat-tab-nav-bar
+  [tabPanel]="panel"
+  mat-stretch-tabs="false"
+  aria-label="Administrationsbereiche"
+>
+  <a
+    mat-tab-link
+    routerLink="users"
+    routerLinkActive
+    #usersLink="routerLinkActive"
+    [active]="usersLink.isActive"
+    data-test-id="adminTabUsers"
+  >
+    Benutzer
+  </a>
+</nav>
+<mat-tab-nav-panel #panel class="admin-content">
+  <router-outlet></router-outlet>
+</mat-tab-nav-panel>

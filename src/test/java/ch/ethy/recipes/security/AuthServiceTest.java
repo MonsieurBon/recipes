@@ -76,6 +76,7 @@ class AuthServiceTest {
     User user = new User();
     user.setId(42L);
     user.setUsername("alice");
+    user.setEmail("alice@example.com");
     user.addRole(Role.ADMIN);
     when(userRepository.findByUsernameOrEmail("alice")).thenReturn(Optional.of(user));
     when(jwtService.generateAccessToken(42L, "alice", user.getRoles(), 0)).thenReturn("access-xyz");
@@ -85,6 +86,8 @@ class AuthServiceTest {
 
     assertEquals("access-xyz", response.accessToken());
     assertEquals("refresh-xyz", response.refreshToken());
+    assertEquals("alice", response.username());
+    assertEquals("alice@example.com", response.email());
     assertEquals(user.getRoles(), response.roles());
   }
 
@@ -177,6 +180,8 @@ class AuthServiceTest {
 
     assertEquals("new-access", response.accessToken());
     assertEquals("new-refresh", response.refreshToken());
+    assertEquals("alice", response.username());
+    assertEquals("alice@example.com", response.email());
     assertEquals(user.getRoles(), response.roles());
   }
 
@@ -231,6 +236,7 @@ class AuthServiceTest {
     User user = new User();
     user.setId(id);
     user.setUsername(username);
+    user.setEmail(username + "@example.com");
     user.addRole(Role.ADMIN);
     return user;
   }

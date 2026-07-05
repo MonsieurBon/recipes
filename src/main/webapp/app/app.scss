@@ -1,23 +1,18 @@
-@use '@angular/material' as mat;
-
-:host {
-  mat-toolbar {
-    #profileImage {
-      @include mat.icon-button-overrides(
-        (
-          state-layer-color: white,
-          focus-state-layer-opacity: 1,
-          hover-state-layer-opacity: 1,
-          pressed-state-layer-opacity: 1,
-        )
-      );
-    }
-  }
-}
-
 .wordmark {
   font: var(--mat-sys-title-large);
   font-weight: 600;
+}
+
+// On compact the toolbar blends with the page; from 600px up the design gives it the
+// card color with a hairline, separating it from the content area.
+@media (min-width: 600px) {
+  mat-toolbar {
+    background: light-dark(
+      var(--mat-sys-surface-container-lowest),
+      var(--mat-sys-surface-container)
+    );
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
 }
 
 .content {
@@ -25,17 +20,13 @@
   margin-right: 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
+
+  // Keep the page's end reachable behind the fixed bottom nav.
+  &.has-bottom-nav {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
 }
 
 .spacer {
   flex: 1 1 auto;
-}
-
-.profile-image {
-  position: relative;
-  top: -6px;
-  left: -6px;
-  height: 36px;
-  width: 36px;
-  border-radius: 50%;
 }

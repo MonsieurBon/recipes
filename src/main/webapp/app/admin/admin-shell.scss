@@ -1,7 +1,16 @@
-.admin-shell {
-  min-height: 70vh;
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  h1 {
+    margin: 0;
+    font: var(--mat-sys-title-large);
+    font-weight: 600;
+  }
 }
 
 .admin-content {
-  padding: 1rem;
+  display: block;
+  padding: 1rem 0;
 }

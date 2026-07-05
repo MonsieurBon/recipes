@@ -4,7 +4,7 @@ import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/in
 import { disabled, form, FormField, FormRoot, maxLength, required } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -22,6 +22,7 @@ import { AuthService } from '../auth.service';
     MatLabel,
     MatButton,
     MatProgressSpinner,
+    RouterLink,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

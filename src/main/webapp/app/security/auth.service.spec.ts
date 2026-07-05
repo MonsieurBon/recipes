@@ -357,6 +357,52 @@ describe('AuthService', () => {
     expect(service.isAdmin()).toBe(false);
   });
 
+  it('exposes no user before authenticating', () => {
+    expect(service.currentUser()).toBeNull();
+  });
+
+  it('exposes the user from a login response', async () => {
+    const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({
+      token: 'access-1',
+      username: 'alice',
+      email: 'alice@example.com',
+      roles: ['USER'],
+    });
+    expect(await promise).toBe(true);
+
+    expect(service.currentUser()).toEqual({ username: 'alice', email: 'alice@example.com' });
+  });
+
+  it('restores the user from the refresh cookie', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({
+      token: 'restored',
+      username: 'alice',
+      email: 'alice@example.com',
+      roles: ['USER'],
+    });
+    await refreshed;
+
+    expect(service.currentUser()).toEqual({ username: 'alice', email: 'alice@example.com' });
+  });
+
+  it('drops the user when the local session is cleared', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock.expectOne('/api/auth/refresh').flush({
+      token: 'access-1',
+      username: 'alice',
+      email: 'alice@example.com',
+      roles: ['USER'],
+    });
+    await refreshed;
+    expect(service.currentUser()).not.toBeNull();
+
+    service.clearLocalSession();
+
+    expect(service.currentUser()).toBeNull();
+  });
+
   it('logout drops the token but resolves false when the backend call fails', async () => {
     const refreshed = firstValueFrom(service.refresh());
     httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });

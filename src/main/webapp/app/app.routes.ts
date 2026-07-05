@@ -2,12 +2,20 @@ import { Routes } from '@angular/router';
 import { adminGuard } from './admin/admin-guard';
 import { AdminShell } from './admin/admin-shell';
 import { AdminUsers } from './admin/users/admin-users';
+import { Konto } from './konto/konto';
+import { loggedInGuard } from './security/logged-in-guard';
 import { Login } from './security/login/login';
 import { LogoutFailed } from './security/logout-failed/logout-failed';
 import { Register } from './security/register/register';
 import { RegisterSuccess } from './security/register-success/register-success';
 
 export const routes: Routes = [
+  {
+    title: 'Rezepte - Konto',
+    path: 'konto',
+    component: Konto,
+    canActivate: [loggedInGuard],
+  },
   {
     title: 'Rezepte - Login',
     path: 'login',

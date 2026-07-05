@@ -7,6 +7,21 @@ h1 {
   font: var(--mat-sys-headline-medium);
 }
 
+// The design's small label chip ("User", "Admin", "Saison", …): green by default,
+// saffron for the .amber variant.
+.tag {
+  font: var(--mat-sys-label-small);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+
+  &.amber {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+}
+
 h2 {
   font: var(--mat-sys-headline-small);
 }

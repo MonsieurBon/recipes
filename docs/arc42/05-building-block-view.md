@@ -64,11 +64,23 @@ ch.ethy.recipes
 ```
 src/main/webapp/app/
 +------------------------------------------------+
+|  Application shell                             |
+|    Toolbar: signed-out (wordmark + login),     |
+|    compact signed-in (wordmark only), larger   |
+|    viewports (account menu)                    |
+|    Bottom navigation with one tab per          |
+|    top-level section (signed-in, compact only) |
+|                                                |
+|  konto/                                        |
+|    Account page: profile header, admin entry,  |
+|    logout (compact home of the account menu)   |
+|                                                |
 |  security/                                     |
 |    Login form                                  |
 |    Registration form and success view          |
 |    Token management                            |
 |    JWT attachment on outgoing requests         |
+|    Route guards for signed-in-only routes      |
 |                                                |
 |  recipe/ (planned)                             |
 |    Recipe list (search and filter)             |
@@ -86,9 +98,10 @@ src/main/webapp/app/
 |    API communication                           |
 |                                                |
 |  admin/                                        |
-|    Admin area layout and navigation            |
+|    Admin area: secondary tab navigation, back  |
+|    arrow to the entry point                    |
 |    Route guard restricting area to ADMIN role  |
-|    User list                                   |
+|    User list (table; stacked rows on compact)  |
 |    User edit (planned)                         |
 |    Recipe list and edit (planned)              |
 |    Ingredient list and edit (planned)          |
@@ -96,5 +109,6 @@ src/main/webapp/app/
 |                                                |
 |  utility/                                      |
 |    Browser storage                             |
+|    Viewport observation (compact detection)    |
 +------------------------------------------------+
 ```

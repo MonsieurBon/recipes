@@ -3,6 +3,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { provideRouter, Router } from '@angular/router';
 import { Mocked, MockInstance } from 'vitest';
 import { AuthService } from './security/auth.service';
+import { LayoutService } from './utility/layout.service';
 import { App } from './app';
 
 describe('App', () => {
@@ -11,14 +12,20 @@ describe('App', () => {
     isLoggedIn: WritableSignal<boolean>;
     isAdmin: WritableSignal<boolean>;
   };
+  let isCompact: WritableSignal<boolean>;
   let navigateSpy: MockInstance;
 
   beforeEach(async () => {
     authServiceSpy = { isLoggedIn: signal(false), isAdmin: signal(false), logout: vi.fn() };
+    isCompact = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: LayoutService, useValue: { isCompact } },
+      ],
     }).compileComponents();
 
     navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -27,66 +34,99 @@ describe('App', () => {
     await fixture.whenStable();
   });
 
-  const openUserMenu = async () => {
-    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '[data-test-id="profileIcon"]',
-    );
-    trigger.click();
+  const query = (testId: string) =>
+    fixture.nativeElement.querySelector(`[data-test-id="${testId}"]`) as HTMLElement | null;
+
+  const openAccountMenu = async () => {
+    query('accountMenuTrigger')!.click();
     await fixture.whenStable();
   };
 
   // Menu items render in the CDK overlay, outside the component's own DOM.
   const menuItem = (testId: string) =>
-    document.querySelector<HTMLButtonElement>(`[data-test-id="${testId}"]`);
+    document.querySelector<HTMLElement>(`[data-test-id="${testId}"]`);
 
   it('should render the navbar', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled).toBeTruthy();
   });
 
-  it('offers register and login but no logout while logged out', async () => {
-    await openUserMenu();
-
-    expect(menuItem('register')).toBeTruthy();
-    expect(menuItem('login')).toBeTruthy();
-    expect(menuItem('logout')).toBeNull();
+  it('offers only a login action while signed out', () => {
+    const loginAction = query('loginAction');
+    expect(loginAction).toBeTruthy();
+    expect(loginAction!.getAttribute('href')).toContain('login');
+    expect(query('accountMenuTrigger')).toBeNull();
   });
 
-  it('offers logout but neither register nor login while logged in', async () => {
+  it('keeps the top-right corner empty for a signed-in user on a compact viewport', async () => {
     authServiceSpy.isLoggedIn.set(true);
+    isCompact.set(true);
+    await fixture.whenStable();
 
-    await openUserMenu();
-
-    expect(menuItem('logout')).toBeTruthy();
-    expect(menuItem('register')).toBeNull();
-    expect(menuItem('login')).toBeNull();
+    expect(query('loginAction')).toBeNull();
+    expect(query('accountMenuTrigger')).toBeNull();
   });
 
-  const adminLink = () =>
-    fixture.nativeElement.querySelector('[data-test-id="adminLink"]') as HTMLAnchorElement | null;
+  it('shows the account menu for a signed-in user on larger viewports', async () => {
+    authServiceSpy.isLoggedIn.set(true);
+    await fixture.whenStable();
 
-  it('hides the admin link from non-admins', () => {
-    authServiceSpy.isAdmin.set(false);
-    fixture.detectChanges();
-
-    expect(adminLink()).toBeNull();
+    expect(query('loginAction')).toBeNull();
+    expect(query('accountMenuTrigger')).toBeTruthy();
   });
 
-  it('shows the admin link to admins', () => {
+  it('hides the administration entry from non-admins', async () => {
+    authServiceSpy.isLoggedIn.set(true);
+    await fixture.whenStable();
+    await openAccountMenu();
+
+    expect(menuItem('accountMenuLogout')).toBeTruthy();
+    expect(menuItem('accountMenuAdmin')).toBeNull();
+  });
+
+  it('offers the administration entry to admins', async () => {
+    authServiceSpy.isLoggedIn.set(true);
     authServiceSpy.isAdmin.set(true);
-    fixture.detectChanges();
+    await fixture.whenStable();
+    await openAccountMenu();
 
-    const link = adminLink();
-    expect(link).toBeTruthy();
-    expect(link!.getAttribute('href')).toContain('admin');
+    const adminEntry = menuItem('accountMenuAdmin');
+    expect(adminEntry).toBeTruthy();
+    expect(adminEntry!.getAttribute('href')).toContain('admin');
   });
 
-  it('logs out via the user menu and routes to the login page', async () => {
+  const bottomNav = () => fixture.nativeElement.querySelector('app-bottom-nav');
+
+  it('shows the bottom nav to a signed-in user on a compact viewport', async () => {
+    authServiceSpy.isLoggedIn.set(true);
+    isCompact.set(true);
+    await fixture.whenStable();
+
+    expect(bottomNav()).toBeTruthy();
+  });
+
+  it('hides the bottom nav while signed out', async () => {
+    isCompact.set(true);
+    await fixture.whenStable();
+
+    expect(bottomNav()).toBeNull();
+  });
+
+  it('hides the bottom nav on larger viewports', async () => {
+    authServiceSpy.isLoggedIn.set(true);
+    isCompact.set(false);
+    await fixture.whenStable();
+
+    expect(bottomNav()).toBeNull();
+  });
+
+  it('logs out via the account menu and routes to the login page', async () => {
     authServiceSpy.logout.mockResolvedValue(true);
     authServiceSpy.isLoggedIn.set(true);
-    await openUserMenu();
+    await fixture.whenStable();
+    await openAccountMenu();
 
-    menuItem('logout')!.click();
+    menuItem('accountMenuLogout')!.click();
     await fixture.whenStable();
 
     expect(authServiceSpy.logout).toHaveBeenCalledOnce();
@@ -96,9 +136,10 @@ describe('App', () => {
   it('routes to the logout-failed page when the backend cannot confirm the logout', async () => {
     authServiceSpy.logout.mockResolvedValue(false);
     authServiceSpy.isLoggedIn.set(true);
-    await openUserMenu();
+    await fixture.whenStable();
+    await openAccountMenu();
 
-    menuItem('logout')!.click();
+    menuItem('accountMenuLogout')!.click();
     await fixture.whenStable();
 
     expect(navigateSpy).toHaveBeenCalledExactlyOnceWith(['logout-failed']);

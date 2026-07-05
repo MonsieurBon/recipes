@@ -64,7 +64,8 @@ class AuthControllerTest {
     when(authService.login(any()))
         .thenReturn(
             CompletableFuture.completedFuture(
-                new AuthTokens("access-1", "refresh-1", Set.of(Role.USER))));
+                new AuthTokens(
+                    "access-1", "refresh-1", "alice", "alice@example.com", Set.of(Role.USER))));
 
     MvcResult suspended =
         mockMvc
@@ -80,6 +81,8 @@ class AuthControllerTest {
             .perform(asyncDispatch(suspended))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").value("access-1"))
+            .andExpect(jsonPath("$.username").value("alice"))
+            .andExpect(jsonPath("$.email").value("alice@example.com"))
             .andReturn();
 
     String setCookie = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
@@ -151,7 +154,8 @@ class AuthControllerTest {
     when(authService.login(any()))
         .thenReturn(
             CompletableFuture.completedFuture(
-                new AuthTokens("access-1", "refresh-1", Set.of(Role.USER))));
+                new AuthTokens(
+                    "access-1", "refresh-1", "alice", "alice@example.com", Set.of(Role.USER))));
     String maxLength = "a".repeat(256); // exactly the @Size(max) cap — must pass, not 400
 
     MvcResult suspended =
@@ -283,13 +287,17 @@ class AuthControllerTest {
   @Test
   void refreshWithACookieRotatesItAndReturnsTheAccessToken() throws Exception {
     when(authService.refresh("old-refresh"))
-        .thenReturn(new AuthTokens("access-2", "refresh-2", Set.of(Role.USER)));
+        .thenReturn(
+            new AuthTokens(
+                "access-2", "refresh-2", "alice", "alice@example.com", Set.of(Role.USER)));
 
     MvcResult result =
         mockMvc
             .perform(post("/api/auth/refresh").cookie(new Cookie("refreshToken", "old-refresh")))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").value("access-2"))
+            .andExpect(jsonPath("$.username").value("alice"))
+            .andExpect(jsonPath("$.email").value("alice@example.com"))
             .andReturn();
 
     String setCookie = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);

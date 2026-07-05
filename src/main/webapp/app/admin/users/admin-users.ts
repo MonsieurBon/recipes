@@ -1,3 +1,4 @@
+import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -12,6 +13,7 @@ import {
   MatRowDef,
   MatTable,
 } from '@angular/material/table';
+import { LayoutService } from '../../utility/layout.service';
 import { AdminService } from '../admin.service';
 
 @Component({
@@ -27,6 +29,8 @@ import { AdminService } from '../admin.service';
     MatRow,
     MatRowDef,
     MatTable,
+    TitleCasePipe,
+    UpperCasePipe,
   ],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.scss',
@@ -34,7 +38,9 @@ import { AdminService } from '../admin.service';
 })
 export class AdminUsers {
   private adminService = inject(AdminService);
+  private layoutService = inject(LayoutService);
 
+  protected readonly isCompact = this.layoutService.isCompact;
   protected readonly users = toSignal(this.adminService.getUsers(), { initialValue: [] });
   protected readonly columns = ['username', 'email', 'roles'];
 }
