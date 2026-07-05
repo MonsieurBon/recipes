@@ -104,7 +104,7 @@ public class AuthService {
         jwtService.generateAccessToken(
             user.getId(), user.getUsername(), roles, user.getTokenVersion());
     String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getUsername());
-    return new AuthTokens(accessToken, refreshToken, roles);
+    return new AuthTokens(accessToken, refreshToken, user.getUsername(), user.getEmail(), roles);
   }
 
   public void register(RegistrationDetails registrationDetails) {

@@ -10,7 +10,7 @@ Browser                 Auth API                 Tokens                  DB
   |                           |                       <- user ------------|
   |                           |- issue tokens -------->                   |
   |                           <- access + refresh ----|                   |
-  |<- 200 { token, roles } + Set-Cookie: refreshToken (HttpOnly)          |
+  |<- 200 { token, username, email, roles } + Set-Cookie: refreshToken    |
 ```
 
 The access token is returned in the body; the refresh token is delivered out-of-band as an
@@ -28,7 +28,7 @@ Browser                 Auth API                 Tokens                  DB
   |                           |                       <- user ------------|
   |                           |- issue tokens -------->                   |
   |                           <- access + refresh ----|                   |
-  |<- 200 { token, roles } + Set-Cookie: refreshToken (HttpOnly)          |
+  |<- 200 { token, username, email, roles } + Set-Cookie: refreshToken    |
 ```
 
 The refresh token arrives as a cookie (not a request body) and a rotated one is set on the

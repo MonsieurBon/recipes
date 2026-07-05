@@ -89,6 +89,7 @@ public class AuthController {
   private LoginResponse respondWithTokens(AuthTokens tokens, HttpServletResponse response) {
     response.addHeader(
         HttpHeaders.SET_COOKIE, refreshTokenCookieFactory.issue(tokens.refreshToken()).toString());
-    return new LoginResponse(tokens.accessToken(), tokens.roles());
+    return new LoginResponse(
+        tokens.accessToken(), tokens.username(), tokens.email(), tokens.roles());
   }
 }

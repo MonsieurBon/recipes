@@ -40,5 +40,9 @@
         <button mat-flat-button type="submit" [disabled]="loginForm().submitting()">Login</button>
       </div>
     </form>
+    <p class="register-hint">
+      Noch kein Konto?
+      <a routerLink="/register" data-test-id="registerLink">Registrieren</a>
+    </p>
   </mat-card-content>
 </mat-card>

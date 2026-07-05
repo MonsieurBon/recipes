@@ -1,0 +1,24 @@
+<h1>Konto</h1>
+<header class="profile-header">
+  <span class="avatar" aria-hidden="true" data-test-id="kontoAvatar">{{ initial() }}</span>
+  <div class="identity">
+    <span class="name" data-test-id="kontoUsername">{{ user()?.username }}</span>
+    <span class="email" data-test-id="kontoEmail">{{ user()?.email }}</span>
+  </div>
+</header>
+<mat-action-list>
+  @if (isAdmin()) {
+    <a mat-list-item routerLink="/admin" data-test-id="kontoAdminEntry">
+      <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+      <span matListItemTitle>Administration</span>
+      <span matListItemMeta class="row-meta">
+        <span class="tag amber" data-test-id="kontoAdminBadge">Admin</span>
+        <mat-icon class="chevron">chevron_right</mat-icon>
+      </span>
+    </a>
+  }
+  <button mat-list-item data-test-id="kontoLogout" (click)="logout()">
+    <mat-icon matListItemIcon>logout</mat-icon>
+    <span matListItemTitle>Abmelden</span>
+  </button>
+</mat-action-list>

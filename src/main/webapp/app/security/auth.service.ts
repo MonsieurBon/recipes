@@ -30,7 +30,14 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   token: string;
+  username: string;
+  email: string;
   roles: string[];
+}
+
+export interface CurrentUser {
+  username: string;
+  email: string;
 }
 
 @Injectable({
@@ -67,6 +74,12 @@ export class AuthService {
   // authoritative copy server-side; this is only a UI hint for gating admin-only navigation). Like
   // the token it lives in memory and starts empty after a reload until restoreSession() runs.
   private readonly roles = signal<readonly string[]>([]);
+
+  // The signed-in user's identity for display (e.g. the account page's profile header). Like roles
+  // it is a UI hint from the login/refresh response, held in memory only.
+  private readonly user = signal<CurrentUser | null>(null);
+
+  readonly currentUser = this.user.asReadonly();
 
   readonly isLoggedIn = computed(() => this.accessToken() !== null);
 
@@ -107,6 +120,7 @@ export class AuthService {
       );
       this.accessToken.set(response.token);
       this.roles.set(response.roles);
+      this.user.set({ username: response.username, email: response.email });
       this.localStorage.removeItem(AuthService.LOGGED_OUT_KEY);
       return true;
     } catch (error) {
@@ -146,6 +160,7 @@ export class AuthService {
   clearLocalSession(): void {
     this.accessToken.set(null);
     this.roles.set([]);
+    this.user.set(null);
   }
 
   refresh(): Observable<string> {
@@ -169,6 +184,7 @@ export class AuthService {
         tap((response) => {
           this.accessToken.set(response.token);
           this.roles.set(response.roles);
+          this.user.set({ username: response.username, email: response.email });
         }),
         map((response) => response.token),
         finalize(() => (this.refreshInFlight$ = null)),

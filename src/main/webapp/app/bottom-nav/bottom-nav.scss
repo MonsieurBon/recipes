@@ -1,0 +1,47 @@
+:host {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 2;
+  // The design's card color: lighter than the page in both schemes (white in light, one
+  // container step up in dark) — the M3 tokens for that differ per scheme.
+  background: light-dark(
+    var(--mat-sys-surface-container-lowest),
+    var(--mat-sys-surface-container)
+  );
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+nav {
+  display: flex;
+  padding: 0.55rem 0 0.8rem;
+}
+
+a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-small);
+
+  .indicator {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 28px;
+    border-radius: 999px;
+  }
+
+  &.active {
+    color: var(--mat-sys-on-surface);
+    font-weight: 600;
+
+    .indicator {
+      background: var(--mat-sys-secondary-container);
+      color: var(--mat-sys-on-secondary-container);
+    }
+  }
+}

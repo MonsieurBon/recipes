@@ -1,17 +1,39 @@
-<h1>Benutzer</h1>
-<table mat-table [dataSource]="users()">
-  <ng-container matColumnDef="username">
-    <th mat-header-cell *matHeaderCellDef>Benutzername</th>
-    <td mat-cell *matCellDef="let user">{{ user.username }}</td>
-  </ng-container>
-  <ng-container matColumnDef="email">
-    <th mat-header-cell *matHeaderCellDef>E-Mail</th>
-    <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-  </ng-container>
-  <ng-container matColumnDef="roles">
-    <th mat-header-cell *matHeaderCellDef>Rollen</th>
-    <td mat-cell *matCellDef="let user">{{ user.roles.join(', ') }}</td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
+@if (isCompact()) {
+  <ul class="user-rows" data-test-id="userRows">
+    @for (user of users(); track user.id) {
+      <li>
+        <span class="avatar" aria-hidden="true">{{ user.username.charAt(0) | uppercase }}</span>
+        <span class="who">
+          <span class="name">{{ user.username }}</span>
+          <span class="email">{{ user.email }}</span>
+        </span>
+        @for (role of user.roles; track role) {
+          <span class="tag" [class.amber]="role === 'ADMIN'">{{ role | titlecase }}</span>
+        }
+      </li>
+    }
+  </ul>
+} @else {
+  <table mat-table [dataSource]="users()">
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef>Benutzername</th>
+      <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+    </ng-container>
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>E-Mail</th>
+      <td mat-cell *matCellDef="let user" class="cell-mail">{{ user.email }}</td>
+    </ng-container>
+    <ng-container matColumnDef="roles">
+      <th mat-header-cell *matHeaderCellDef>Rollen</th>
+      <td mat-cell *matCellDef="let user">
+        <span class="tags">
+          @for (role of user.roles; track role) {
+            <span class="tag" [class.amber]="role === 'ADMIN'">{{ role | titlecase }}</span>
+          }
+        </span>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+}

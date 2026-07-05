@@ -1,33 +1,32 @@
 <mat-toolbar>
-  <!--  <button matIconButton data-test-id="menuToggle" aria-label="menu toggle">-->
-  <!--    <mat-icon>menu</mat-icon>-->
-  <!--  </button>-->
   <span class="wordmark" data-test-id="appTitle">Rezepte</span>
-  @if (isAdmin()) {
-    <a mat-button routerLink="admin" data-test-id="adminLink">Admin</a>
-  }
   <span class="spacer"></span>
-  <button matIconButton data-test-id="profileIcon" [matMenuTriggerFor]="userMenu">
-    <mat-icon>person</mat-icon>
-  </button>
-  <mat-menu #userMenu="matMenu" class="user-menu">
-    @if (loggedIn()) {
-      <button mat-menu-item data-test-id="logout" (click)="logout()">
-        <mat-icon>logout</mat-icon><span>Logout</span>
+  @if (!loggedIn()) {
+    <a mat-button routerLink="login" data-test-id="loginAction">Login</a>
+  } @else if (!isCompact()) {
+    <button
+      matIconButton
+      data-test-id="accountMenuTrigger"
+      aria-label="Konto"
+      [matMenuTriggerFor]="accountMenu"
+    >
+      <mat-icon>person</mat-icon>
+    </button>
+    <mat-menu #accountMenu="matMenu" class="user-menu">
+      @if (isAdmin()) {
+        <a mat-menu-item routerLink="/admin" data-test-id="accountMenuAdmin">
+          <mat-icon>admin_panel_settings</mat-icon><span>Administration</span>
+        </a>
+      }
+      <button mat-menu-item data-test-id="accountMenuLogout" (click)="logout()">
+        <mat-icon>logout</mat-icon><span>Abmelden</span>
       </button>
-    } @else {
-      <button mat-menu-item data-test-id="register" routerLink="register">
-        <mat-icon>person_add</mat-icon><span>Registrieren</span>
-      </button>
-      <button mat-menu-item data-test-id="login" routerLink="login">
-        <mat-icon>login</mat-icon><span>Login</span>
-      </button>
-    }
-  </mat-menu>
-  <!--  <button matIconButton data-test-id="profileImage">-->
-  <!--    <img class="profile-image" src="assets/images/avatar.png" alt="Profile" />-->
-  <!--  </button>-->
+    </mat-menu>
+  }
 </mat-toolbar>
-<div class="content">
+<div class="content" [class.has-bottom-nav]="showBottomNav()">
   <router-outlet></router-outlet>
 </div>
+@if (showBottomNav()) {
+  <app-bottom-nav />
+}

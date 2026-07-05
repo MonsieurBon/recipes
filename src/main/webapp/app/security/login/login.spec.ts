@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Mocked } from 'vitest';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Mocked, MockInstance } from 'vitest';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 import { Login } from './login';
@@ -9,25 +9,26 @@ describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
   let authServiceSpy: Mocked<Pick<AuthService, 'login'>>;
-  let routerSpy: Mocked<Pick<Router, 'navigateByUrl'>>;
+  let navigateByUrlSpy: MockInstance;
   let returnUrl: string | null;
 
   beforeEach(async () => {
     authServiceSpy = { login: vi.fn() };
-    routerSpy = { navigateByUrl: vi.fn().mockResolvedValue(true) };
     returnUrl = null;
 
     await TestBed.configureTestingModule({
       imports: [Login],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { queryParamMap: { get: () => returnUrl } } },
         },
       ],
     }).compileComponents();
+
+    navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(Login);
     component = fixture.componentInstance;
@@ -89,7 +90,7 @@ describe('Login', () => {
     fixture.detectChanges();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({ usernameOrEmail: 'alice', password: 'pw' });
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledExactlyOnceWith('/');
+    expect(navigateByUrlSpy).toHaveBeenCalledExactlyOnceWith('/');
     expect(fixture.nativeElement.querySelector('[data-test-id="loginError"]')).toBeNull();
   });
 
@@ -104,7 +105,7 @@ describe('Login', () => {
     fixture.nativeElement.querySelector('button[type="submit"]').click();
     await new Promise((r) => setTimeout(r));
 
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledExactlyOnceWith('/admin/users');
+    expect(navigateByUrlSpy).toHaveBeenCalledExactlyOnceWith('/admin/users');
   });
 
   it.each([
@@ -122,7 +123,16 @@ describe('Login', () => {
     fixture.nativeElement.querySelector('button[type="submit"]').click();
     await new Promise((r) => setTimeout(r));
 
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledExactlyOnceWith('/');
+    expect(navigateByUrlSpy).toHaveBeenCalledExactlyOnceWith('/');
+  });
+
+  it('links to the registration page', () => {
+    const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector(
+      '[data-test-id="registerLink"]',
+    );
+
+    expect(link).toBeTruthy();
+    expect(link!.getAttribute('href')).toContain('register');
   });
 
   it('should show an error message when credentials are rejected', async () => {
@@ -140,7 +150,7 @@ describe('Login', () => {
     const error = fixture.nativeElement.querySelector('[data-test-id="loginError"]');
     expect(error).toBeTruthy();
     expect(error.textContent).toContain('Ungültige Anmeldedaten');
-    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    expect(navigateByUrlSpy).not.toHaveBeenCalled();
   });
 
   it('should hide the rejected-credentials error once the user edits a field', async () => {
