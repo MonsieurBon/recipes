@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/MonsieurBon/recipes/compare/v2.11.0...v2.12.0) (2026-07-05)
+
+
+### Features
+
+* **ui:** re-theme to the Kräutergrün design ([#273](https://github.com/MonsieurBon/recipes/issues/273)) ([b852034](https://github.com/MonsieurBon/recipes/commit/b852034ef6805b24f451424b13ce8b315c83f35a)), closes [#2F6136](https://github.com/MonsieurBon/recipes/issues/2F6136) [#268](https://github.com/MonsieurBon/recipes/issues/268)
+
 # [2.11.0](https://github.com/MonsieurBon/recipes/compare/v2.10.0...v2.11.0) (2026-07-03)
 
 
