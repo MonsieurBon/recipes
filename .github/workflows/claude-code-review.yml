@@ -95,9 +95,39 @@ jobs:
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
-      # Mark the diff reviewed only after a successful review, so a failed run isn't
-      # cached as "done" — it will be retried on the next run of the same diff.
-      - name: Mark this diff as reviewed
+      # The action exits 0 even when the model turn ends in an error, so an
+      # errored review would otherwise leave a green check with no review
+      # posted. Read the execution output and fail the job on an errored run,
+      # echoing the result frame so the cause is visible in the log.
+      - name: Verify the review succeeded
+        id: verify
         if: steps.diff-cache.outputs.cache-hit != 'true'
+        env:
+          EXECUTION_FILE: ${{ steps.claude-review.outputs.execution_file }}
+        run: |
+          set -euo pipefail
+          if [ -z "${EXECUTION_FILE:-}" ] || [ ! -f "$EXECUTION_FILE" ]; then
+            echo "::error::Claude review produced no execution output; treating as a failed review."
+            exit 1
+          fi
+          result=$(jq -c '[.[] | select(.type == "result")] | last' "$EXECUTION_FILE")
+          if [ -z "$result" ] || [ "$result" = "null" ]; then
+            echo "::error::Claude review output has no result frame; treating as a failed review."
+            exit 1
+          fi
+          is_error=$(printf '%s' "$result" | jq -r '.is_error')
+          if [ "$is_error" != "false" ]; then
+            echo "::error::Claude review ended in an error (is_error=$is_error); no review was posted."
+            echo "Result frame:"
+            printf '%s\n' "$result" | jq .
+            exit 1
+          fi
+          echo "Claude review completed successfully."
+
+      # Mark the diff reviewed only after a verified-successful review, so a
+      # failed run isn't cached as "done" — it will be retried on the next run
+      # of the same diff.
+      - name: Mark this diff as reviewed
+        if: steps.diff-cache.outputs.cache-hit != 'true' && steps.verify.outcome == 'success'
         run: touch .claude-review-marker
 
