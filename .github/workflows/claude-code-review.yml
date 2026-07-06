@@ -2,7 +2,7 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
+    types: [ opened, synchronize, ready_for_review, reopened ]
     # Optional: Only run on specific file changes
     # paths:
     #   - "src/**/*.ts"
@@ -51,83 +51,78 @@ jobs:
           path: .claude-review-marker
           key: claude-review-pr-${{ github.event.pull_request.number }}-${{ steps.diff-hash.outputs.hash }}
 
-      - name: Run Claude Code Review
+      # Security review on Fable. continue-on-error keeps the job going even if
+      # this pass fails; whether it succeeded is decided from the execution
+      # output in the assess step below. A failed security pass is a warning,
+      # not a job failure.
+      - name: Run security review (Fable)
+        id: review-security
         if: steps.diff-cache.outputs.cache-hit != 'true'
-        id: claude-review
-        uses: anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a # v1.0.165
+        continue-on-error: true
+        uses: ./.github/actions/claude-review
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
-          plugins: 'code-review@claude-code-plugins'
-          # Print the SDK output so a failed run's error is visible in the job
-          # log. The default hides it, which leaves an errored review with no
-          # diagnosable cause once the runner is gone.
-          show_full_output: true
-          prompt: |
-            Review PR ${{ github.repository }}#${{ github.event.pull_request.number }}
-            by delegating to TWO subagents in parallel via the Task tool. Run
-            them synchronously (`run_in_background: false`) — background
-            subagents die when this CI job ends, so do not end your turn until
-            both subagents have finished and both comments are posted. Each
-            subagent is defined in .claude/agents/ and must be invoked with its
-            exact name as `subagent_type`:
+          model: fable
+          reviewer: web-security-reviewer
+          oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          repo: ${{ github.repository }}
+          pr: ${{ github.event.pull_request.number }}
 
-              1. pr-code-reviewer       — neutral, professional code-quality review
-              2. web-security-reviewer  — security-focused audit
+      # Code review on Opus. This is the required pass — the job fails if it
+      # does not post a review (handled in the assess step below).
+      - name: Run code review (Opus)
+        id: review-code
+        if: steps.diff-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: ./.github/actions/claude-review
+        with:
+          model: opus
+          reviewer: pr-code-reviewer
+          oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          repo: ${{ github.repository }}
+          pr: ${{ github.event.pull_request.number }}
 
-            Pass each subagent the PR identifier
-            `${{ github.repository }}#${{ github.event.pull_request.number }}` and
-            instruct it to fetch BOTH the diff (`gh pr diff <number>`) AND the
-            existing review comments (`gh pr view <number> --comments`) before
-            forming findings, so it does not re-flag items already addressed or
-            deferred in the thread. Review only the changed code, not the whole
-            codebase.
-
-            Post the two reviews as TWO separate PR comments using
-            `gh pr comment`. Prefix each comment with a header identifying the
-            reviewer, e.g. `## pr-code-reviewer`, `## web-security-reviewer`. Do
-            not merge them into a single comment — keep each review distinct.
-          claude_args: >-
-            --model fable
-            --max-turns 25
-            --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh api:*)"
-            --append-system-prompt "You run in an ephemeral CI job that terminates the moment your turn ends. Never launch background subagents or background shell tasks — run everything synchronously (run_in_background: false) and do not end your turn while any delegated work is still pending."
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-
-      # The action exits 0 even when the model turn ends in an error, so an
-      # errored review would otherwise leave a green check with no review
-      # posted. Read the execution output and fail the job on an errored run,
-      # echoing the result frame so the cause is visible in the log.
-      - name: Verify the review succeeded
-        id: verify
+      # Decide success from each pass's execution output, post a PR comment for
+      # any pass that failed, and fail the job only when the required code
+      # review failed. A failed security review keeps the job green.
+      - name: Assess reviews and post failure notices
+        id: assess
         if: steps.diff-cache.outputs.cache-hit != 'true'
         env:
-          EXECUTION_FILE: ${{ steps.claude-review.outputs.execution_file }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SECURITY_FILE: ${{ steps.review-security.outputs.execution_file }}
+          CODE_FILE: ${{ steps.review-code.outputs.execution_file }}
         run: |
-          set -euo pipefail
-          if [ -z "${EXECUTION_FILE:-}" ] || [ ! -f "$EXECUTION_FILE" ]; then
-            echo "::error::Claude review produced no execution output; treating as a failed review."
-            exit 1
-          fi
-          result=$(jq -c '[.[] | select(.type == "result")] | last' "$EXECUTION_FILE")
-          if [ -z "$result" ] || [ "$result" = "null" ]; then
-            echo "::error::Claude review output has no result frame; treating as a failed review."
-            exit 1
-          fi
-          is_error=$(printf '%s' "$result" | jq -r '.is_error')
-          if [ "$is_error" != "false" ]; then
-            echo "::error::Claude review ended in an error (is_error=$is_error); no review was posted."
-            echo "Result frame:"
-            printf '%s\n' "$result" | jq .
-            exit 1
-          fi
-          echo "Claude review completed successfully."
+          set -uo pipefail
+          code_failed=0
 
-      # Mark the diff reviewed only after a verified-successful review, so a
-      # failed run isn't cached as "done" — it will be retried on the next run
-      # of the same diff.
+          if .github/scripts/claude-review-ok.sh "$SECURITY_FILE" >/dev/null; then
+            echo "Security review (Fable) posted."
+          else
+            echo "::warning::Security review (Fable) failed; posting a notice and keeping the job green."
+            reason=$(.github/scripts/claude-review-reason.sh "$SECURITY_FILE")
+            gh pr comment "$PR" --body "$(printf '## ⚠️ Security review did not run (Fable)\n\nThe `web-security-reviewer` pass on Fable failed, so no security review was posted. This does not block the PR — the code review is unaffected.\n\n%s\n\nFull error: [run log](%s).\n' "$reason" "$RUN_URL")" \
+              || echo "::warning::Could not post the security-review failure notice."
+          fi
+
+          if .github/scripts/claude-review-ok.sh "$CODE_FILE" >/dev/null; then
+            echo "Code review (Opus) posted."
+          else
+            echo "::error::Code review (Opus) failed; posting a notice and failing the job."
+            reason=$(.github/scripts/claude-review-reason.sh "$CODE_FILE")
+            gh pr comment "$PR" --body "$(printf '## ❌ Code review did not run (Opus)\n\nThe `pr-code-reviewer` pass on Opus failed, so no code review was posted.\n\n%s\n\nFull error: [run log](%s).\n' "$reason" "$RUN_URL")" \
+              || echo "::error::Could not post the code-review failure notice."
+            code_failed=1
+          fi
+
+          exit "$code_failed"
+
+      # Mark the diff reviewed only after the required code review succeeded, so
+      # a failed run isn't cached as "done" — it will be retried on the next run
+      # of the same diff. (A best-effort security failure still caches, since
+      # the code review is the gating pass.)
       - name: Mark this diff as reviewed
-        if: steps.diff-cache.outputs.cache-hit != 'true' && steps.verify.outcome == 'success'
+        if: steps.diff-cache.outputs.cache-hit != 'true' && steps.assess.outcome == 'success'
         run: touch .claude-review-marker
 
