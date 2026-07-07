@@ -1,3 +1,11 @@
+# [2.13.0](https://github.com/MonsieurBon/recipes/compare/v2.12.0...v2.13.0) (2026-07-07)
+
+
+### Features
+
+* **ui:** adopt the Kräutergrün navigation shell ([0063b46](https://github.com/MonsieurBon/recipes/commit/0063b46b7a1889ef0fb00252089a86d1dc10b62a)), closes [#269](https://github.com/MonsieurBon/recipes/issues/269)
+* **ui:** replace the stock Angular favicon with a Kräutergrün mark ([b596baf](https://github.com/MonsieurBon/recipes/commit/b596bafd3200722ac24a513c9a8f6f73994ac1a8))
+
 # [2.12.0](https://github.com/MonsieurBon/recipes/compare/v2.11.0...v2.12.0) (2026-07-05)
 
 
