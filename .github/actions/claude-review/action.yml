@@ -51,16 +51,18 @@ runs:
           as `subagent_type`: `${{ inputs.reviewer }}`.
 
           Pass the subagent the PR identifier `${{ inputs.repo }}#${{ inputs.pr }}`
-          and instruct it to fetch BOTH the diff (`gh pr diff <number>`) AND the
-          existing review comments (`gh pr view <number> --comments`) before
-          forming findings, so it does not re-flag items already addressed or
-          deferred in the thread. Review only the changed code, not the whole
-          codebase.
+          and instruct it to fetch the diff (`gh pr diff <number>`), the existing
+          review comments (`gh pr view <number> --comments`), and — if the PR body
+          or commits link an issue via a `Closes #N` trailer — that issue
+          (`gh issue view <N>`), all before forming findings, so it does not
+          re-flag items already addressed or deferred in the thread and can check
+          the diff against the linked issue's requirements. Review only the
+          changed code, not the whole codebase.
 
           Post the review as a single PR comment using `gh pr comment`,
           prefixed with a header identifying the reviewer: `## ${{ inputs.reviewer }}`.
         claude_args: >-
           --model ${{ inputs.model }}
           --max-turns 25
-          --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh api:*)"
+          --allowedTools "Read,Grep,Glob,Task,WebFetch,Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh issue view:*),Bash(gh api:*)"
           --append-system-prompt "You run in an ephemeral CI job that terminates the moment your turn ends. Never launch background subagents or background shell tasks — run everything synchronously (run_in_background: false) and do not end your turn while any delegated work is still pending."

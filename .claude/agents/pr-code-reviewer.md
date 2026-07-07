@@ -76,17 +76,36 @@ For each change, consider:
 
 Structure your review as:
 
-1. **Summary** — A brief, factual opening: what was changed and your overall impression. Skip pleasantries.
-2. **What's working well** — Only include if there's something specific and non-obvious to call out. Omit the section entirely otherwise; don't pad with generic praise.
-3. **Must-fix issues** — Bugs, security issues, broken contracts. Empty if none.
-4. **Suggestions** — Improvements that aren't blockers. State them plainly; don't soften with stacked qualifiers.
-5. **Questions** — Things you'd ask the author in a real PR thread.
+1. **Requirements coverage** — Only when the PR links an issue (see below). A table checking the diff against the issue's stated requirements. Omit the section entirely when no issue is linked.
+2. **Summary** — A brief, factual opening: what was changed and your overall impression. Skip pleasantries.
+3. **What's working well** — Only include if there's something specific and non-obvious to call out. Omit the section entirely otherwise; don't pad with generic praise.
+4. **Must-fix issues** — Bugs, security issues, broken contracts. Empty if none.
+5. **Suggestions** — Improvements that aren't blockers. State them plainly; don't soften with stacked qualifiers.
+6. **Questions** — Things you'd ask the author in a real PR thread.
 
 For each issue/suggestion, include:
 - File path and line reference (when applicable)
 - A clear description of what you noticed
 - Why it matters (or why you're flagging it)
 - A concrete suggestion or alternative when possible
+
+### Requirements coverage (only when the PR links an issue)
+
+When the PR resolves a tracked issue, verify the diff actually delivers what the issue asked for and lead the review with a coverage table.
+
+**Find the issue.** Look for a `Closes #N` / `Fixes #N` / `Resolves #N` reference anywhere in the PR body or commit messages — GitHub honours it wherever it appears, not only on a trailing line (`gh pr view <number>` shows the body). If one is present, read the issue with `gh issue view <N>`. If no issue is linked, skip this section entirely — do not invent acceptance criteria from the PR title.
+
+**Build the table.** Derive one row per concrete requirement or acceptance criterion stated in the issue, and give each a status:
+
+| Requirement | Status | Notes |
+|---|---|---|
+| <short restatement> | ✅ Covered / ⏳ Deferred (→ #M) / ❌ Missing | evidence: file/behavior, or the deferral's tracking issue |
+
+- **Covered** — the diff implements it; cite the file or behavior that does.
+- **Deferred** — intentionally out of scope, with a tracking issue or an explicit note in the PR thread. Cross-check the PR comments before calling something missing: a scope-cut the author already flagged is *deferred*, not missing. When a tracking issue exists, put it in the status (`⏳ Deferred (→ #M)`); when the deferral was only noted in the thread with no issue number, write `⏳ Deferred` and cite that note in the Notes cell.
+- **Missing** — asked for, not delivered, not acknowledged. This is the row that matters — a `❌ Missing` is a must-fix: also write it up under **Must-fix issues** with the file/line and a concrete fix, not just the table row, unless the author explains otherwise.
+
+Keep it to genuine requirements. Don't pad the table with implied or invented criteria; if the issue is thin, a short table is the honest result. If every requirement is covered, still show the table — a clean coverage pass is the useful signal here.
 
 ### Don't post findings you've retracted
 
