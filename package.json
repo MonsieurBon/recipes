@@ -74,7 +74,7 @@
         "@semantic-release/exec",
         {
           "prepareCmd": "mvn -B versions:set -DnewVersion=\"${nextRelease.version}\" -DgenerateBackupPoms=false",
-          "publishCmd": "npm run build && mvn -B clean package -DskipTests=true && docker build --tag monsieurbon/recipe:build .",
+          "publishCmd": "mvn -B clean package -DskipTests=true && docker build --tag monsieurbon/recipe:build .",
           "successCmd": "NEXT_VERSION=$(npm version $(npm version patch --no-git-tag-version)-SNAPSHOT --no-git-tag-version) && mvn -B versions:set -DnewVersion=$NEXT_VERSION -DgenerateBackupPoms=false && git commit -am \"chore(release): $NEXT_VERSION [skip ci]\" && git push"
         }
       ],
