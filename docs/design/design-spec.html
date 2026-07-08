@@ -787,6 +787,40 @@
   .btn.ghost { border: 1px solid var(--a-line); color: var(--a-ink); }
   .btn.solid { background: var(--a-green); color: var(--a-on-green); }
 
+  /* ---------- global activity bar ---------- */
+  .load-demos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .load-demo {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    padding-bottom: 0.9rem;
+  }
+  .load-demo * { box-sizing: border-box; }
+  .load-demo .track {
+    height: 3px;
+    background: var(--a-green-soft);
+    overflow: hidden;
+  }
+  .load-demo .track i {
+    display: block;
+    height: 100%;
+    width: 40%;
+    border-radius: 999px;
+    background: var(--a-green);
+  }
+  .load-demo .skl {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--a-green-soft);
+    margin: 0 1.1rem 0.7rem;
+  }
+
   /* ---------- swatches ---------- */
   .swatch-row {
     display: grid;
@@ -928,6 +962,13 @@
     @keyframes rise {
       from { opacity: 0; transform: translateY(14px); }
       to { opacity: 1; transform: none; }
+    }
+    .load-demo .track i {
+      animation: indeterminate 1.6s ease-in-out infinite;
+    }
+    @keyframes indeterminate {
+      from { transform: translateX(-110%); }
+      to { transform: translateX(280%); }
     }
   }
 </style>
@@ -1578,6 +1619,43 @@
   </section>
 
   <section>
+    <h2>Loading &amp; activity</h2>
+    <p class="sub">
+      User-initiated actions keep their local feedback — the login button spinner and disabled
+      fields stay exactly as they are. Passive activity gets one global signal instead: a slim
+      indeterminate bar pinned to the very top edge of the shell, above the toolbar, covering
+      page-load data fetches, lazy route chunks and the silent token refresh. The UI underneath
+      stays fully interactive — never a blocking overlay, never a centered spinner.
+    </p>
+    <div class="load-demos">
+      <div class="load-demo app-light">
+        <div class="track"><i></i></div>
+        <div class="appbar">
+          <span class="wordmark">Rezepte</span>
+          <span class="grow"></span>
+        </div>
+        <div class="skl" style="width: 62%"></div>
+        <div class="skl" style="width: 44%"></div>
+      </div>
+      <div class="load-demo app-dark">
+        <div class="track"><i></i></div>
+        <div class="appbar">
+          <span class="wordmark">Rezepte</span>
+          <span class="grow"></span>
+        </div>
+        <div class="skl" style="width: 62%"></div>
+        <div class="skl" style="width: 44%"></div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>Global activity bar.</strong> Primary green on its soft track — the stock M3
+      progress bar, no color override. It appears only once a request has been pending for
+      roughly a quarter second and hides as soon as nothing is in flight, so fast responses
+      never cause a flicker. Same position and behavior at every width, in both themes.
+    </p>
+  </section>
+
+  <section>
     <h2>Color</h2>
     <p class="sub">
       Decided direction: <b>Kräutergrün</b> (chosen over paprika-red and gentian-blue
@@ -1706,6 +1784,13 @@
         the Konto page (compact) and the account menu (≥ 600 px); pages inside admin become
         router-linked secondary tabs (<code>mat-tab-nav-bar</code>), and the user table becomes
         list rows on compact.
+      </li>
+      <li>
+        <b>Activity bar.</b> A <code>mat-progress-bar mode="indeterminate"</code> at the top of
+        the app shell, visible while a signal counting in-flight requests is non-zero; an HTTP
+        interceptor increments on request start and decrements when it settles, and a
+        ~250&nbsp;ms show-delay keeps fast requests invisible. Small and self-contained — build
+        it just before the first data-driven pages.
       </li>
       <li>
         <b>Seasonal start page.</b> Data prerequisites: season months on ingredients and a
