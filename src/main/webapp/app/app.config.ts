@@ -11,6 +11,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthService } from './security/auth.service';
 import { authenticationInterceptor } from './security/authentication-interceptor';
 import { refreshInterceptor } from './security/refresh-interceptor';
+import { pendingRequestsInterceptor } from './utility/pending-requests-interceptor';
 import {
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
   MatFormFieldDefaultOptions,
@@ -20,7 +21,9 @@ import { MAT_CARD_CONFIG, MatCardConfig } from '@angular/material/card';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withInterceptors([authenticationInterceptor, refreshInterceptor])),
+    provideHttpClient(
+      withInterceptors([pendingRequestsInterceptor, authenticationInterceptor, refreshInterceptor]),
+    ),
     // Fire-and-forget so app startup is not blocked on the network: the UI renders immediately
     // and flips to the logged-in state when the restore resolves.
     provideAppInitializer(() => inject(AuthService).restoreSession()),

@@ -4,6 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { Mocked, MockInstance } from 'vitest';
 import { AuthService } from './security/auth.service';
 import { LayoutService } from './utility/layout.service';
+import { PendingRequestsService } from './utility/pending-requests.service';
 import { App } from './app';
 
 describe('App', () => {
@@ -13,11 +14,13 @@ describe('App', () => {
     isAdmin: WritableSignal<boolean>;
   };
   let isCompact: WritableSignal<boolean>;
+  let activityVisible: WritableSignal<boolean>;
   let navigateSpy: MockInstance;
 
   beforeEach(async () => {
     authServiceSpy = { isLoggedIn: signal(false), isAdmin: signal(false), logout: vi.fn() };
     isCompact = signal(false);
+    activityVisible = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [App],
@@ -25,6 +28,7 @@ describe('App', () => {
         provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: LayoutService, useValue: { isCompact } },
+        { provide: PendingRequestsService, useValue: { visible: activityVisible } },
       ],
     }).compileComponents();
 
@@ -49,6 +53,18 @@ describe('App', () => {
   it('should render the navbar', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled).toBeTruthy();
+  });
+
+  it('shows the activity bar only while requests are in flight', async () => {
+    expect(query('activityBar')).toBeNull();
+
+    activityVisible.set(true);
+    await fixture.whenStable();
+    expect(query('activityBar')).toBeTruthy();
+
+    activityVisible.set(false);
+    await fixture.whenStable();
+    expect(query('activityBar')).toBeNull();
   });
 
   it('offers only a login action while signed out', () => {
