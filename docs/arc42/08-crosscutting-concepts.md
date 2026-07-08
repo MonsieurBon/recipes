@@ -72,7 +72,13 @@
 - Frontend shows user-friendly error messages via Angular Material snackbar/toast
 - Request DTOs use Jakarta Bean Validation annotations; validation failures are returned as 400 with field-level details
 
-## 8.4 Testing Strategy
+## 8.4 Activity Feedback
+
+- User-initiated actions keep their own local feedback (for example a button spinner and disabled fields during login). Passive, non-interactive work — page-load data fetches, lazy-loaded route chunks, and the silent token refresh — is surfaced instead by a single global indicator: a slim indeterminate progress bar pinned to the top edge of the app shell.
+- The indicator reflects a count of in-flight HTTP requests. The count settles on completion, error, and cancellation alike, so a failed or aborted request never leaves the bar stuck on. The mechanism only observes requests — it neither swallows nor re-orders their errors, which matters because it also spans the silent refresh flow.
+- A short show-delay suppresses the bar for requests that settle quickly, and once shown the bar stays up for a minimum duration so a request settling just past that delay does not flash it on and off. Together these avoid flicker on both fast and borderline responses. The UI stays fully interactive throughout — the indicator is peripheral, never a blocking overlay.
+
+## 8.5 Testing Strategy
 
 - **TDD**: Write a failing test first, then implement
 - **Backend**: JUnit 5 + Spring Boot Test; integration tests with Testcontainers for MySQL

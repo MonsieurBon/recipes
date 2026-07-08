@@ -27,6 +27,18 @@
   }
 }
 
+// Pinned to the very top edge of the shell, above the toolbar, and taken out of flow so it
+// overlays rather than nudging the toolbar down when it appears and disappears. The z-index sits
+// above the shell chrome but below the CDK overlay layer (1000), so open menus and snackbars
+// still render on top of the strip.
+.activity-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
 .spacer {
   flex: 1 1 auto;
 }

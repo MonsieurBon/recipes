@@ -1,3 +1,11 @@
+@if (activityVisible()) {
+  <mat-progress-bar
+    class="activity-bar"
+    mode="indeterminate"
+    aria-label="Wird geladen"
+    data-test-id="activityBar"
+  />
+}
 <mat-toolbar>
   <span class="wordmark" data-test-id="appTitle">Rezepte</span>
   <span class="spacer"></span>
