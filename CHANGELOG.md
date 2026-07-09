@@ -1,3 +1,10 @@
+# [2.14.0](https://github.com/MonsieurBon/recipes/compare/v2.13.0...v2.14.0) (2026-07-09)
+
+
+### Features
+
+* add global activity bar for in-flight requests ([d17479a](https://github.com/MonsieurBon/recipes/commit/d17479a725fd586a6bb38e3a6e86a8dbebb4ca98)), closes [#196](https://github.com/MonsieurBon/recipes/issues/196)
+
 # [2.13.0](https://github.com/MonsieurBon/recipes/compare/v2.12.0...v2.13.0) (2026-07-07)
 
 
