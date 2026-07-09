@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
@@ -11,6 +12,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthService } from './security/auth.service';
 import { authenticationInterceptor } from './security/authentication-interceptor';
 import { refreshInterceptor } from './security/refresh-interceptor';
+import { GlobalErrorHandler } from './utility/global-error-handler';
 import { pendingRequestsInterceptor } from './utility/pending-requests-interceptor';
 import {
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
@@ -21,6 +23,7 @@ import { MAT_CARD_CONFIG, MatCardConfig } from '@angular/material/card';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideHttpClient(
       withInterceptors([pendingRequestsInterceptor, authenticationInterceptor, refreshInterceptor]),
     ),

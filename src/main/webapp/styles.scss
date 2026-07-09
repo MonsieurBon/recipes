@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use 'layout' as layout;
 @use 'assets/icons/material-icons';
 @use 'assets/fonts/roboto';
 @use 'assets/fonts/fraunces';
@@ -41,4 +42,12 @@ h2 {
       )
     );
   }
+}
+
+// The error snackbar renders in the CDK overlay at document level, so its compact offset lives
+// here rather than in a component's styles. On phones the fixed bottom navigation owns the bottom
+// edge; lift the toast clear of it so the two never overlap. The container selector is repeated to
+// win over Material's default container margin on specificity.
+.mat-mdc-snack-bar-container.notification-above-bottom-nav {
+  margin-bottom: calc(#{layout.$bottom-nav-height} + env(safe-area-inset-bottom));
 }

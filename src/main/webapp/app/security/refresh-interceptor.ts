@@ -1,12 +1,19 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, EMPTY, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // On a 401 for a protected request, obtain a usable access token and retry the request once. Auth
 // endpoints are excluded so a failed login/refresh is not retried. A failed refresh, or a retry
 // that still 401s, logs the user out and routes to the login page.
+//
+// Contract: when the session cannot be renewed, the redirect to login is the whole outcome, so the
+// request's stream COMPLETES WITHOUT EMITTING rather than erroring — an errored abort would reach
+// the global handler and toast on a plain logout. Consume protected requests accordingly: read them
+// via `toSignal`/`subscribe`, or if a promise is needed pass a `defaultValue` to `firstValueFrom`.
+// A bare `firstValueFrom`/`lastValueFrom` rejects an empty completion with `EmptyError`, which would
+// itself surface the generic error notification.
 //
 // Two paths avoid redundant refreshes when several requests 401 around the same time:
 //  - if a concurrent refresh already minted a newer token while this request was in flight (the
@@ -39,8 +46,12 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
           req.clone({ headers: req.headers.set('Authorization', `Bearer ${accessToken}`) }),
         ).pipe(
           catchError((retryError: unknown) => {
+            // A retry that still 401s means the session is truly gone: logoutToLogin handles it by
+            // redirecting to login, so complete silently. Any other failure is the real request
+            // failing — let it surface.
             if (isUnauthorized(retryError)) {
               logoutToLogin();
+              return EMPTY;
             }
             return throwError(() => retryError);
           }),
@@ -52,9 +63,12 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       return authService.refresh().pipe(
-        catchError((refreshError: unknown) => {
+        // Any failure to renew the session — it expired, was revoked, or the user logged out — is
+        // handled by logoutToLogin redirecting to login, so complete silently rather than surfacing
+        // it as an error the global handler would toast.
+        catchError(() => {
           logoutToLogin();
-          return throwError(() => refreshError);
+          return EMPTY;
         }),
         switchMap(retryWith),
       );

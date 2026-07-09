@@ -1,19 +1,27 @@
 import { TestBed } from '@angular/core/testing';
+import { ErrorHandler } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
+import { Mock } from 'vitest';
 
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
+  let errorHandler: { handleError: Mock };
 
   beforeEach(() => {
     localStorage.clear();
+    errorHandler = { handleError: vi.fn() };
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: ErrorHandler, useValue: errorHandler },
+      ],
     });
 
     service = TestBed.inject(AuthService);
@@ -233,7 +241,7 @@ describe('AuthService', () => {
     expect(service.getAccessToken()).toBe('restored');
   });
 
-  it('restoreSession leaves the user anonymous when no session exists', () => {
+  it('restoreSession leaves the user anonymous — and stays silent — when no session exists', () => {
     service.restoreSession();
 
     httpMock
@@ -242,6 +250,21 @@ describe('AuthService', () => {
 
     expect(service.isLoggedIn()).toBe(false);
     expect(service.getAccessToken()).toBeNull();
+    // A missing session is the expected outcome, not an error to notify about.
+    expect(errorHandler.handleError).not.toHaveBeenCalled();
+  });
+
+  it('restoreSession reports an unexpected failure so the user is notified, staying anonymous', async () => {
+    service.restoreSession();
+    const settled = service.whenSessionRestored();
+
+    httpMock
+      .expectOne('/api/auth/refresh')
+      .flush(null, { status: 500, statusText: 'Server Error' });
+    await settled;
+
+    expect(errorHandler.handleError).toHaveBeenCalledOnce();
+    expect(service.isLoggedIn()).toBe(false);
   });
 
   it('restoreSession does not resurrect a session ended by an explicit logout', () => {

@@ -68,9 +68,11 @@
 
 ## 8.3 Error Handling
 
-- Backend returns structured JSON error responses with appropriate HTTP status codes
-- Frontend shows user-friendly error messages via Angular Material snackbar/toast
-- Request DTOs use Jakarta Bean Validation annotations; validation failures are returned as 400 with field-level details
+- Backend returns structured JSON error responses with appropriate HTTP status codes. Request payloads use bean validation; validation failures are returned as 400 with field-level details.
+- The frontend follows one rule — **catch only what you can act on; let everything else bubble to a single global handler** — which yields two layers:
+  - **Contextual, actionable errors stay where they happen.** Failures the user can act on — wrong credentials on login, an already-taken username or email on registration, field validation — are caught and shown inline by the form that made the request. Because they are caught, they never reach the global layer.
+  - **A single global handler catches everything else.** Anything that no one caught — an uncaught runtime error, a template failure, or an HTTP failure (5xx, network outage, or a status a form failed to handle) — is logged and surfaces one shared, transient, generic notification. Each unhandled error therefore produces exactly one notification. The message is deliberately generic and never includes the error's own text or response body — details are logged only.
+- Components and services deliberately narrow their own `catch`/error handling to the cases they can resolve and let the rest propagate, so a genuine failure is never silently swallowed. The passive startup session-restore is the one background caller: it treats "no session" as its normal outcome (stay anonymous, silently) but routes an unexpected transport/server failure to the same global handler.
 
 ## 8.4 Activity Feedback
 
