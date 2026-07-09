@@ -1,3 +1,10 @@
+# [2.15.0](https://github.com/MonsieurBon/recipes/compare/v2.14.0...v2.15.0) (2026-07-09)
+
+
+### Features
+
+* add global handling for unexpected frontend errors ([33a03d9](https://github.com/MonsieurBon/recipes/commit/33a03d9f0743eb43c28188dd8d01c98486fe3db5)), closes [#195](https://github.com/MonsieurBon/recipes/issues/195)
+
 # [2.14.0](https://github.com/MonsieurBon/recipes/compare/v2.13.0...v2.14.0) (2026-07-09)
 
 
