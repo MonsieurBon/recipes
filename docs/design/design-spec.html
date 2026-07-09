@@ -169,6 +169,9 @@
     --a-green-soft: #d2e9ce; /* secondary-container */
     --a-accent-ink: #384c38; /* on-secondary-container */
     --a-saffron: #8c5000; /* tertiary (tone 40) */
+    --a-inverse-surface: #2e312d; /* inverse-surface (neutral 20) */
+    --a-inverse-ink: #f0f1eb; /* inverse-on-surface (neutral 95) */
+    --a-inverse-green: #9dd49e; /* inverse-primary (primary 80) */
     background: var(--a-bg);
     color: var(--a-ink);
   }
@@ -182,6 +185,9 @@
     --a-on-green: #023913; /* on-primary (tone 20) */
     --a-green-soft: #384c38; /* secondary-container */
     --a-saffron: #ffb872; /* tertiary (tone 80) */
+    --a-inverse-surface: #e1e3dd; /* inverse-surface (neutral 90) */
+    --a-inverse-ink: #2e312d; /* inverse-on-surface (neutral 20) */
+    --a-inverse-green: #37693d; /* inverse-primary (primary 40) */
     background: var(--a-bg);
     color: var(--a-ink);
   }
@@ -820,6 +826,76 @@
     background: var(--a-green-soft);
     margin: 0 1.1rem 0.7rem;
   }
+
+  /* ---------- error snackbar ---------- */
+  .snack-demos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 0.6rem;
+  }
+  .snack-demo {
+    display: flex;
+    flex-direction: column;
+    min-height: 215px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .snack-demo * { box-sizing: border-box; }
+  .snack-demo .skl {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--a-green-soft);
+    margin: 0 1.1rem 0.7rem;
+  }
+  .snack {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: auto 0.6rem 0.6rem;
+    padding: 0.8rem 0.95rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    box-shadow: 0 3px 9px rgb(0 0 0 / 0.28);
+  }
+  .snack span { flex: 1; }
+  .snack .x { flex: none; display: block; }
+  .snack.inverse {
+    background: var(--a-inverse-surface);
+    color: var(--a-inverse-ink);
+  }
+  .snack.inverse .x { color: var(--a-inverse-green); }
+  .snack-desk .d-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+  }
+  .snack-desk .skl {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--a-green-soft);
+    margin-bottom: 0.7rem;
+  }
+  .snack-desk .snack {
+    margin: auto auto 0;
+    width: min(430px, 100%);
+  }
+  .snack-demo .mini-nav {
+    display: flex;
+    border-top: 1px solid var(--a-line);
+    background: var(--a-card);
+  }
+  .snack-demo .mini-nav span {
+    flex: 1;
+    text-align: center;
+    font-size: 0.62rem;
+    padding: 0.55rem 0;
+    color: var(--a-muted);
+  }
+  .snack-demo .mini-nav span.on { color: var(--a-ink); font-weight: 600; }
 
   /* ---------- swatches ---------- */
   .swatch-row {
@@ -1656,6 +1732,84 @@
   </section>
 
   <section>
+    <h2>Errors &amp; notifications</h2>
+    <p class="sub">
+      Errors the user can act on stay where they happen — wrong credentials under the login
+      form, a taken username on its field. Everything nobody can act on — a server error, a
+      lost connection, an uncaught bug — surfaces as one generic snackbar:
+      «Etwas ist schiefgelaufen. Bitte versuche es erneut.» It never blocks the page,
+      auto-dismisses after about six seconds, and a ✕ icon closes it immediately; a newer
+      error replaces the visible one instead of stacking. On compact it floats above the
+      bottom nav.
+    </p>
+    <div class="snack-demos">
+      <div class="snack-demo app-light">
+        <div class="appbar">
+          <span class="wordmark">Rezepte</span>
+          <span class="grow"></span>
+        </div>
+        <div class="skl" style="width: 62%"></div>
+        <div class="skl" style="width: 44%"></div>
+        <div class="snack inverse"><span>Etwas ist schiefgelaufen. Bitte versuche es erneut.</span><svg class="x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></div>
+        <div class="mini-nav"><span class="on">Rezepte</span><span>Menüplan</span><span>Konto</span></div>
+      </div>
+      <div class="snack-demo app-dark">
+        <div class="appbar">
+          <span class="wordmark">Rezepte</span>
+          <span class="grow"></span>
+        </div>
+        <div class="skl" style="width: 62%"></div>
+        <div class="skl" style="width: 44%"></div>
+        <div class="snack inverse"><span>Etwas ist schiefgelaufen. Bitte versuche es erneut.</span><svg class="x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></div>
+        <div class="mini-nav"><span class="on">Rezepte</span><span>Menüplan</span><span>Konto</span></div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>The stock M3 snackbar</strong> — inverse surface, the ✕ tinted with
+      inverse-primary, no color or component overrides (chosen over an error-tinted variant):
+      the same philosophy as the activity bar, and any future non-error snackbar will look
+      identical.
+    </p>
+    <p class="theme-label">Larger widths</p>
+    <div class="deskwrap">
+      <div class="desk snack-desk app-light">
+        <div class="d-bar">
+          <span class="wordmark">Rezepte</span>
+          <span class="d-links">
+            <span class="d-link on">Rezepte</span>
+            <span class="d-link">Menüplan</span>
+          </span>
+          <span class="grow"></span>
+          <div class="search d-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Rezepte durchsuchen
+          </div>
+          <span class="iconbtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8.2" r="3.4"></circle>
+              <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="d-body">
+          <div class="skl" style="width: 42%"></div>
+          <div class="skl" style="width: 30%"></div>
+          <div class="snack inverse"><span>Etwas ist schiefgelaufen. Bitte versuche es erneut.</span><svg class="x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>At larger widths</strong> the snackbar keeps its intrinsic width — M3 clamps it
+      between 344 and 672&nbsp;px — and stays bottom-centered: never full-width, never a corner
+      toast. That is the stock behavior, and centered matches where it lives on compact, so
+      the eye needs only one place to check.
+    </p>
+  </section>
+
+  <section>
     <h2>Color</h2>
     <p class="sub">
       Decided direction: <b>Kräutergrün</b> (chosen over paprika-red and gentian-blue
@@ -1791,6 +1945,15 @@
         interceptor increments on request start and decrements when it settles, and a
         ~250&nbsp;ms show-delay keeps fast requests invisible. Small and self-contained — build
         it just before the first data-driven pages.
+      </li>
+      <li>
+        <b>Error notifications.</b> One shared <code>MatSnackBar</code> notice with two
+        producers: an HTTP interceptor that surfaces 5xx and network failures
+        (<code>status === 0</code>) and rethrows so local handlers keep working, and a custom
+        <code>ErrorHandler</code> as the catch-all for uncaught runtime errors. Contextual
+        statuses (401/409/422) pass through silently — the forms own those. On compact the
+        snackbar is offset above the bottom nav. The ✕ dismiss is a tiny snackbar content
+        component (the string-based API only renders text actions).
       </li>
       <li>
         <b>Seasonal start page.</b> Data prerequisites: season months on ingredients and a
