@@ -449,9 +449,96 @@
   .mrow > svg { color: var(--a-muted); flex-shrink: 0; }
   .mrow .grow { flex: 1; }
   .mrow .chev { color: var(--a-muted); }
+  .mrow .val {
+    font-size: 0.85rem;
+    color: var(--a-muted);
+  }
   .tag.amber {
     background: #ffdcbf; /* tertiary-container */
     color: #6a3b00; /* on-tertiary-container */
+  }
+  .appbar-action {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--a-accent-ink, var(--a-green));
+    padding: 0.35rem 0.5rem;
+  }
+  .login-card {
+    margin: 2.6rem 1.4rem 0;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 18px;
+    padding: 1.5rem 1.3rem;
+  }
+  .login-card .ltitle {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 40;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0 0 1.1rem;
+  }
+  .login-card .lfield {
+    border: 1px solid var(--a-line);
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--a-muted);
+    margin-bottom: 0.85rem;
+  }
+  .login-card .lcta {
+    display: block;
+    text-align: center;
+    background: var(--a-green);
+    color: var(--a-on-green);
+    border-radius: 999px;
+    padding: 0.65rem 1.05rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 1.1rem;
+  }
+  .sheet-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(28, 43, 30, 0.32);
+    z-index: 3;
+  }
+  .sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--a-card);
+    border-radius: 26px 26px 0 0;
+    padding: 0.4rem 1.4rem 1.5rem;
+    z-index: 4;
+  }
+  .sheet .handle {
+    width: 34px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--a-line);
+    margin: 0.4rem auto 0.7rem;
+  }
+  .sheet .stitle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--a-muted);
+    margin: 0 0 0.2rem;
+  }
+  .sheet .srow {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.78rem 0.2rem;
+    font-size: 0.95rem;
+  }
+  .sheet .srow.sel {
+    color: var(--a-accent-ink, var(--a-green));
+    font-weight: 600;
+  }
+  .sheet .srow .ck {
+    width: 18px;
+    flex-shrink: 0;
   }
   .tabbar {
     display: flex;
@@ -487,6 +574,7 @@
     padding-bottom: 0.5rem;
   }
   .desk {
+    position: relative;
     min-width: 860px;
     max-width: 960px;
     border: 1px solid var(--line);
@@ -494,6 +582,53 @@
     box-shadow: var(--shadow);
     overflow: hidden;
     margin-top: 1.5rem;
+  }
+  .iconbtn.on {
+    background: var(--a-green-soft);
+    color: var(--a-accent-ink, var(--a-green));
+  }
+  .d-menu,
+  .d-submenu {
+    position: absolute;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 14px;
+    box-shadow: 0 10px 26px rgba(28, 43, 30, 0.16);
+    padding: 0.4rem 0;
+    z-index: 2;
+  }
+  .d-menu {
+    top: 58px;
+    right: 16px;
+    width: 250px;
+  }
+  .d-submenu {
+    top: 72px;
+    right: calc(100% + 6px);
+    width: 160px;
+  }
+  .d-menu .mi {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.9rem;
+  }
+  .d-menu .mi > svg { color: var(--a-muted); flex-shrink: 0; }
+  .d-menu .mi .grow { flex: 1; }
+  .d-menu .mi .val {
+    font-size: 0.8rem;
+    color: var(--a-muted);
+  }
+  .d-menu .mi.open { background: var(--a-bg); }
+  .d-submenu .mi.sel {
+    color: var(--a-accent-ink, var(--a-green));
+    font-weight: 600;
+  }
+  .d-submenu .mi.sel > svg { color: currentColor; }
+  .d-submenu .ck {
+    width: 16px;
+    flex-shrink: 0;
   }
   .d-bar {
     display: flex;
@@ -1376,6 +1511,18 @@
               </svg>
             </div>
             <div class="mrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8.5"></circle>
+                <path d="M3.5 12h17"></path>
+                <path d="M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"></path>
+              </svg>
+              <span class="grow">Sprache</span>
+              <span class="val">Deutsch</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="mrow">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
                 <path d="M12 3.5l7 2.8v5.2c0 4.3-2.9 7.7-7 9.5-4.1-1.8-7-5.2-7-9.5V6.3z"></path>
               </svg>
@@ -1424,9 +1571,10 @@
           </div>
         </div>
         <p class="frame-caption">
-          <strong>Konto.</strong> Replaces the person menu on mobile: profile, settings, the
-          admin entry (admins only) and logout. From 600&nbsp;px up this collapses back into
-          the account menu in the toolbar.
+          <strong>Konto.</strong> Replaces the person menu on mobile: profile, settings,
+          language, the admin entry (admins only) and logout. The Sprache row shows the
+          current language as its value and opens the language picker. From 600&nbsp;px up
+          this collapses back into the account menu in the toolbar.
         </p>
       </div>
 
@@ -1503,12 +1651,13 @@
     </div>
 
     <p class="sub" style="margin-top: 0.5rem">
-      Shell states in short: signed out, the toolbar shows only the wordmark and a Login
-      action — no bottom nav, no account menu. Signed in on compact, the bottom nav carries
-      the three sections and the toolbar top right stays <em>empty</em> — the account lives in
-      the Konto tab. From 600&nbsp;px up the bottom nav folds into toolbar links and the
-      account menu (person icon) reappears top right. Admin is never a top-level destination;
-      it stays one tap away inside Konto or that menu.
+      Shell states in short: signed out, the toolbar shows the wordmark, a globe language
+      button and a Login action — no bottom nav, no account menu. Signed in on compact, the
+      bottom nav carries the three sections and the toolbar top right stays <em>empty</em> —
+      the account (including the language choice) lives in the Konto tab. From 600&nbsp;px up
+      the bottom nav folds into toolbar links and the account menu (person icon) reappears
+      top right. Admin is never a top-level destination; it stays one tap away inside Konto
+      or that menu.
     </p>
 
     <h2 style="margin-top: 2.5rem">…and on larger screens</h2>
@@ -1637,7 +1786,8 @@
     <p class="frame-caption" style="max-width: 44rem">
       <strong>Rezepte, expanded (≥ 905 px).</strong> Bottom nav becomes toolbar pills; the
       person icon is back because the Konto tab is gone — it opens the account menu (Profil,
-      Einstellungen, Administration, Abmelden). The seasonal mosaic becomes a bento grid:
+      Einstellungen, Sprache, Administration, Abmelden). The seasonal mosaic becomes a bento
+      grid:
       a 2×2 hero for the most-favorited seasonal pick, wide cards for the middle tier,
       singles for the rest.
     </p>
@@ -1691,6 +1841,272 @@
       (standard M3 secondary tabs). Only if it ever passes six or so areas would we regroup —
       an admin hub page like Konto, with the tabs kept for the frequent pages. The full table
       returns here because the width supports it.
+    </p>
+  </section>
+
+  <section>
+    <h2>Language</h2>
+    <p class="sub">
+      The UI speaks German, English, French and Italian. The picker — behind the signed-out
+      globe, the Konto Sprache row and the account-menu Sprache item — always lists
+      <em>Deutsch, English, Français, Italiano</em>, each named in its own language with the
+      active one marked, so a user stranded in the wrong language still finds theirs. Its
+      container follows the input mode, like the rest of the shell: on compact it is a bottom
+      sheet in thumb reach, from 600&nbsp;px up a menu (the account menu's submenu, or a menu
+      under the globe). Picking one switches every visible label immediately, without a
+      reload. First visit follows the browser language (German when unsupported); an
+      anonymous visitor's choice sticks on the device, a signed-in user's choice sticks to
+      the account and follows them to any device. Language switching never claims signed-in
+      toolbar space — it is a rare, set-once action and lives with the account.
+    </p>
+
+    <div class="screens">
+      <!-- ============ SCREEN: Language picker, compact ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <p class="page-title">Konto</p>
+          <div class="acct-head">
+            <span class="avatar">F</span>
+            <span class="who"><b>Fabian</b><span>fabian@example.com</span></span>
+          </div>
+          <div class="menu-list">
+            <div class="mrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <circle cx="12" cy="8.2" r="3.4"></circle>
+                <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+              </svg>
+              <span class="grow">Profil</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="mrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M5 8h14M5 16h14"></path>
+                <circle cx="10" cy="8" r="2.2" fill="var(--a-bg)"></circle>
+                <circle cx="15" cy="16" r="2.2" fill="var(--a-bg)"></circle>
+              </svg>
+              <span class="grow">Einstellungen</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="mrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8.5"></circle>
+                <path d="M3.5 12h17"></path>
+                <path d="M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"></path>
+              </svg>
+              <span class="grow">Sprache</span>
+              <span class="val">Deutsch</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="mrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                <path d="M12 3.5l7 2.8v5.2c0 4.3-2.9 7.7-7 9.5-4.1-1.8-7-5.2-7-9.5V6.3z"></path>
+              </svg>
+              <span class="grow">Administration</span>
+              <span class="tag amber">Admin</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="mrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H14"></path>
+                <path d="M10 12h10M16.5 8.5 20 12l-3.5 3.5"></path>
+              </svg>
+              <span class="grow">Abmelden</span>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <p class="stitle">Sprache</p>
+            <div class="srow sel">
+              <svg class="ck" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path>
+              </svg>
+              <span>Deutsch</span>
+            </div>
+            <div class="srow"><span class="ck"></span><span>English</span></div>
+            <div class="srow"><span class="ck"></span><span>Français</span></div>
+            <div class="srow"><span class="ck"></span><span>Italiano</span></div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Language picker, compact.</strong> Tapping Sprache lifts a bottom sheet —
+          the same four self-named languages, active one checked. A tap applies the language
+          immediately and dismisses the sheet. The signed-out globe opens this sheet too;
+          from 600&nbsp;px up both become menus.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: Signed out ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8.5"></circle>
+                <path d="M3.5 12h17"></path>
+                <path d="M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"></path>
+              </svg>
+            </span>
+            <span class="appbar-action">Login</span>
+          </div>
+          <div class="login-card">
+            <p class="ltitle">Anmelden</p>
+            <div class="lfield">Benutzername</div>
+            <div class="lfield">Passwort</div>
+            <span class="lcta">Anmelden</span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Signed out.</strong> The toolbar carries the third entry point: a globe
+          button next to Login — the only shell an anonymous visitor has. It opens the same
+          picker (this bottom sheet on compact, a menu from 600&nbsp;px up). First visit
+          already follows the browser language; the globe is for correcting it, and the
+          choice sticks on the device.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============ SCREEN: Account menu, expanded ============ -->
+    <div class="deskwrap">
+      <div class="desk app-light">
+        <div class="d-bar">
+          <span class="wordmark">Rezepte</span>
+          <span class="d-links">
+            <span class="d-link on">Rezepte</span>
+            <span class="d-link">Menüplan</span>
+          </span>
+          <span class="grow"></span>
+          <div class="search d-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Rezepte durchsuchen
+          </div>
+          <span class="iconbtn on">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8.2" r="3.4"></circle>
+              <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="d-body">
+          <div class="d-row">
+            <span class="chip on">Alle</span>
+            <span class="chip">Hauptgericht</span>
+            <span class="chip">Vegi</span>
+            <span class="chip">Dessert</span>
+            <span class="chip">Schnell</span>
+            <span class="grow"></span>
+            <span class="d-cta">+ Neues Rezept</span>
+          </div>
+          <div class="d-grid">
+            <div class="rcard">
+              <div class="photo magronen">🧀</div>
+              <div class="body">
+                <p class="rtitle">Älplermagronen</p>
+                <div class="meta"><span>45 Min</span></div>
+              </div>
+            </div>
+            <div class="rcard">
+              <div class="photo roesti">🥔</div>
+              <div class="body">
+                <p class="rtitle">Rösti</p>
+                <div class="meta"><span>35 Min</span></div>
+              </div>
+            </div>
+            <div class="rcard">
+              <div class="photo geschnetzeltes">🍄</div>
+              <div class="body">
+                <p class="rtitle">Zürcher Geschnetzeltes</p>
+                <div class="meta"><span>40 Min</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-menu">
+          <div class="mi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8.2" r="3.4"></circle>
+              <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+            </svg>
+            <span class="grow">Profil</span>
+          </div>
+          <div class="mi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M5 8h14M5 16h14"></path>
+              <circle cx="10" cy="8" r="2.2" fill="var(--a-card)"></circle>
+              <circle cx="15" cy="16" r="2.2" fill="var(--a-card)"></circle>
+            </svg>
+            <span class="grow">Einstellungen</span>
+          </div>
+          <div class="mi open">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="8.5"></circle>
+              <path d="M3.5 12h17"></path>
+              <path d="M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"></path>
+            </svg>
+            <span class="grow">Sprache</span>
+            <span class="val">Deutsch</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--a-muted)">
+              <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+            </svg>
+          </div>
+          <div class="mi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+              <path d="M12 3.5l7 2.8v5.2c0 4.3-2.9 7.7-7 9.5-4.1-1.8-7-5.2-7-9.5V6.3z"></path>
+            </svg>
+            <span class="grow">Administration</span>
+            <span class="tag amber">Admin</span>
+          </div>
+          <div class="mi">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H14"></path>
+              <path d="M10 12h10M16.5 8.5 20 12l-3.5 3.5"></path>
+            </svg>
+            <span class="grow">Abmelden</span>
+          </div>
+          <div class="d-submenu">
+            <div class="mi sel">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path>
+              </svg>
+              <span>Deutsch</span>
+            </div>
+            <div class="mi"><span class="ck"></span><span>English</span></div>
+            <div class="mi"><span class="ck"></span><span>Français</span></div>
+            <div class="mi"><span class="ck"></span><span>Italiano</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>Account menu with the language picker (≥ 600 px).</strong> The person icon opens
+      the account menu — the counterpart of the Konto rows. Sprache carries the current
+      language as its value and fans out the picker: Deutsch, English, Français, Italiano,
+      each named in its own language, the active one checked. Picking one switches the UI in
+      place; the menu closes.
+    </p>
+
+    <p class="sub">
+      Translated <em>content</em> — recipe names, steps, ingredient names — is a separate,
+      later feature. The rules for how it is served will be added here; the screens for
+      entering those translations are admin surfaces and get specced with the admin area,
+      whose Übersetzungen tab already reserves the spot.
     </p>
   </section>
 
@@ -1963,6 +2379,15 @@
         filters bypass the mosaic and use the uniform grid.
       </li>
       <li>
+        <b>Language switcher.</b> Runtime i18n via <code>ngx-translate</code> (#242). The
+        picker lists the four languages as check-marked items and opens from the signed-out
+        toolbar globe (<code>matIconButton</code>), the Sprache row on Konto and a Sprache
+        item in the account menu; on compact it renders as a <code>MatBottomSheet</code>,
+        from 600&nbsp;px up as a <code>mat-menu</code>. Anonymous choice persists in
+        <code>localStorage</code>; the signed-in preference is a column on the user and wins
+        over the device choice after login.
+      </li>
+      <li>
         <b>Screens.</b> List, detail, and cooking mode are future feature slices — this proposal
         defines the target look they get built against, same as the arc42 docs define the target
         architecture.
@@ -1971,7 +2396,7 @@
   </section>
 
   <p class="footnote">
-    All labels are the app's German UI language; recipes shown are placeholders. Photo areas use
+    All labels show the app's default UI language, German. Recipes shown are placeholders. Photo areas use
     gradients here — real recipe photos (user-uploaded) are the long-term plan, with the
     gradient + category glyph as the fallback for photo-less recipes.
   </p>
