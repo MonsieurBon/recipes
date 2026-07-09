@@ -1,0 +1,5 @@
+// Total footprint of the fixed bottom navigation on compact layouts. Anything that must clear the
+// bar — the page content's bottom padding, the error-notification offset — reserves this much space
+// at the bottom edge. Kept here as a single source so those offsets can never drift out of lockstep
+// with the bar's height.
+$bottom-nav-height: 72px;

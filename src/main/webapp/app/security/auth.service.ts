@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, ErrorHandler, inject, Injectable, signal } from '@angular/core';
 import {
   catchError,
   finalize,
@@ -40,6 +40,18 @@ export interface CurrentUser {
   email: string;
 }
 
+/**
+ * Signals that a refresh was deliberately aborted because the user had explicitly logged out, as
+ * opposed to a transport or server failure. Its own type lets the startup restore tell this
+ * expected "stay anonymous" outcome apart from an unexpected error worth notifying about.
+ */
+class SessionEndedError extends Error {
+  constructor() {
+    super('Session was ended by an explicit logout');
+    this.name = 'SessionEndedError';
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -51,6 +63,7 @@ export class AuthService {
   // it. Set only on user-initiated logout, never by automatic session cleanup.
   private static readonly LOGGED_OUT_KEY = 'loggedOut';
 
+  private errorHandler = inject(ErrorHandler);
   private http = inject(HttpClient);
   private localStorage = inject(LocalStorage);
 
@@ -136,15 +149,29 @@ export class AuthService {
   }
 
   // Called once at startup: the refresh cookie is HttpOnly and invisible to JS, so attempting a
-  // refresh is the only way to learn whether a session survived the reload. Failure is swallowed
-  // and the user simply stays anonymous — typically a 401 because there is no session, or the
-  // logged-out marker blocking the refresh after an explicit logout.
+  // refresh is the only way to learn whether a session survived the reload. An expected failure —
+  // a 401 because there is no session, or the logged-out marker blocking the refresh after an
+  // explicit logout — leaves the user anonymous silently. An unexpected one (server error, network
+  // outage) is handed to the global ErrorHandler so the user gets the generic notification, but the
+  // restore still settles as anonymous so route guards awaiting it are never left hanging.
   restoreSession(): void {
     this.sessionRestored = firstValueFrom(
       this.refresh().pipe(
         map(() => undefined),
-        catchError(() => of(undefined)),
+        catchError((error: unknown) => {
+          if (!AuthService.isExpectedRestoreFailure(error)) {
+            this.errorHandler.handleError(error);
+          }
+          return of(undefined);
+        }),
       ),
+    );
+  }
+
+  private static isExpectedRestoreFailure(error: unknown): boolean {
+    return (
+      error instanceof SessionEndedError ||
+      (error instanceof HttpErrorResponse && error.status === 401)
     );
   }
 
@@ -165,7 +192,7 @@ export class AuthService {
 
   refresh(): Observable<string> {
     if (this.localStorage.getItem(AuthService.LOGGED_OUT_KEY)) {
-      return throwError(() => AuthService.loggedOutError());
+      return throwError(() => new SessionEndedError());
     }
     // The refresh token rides along as an HttpOnly cookie; withCredentials lets the browser send it.
     this.refreshInFlight$ ??= this.http
@@ -177,7 +204,7 @@ export class AuthService {
         // handed to callers such as the interceptor's retry.
         map((response) => {
           if (this.localStorage.getItem(AuthService.LOGGED_OUT_KEY)) {
-            throw AuthService.loggedOutError();
+            throw new SessionEndedError();
           }
           return response;
         }),
@@ -191,10 +218,6 @@ export class AuthService {
         shareReplay(1),
       );
     return this.refreshInFlight$;
-  }
-
-  private static loggedOutError(): Error {
-    return new Error('Session was ended by an explicit logout');
   }
 
   // Local session state is dropped up front regardless of the backend result — the user asked to

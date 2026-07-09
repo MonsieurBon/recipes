@@ -1,0 +1,20 @@
+// Message and ✕ share one row (matching the design mockup): the label takes the free space and
+// the dismiss button stays at its intrinsic size on the right. Laid out here rather than via the
+// MatSnackBar actions wrapper, whose stacked layout would push the ✕ onto its own line.
+:host {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+[matSnackBarLabel] {
+  flex: 1;
+}
+
+// A text-button action would inherit the inverse-primary tint automatically; an icon button does
+// not, so restore it explicitly to keep the ✕ on-brand against the inverse surface.
+[matSnackBarAction] {
+  flex: none;
+  margin-right: -0.5rem;
+  color: var(--mat-sys-inverse-primary);
+}
