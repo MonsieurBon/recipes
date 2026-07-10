@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-logout-failed',
-  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatButton],
+  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatButton, TranslatePipe],
   templateUrl: './logout-failed.html',
   styleUrl: './logout-failed.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

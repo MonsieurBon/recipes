@@ -8,6 +8,9 @@ import {
   MatListItemTitle,
 } from '@angular/material/list';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../i18n/language.service';
+import { LanguagePickerService } from '../i18n/language-picker.service';
 import { AuthService } from '../security/auth.service';
 
 @Component({
@@ -20,6 +23,7 @@ import { AuthService } from '../security/auth.service';
     MatListItemMeta,
     MatListItemTitle,
     RouterLink,
+    TranslatePipe,
   ],
   templateUrl: './konto.html',
   styleUrl: './konto.scss',
@@ -27,12 +31,20 @@ import { AuthService } from '../security/auth.service';
 })
 export class Konto {
   private authService = inject(AuthService);
+  private language = inject(LanguageService);
+  private languagePicker = inject(LanguagePickerService);
   private router = inject(Router);
 
   protected readonly isAdmin = this.authService.isAdmin;
   protected readonly user = this.authService.currentUser;
 
   protected readonly initial = computed(() => this.user()?.username.charAt(0).toUpperCase() ?? '');
+
+  protected readonly currentLanguageEndonym = this.language.currentEndonym;
+
+  openLanguagePicker(): void {
+    this.languagePicker.openSheet();
+  }
 
   async logout(): Promise<void> {
     const confirmed = await this.authService.logout();

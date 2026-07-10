@@ -5,12 +5,14 @@ import { RouterTestingHarness } from '@angular/router/testing';
 
 import { routes } from './app.routes';
 import { AuthService } from './security/auth.service';
+import { provideTranslateTesting } from './testing/provide-translate-testing';
 
 describe('admin routes', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter(routes),
+        provideTranslateTesting(),
         {
           provide: AuthService,
           useValue: {

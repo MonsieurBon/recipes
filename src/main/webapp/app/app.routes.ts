@@ -9,42 +9,44 @@ import { LogoutFailed } from './security/logout-failed/logout-failed';
 import { Register } from './security/register/register';
 import { RegisterSuccess } from './security/register-success/register-success';
 
+// Route titles are translation keys; TranslatedTitleStrategy renders them as "{app name} - {page}"
+// in the active language.
 export const routes: Routes = [
   {
-    title: 'Rezepte - Konto',
+    title: 'app.account',
     path: 'konto',
     component: Konto,
     canActivate: [loggedInGuard],
   },
   {
-    title: 'Rezepte - Login',
+    title: 'app.login',
     path: 'login',
     component: Login,
   },
   {
-    title: 'Rezepte - Logout fehlgeschlagen',
+    title: 'logoutFailed.title',
     path: 'logout-failed',
     component: LogoutFailed,
   },
   {
-    title: 'Rezepte - Registrieren',
+    title: 'app.register',
     path: 'register',
     component: Register,
   },
   {
-    title: 'Rezepte - Registrierung erfolgreich',
+    title: 'registerSuccess.title',
     path: 'register/success',
     component: RegisterSuccess,
   },
   {
-    title: 'Rezepte - Administration',
+    title: 'app.administration',
     path: 'admin',
     component: AdminShell,
     canActivate: [adminGuard],
     children: [
       { path: '', redirectTo: 'users', pathMatch: 'full' },
       {
-        title: 'Rezepte - Benutzer',
+        title: 'admin.users',
         path: 'users',
         component: AdminUsers,
       },

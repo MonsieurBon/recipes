@@ -7,6 +7,7 @@ import { AuthService } from '../security/auth.service';
 import { ErrorNotification } from './error-notification/error-notification';
 import { LayoutService } from './layout.service';
 import { NotificationService } from './notification.service';
+import { provideTranslateTesting } from '../testing/provide-translate-testing';
 
 describe('NotificationService', () => {
   let snackBar: { openFromComponent: Mock };
@@ -19,6 +20,7 @@ describe('NotificationService', () => {
     isLoggedIn.set(true);
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateTesting(),
         { provide: MatSnackBar, useValue: snackBar },
         { provide: LayoutService, useValue: { isCompact } },
         { provide: AuthService, useValue: { isLoggedIn } },

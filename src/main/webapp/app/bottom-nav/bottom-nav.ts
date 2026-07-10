@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * The compact-viewport main navigation: a fixed bar at the bottom of the screen with one tab per
@@ -8,7 +9,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
  */
 @Component({
   selector: 'app-bottom-nav',
-  imports: [MatIcon, RouterLink, RouterLinkActive],
+  imports: [MatIcon, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './bottom-nav.html',
   styleUrl: './bottom-nav.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

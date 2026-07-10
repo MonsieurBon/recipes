@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Mock } from 'vitest';
 
+import { provideTranslateTesting } from '../../testing/provide-translate-testing';
 import { ErrorNotification } from './error-notification';
 
 describe('ErrorNotification', () => {
@@ -11,6 +12,7 @@ describe('ErrorNotification', () => {
     dismiss = vi.fn();
     TestBed.configureTestingModule({
       providers: [
+        provideTranslateTesting(),
         { provide: MatSnackBarRef, useValue: { dismiss } },
         { provide: MAT_SNACK_BAR_DATA, useValue: { message } },
       ],

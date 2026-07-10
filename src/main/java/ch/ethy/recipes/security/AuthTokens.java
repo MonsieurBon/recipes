@@ -5,7 +5,12 @@ import java.util.Set;
 
 /**
  * Internal result of authentication: the tokens to hand back plus the user's identity (username,
- * email) and roles.
+ * email), roles and preferred UI language (ISO 639-1 wire code).
  */
 public record AuthTokens(
-    String accessToken, String refreshToken, String username, String email, Set<Role> roles) {}
+    String accessToken,
+    String refreshToken,
+    String username,
+    String email,
+    Set<Role> roles,
+    String preferredLanguage) {}

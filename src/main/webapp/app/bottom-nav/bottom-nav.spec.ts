@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideTranslateTesting } from '../testing/provide-translate-testing';
 import { BottomNav } from './bottom-nav';
 
 describe('BottomNav', () => {
@@ -8,7 +9,7 @@ describe('BottomNav', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BottomNav],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideTranslateTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BottomNav);

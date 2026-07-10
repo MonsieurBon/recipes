@@ -5,6 +5,8 @@ import { Mocked, MockInstance } from 'vitest';
 import { AuthService } from './security/auth.service';
 import { LayoutService } from './utility/layout.service';
 import { PendingRequestsService } from './utility/pending-requests.service';
+import { LanguagePickerService } from './i18n/language-picker.service';
+import { provideTranslateTesting } from './testing/provide-translate-testing';
 import { App } from './app';
 
 describe('App', () => {
@@ -12,23 +14,33 @@ describe('App', () => {
   let authServiceSpy: Mocked<Pick<AuthService, 'logout'>> & {
     isLoggedIn: WritableSignal<boolean>;
     isAdmin: WritableSignal<boolean>;
+    profileLanguage: WritableSignal<string | null>;
   };
   let isCompact: WritableSignal<boolean>;
   let activityVisible: WritableSignal<boolean>;
   let navigateSpy: MockInstance;
+  let pickerSpy: Mocked<Pick<LanguagePickerService, 'openSheet'>>;
 
   beforeEach(async () => {
-    authServiceSpy = { isLoggedIn: signal(false), isAdmin: signal(false), logout: vi.fn() };
+    authServiceSpy = {
+      isLoggedIn: signal(false),
+      isAdmin: signal(false),
+      profileLanguage: signal<string | null>(null),
+      logout: vi.fn(),
+    };
     isCompact = signal(false);
     activityVisible = signal(false);
+    pickerSpy = { openSheet: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
         provideRouter([]),
+        provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: LayoutService, useValue: { isCompact } },
         { provide: PendingRequestsService, useValue: { visible: activityVisible } },
+        { provide: LanguagePickerService, useValue: pickerSpy },
       ],
     }).compileComponents();
 
@@ -72,6 +84,41 @@ describe('App', () => {
     expect(loginAction).toBeTruthy();
     expect(loginAction!.getAttribute('href')).toContain('login');
     expect(query('accountMenuTrigger')).toBeNull();
+  });
+
+  it('opens the language picker from the signed-out globe on a compact viewport', async () => {
+    isCompact.set(true);
+    await fixture.whenStable();
+
+    const globe = query('languageGlobe');
+    expect(globe).toBeTruthy();
+
+    globe!.click();
+    expect(pickerSpy.openSheet).toHaveBeenCalledOnce();
+  });
+
+  it('offers the language globe next to login on larger viewports', async () => {
+    await fixture.whenStable();
+
+    expect(query('languageGlobe')).toBeTruthy();
+    expect(query('loginAction')).toBeTruthy();
+  });
+
+  it('keeps the language globe out of the signed-in toolbar', async () => {
+    authServiceSpy.isLoggedIn.set(true);
+    await fixture.whenStable();
+
+    expect(query('languageGlobe')).toBeNull();
+  });
+
+  it('offers a language entry inside the account menu showing the current language', async () => {
+    authServiceSpy.isLoggedIn.set(true);
+    await fixture.whenStable();
+    await openAccountMenu();
+
+    const entry = menuItem('accountMenuLanguage');
+    expect(entry).toBeTruthy();
+    expect(entry!.textContent).toContain('Deutsch');
   });
 
   it('keeps the top-right corner empty for a signed-in user on a compact viewport', async () => {

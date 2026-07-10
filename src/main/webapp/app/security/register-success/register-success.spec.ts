@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { provideTranslateTesting } from '../../testing/provide-translate-testing';
 import { RegisterSuccess } from './register-success';
 
 describe('RegisterSuccess', () => {
@@ -9,7 +10,7 @@ describe('RegisterSuccess', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RegisterSuccess],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideTranslateTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterSuccess);

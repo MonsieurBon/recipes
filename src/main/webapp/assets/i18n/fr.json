@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "Recettes",
+    "loading": "Chargement",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "account": "Compte",
+    "administration": "Administration",
+    "logout": "Déconnexion"
+  },
+  "nav": {
+    "main": "Navigation principale"
+  },
+  "common": {
+    "close": "Fermer"
+  },
+  "field": {
+    "username": "Nom d'utilisateur",
+    "email": "E-mail",
+    "password": "Mot de passe"
+  },
+  "validation": {
+    "usernameRequired": "Le nom d'utilisateur est requis",
+    "usernameDuplicate": "Ce nom d'utilisateur est déjà pris",
+    "usernameOrEmailRequired": "Le nom d'utilisateur ou l'e-mail est requis",
+    "emailRequired": "L'e-mail est requis",
+    "emailInvalid": "L'e-mail est invalide",
+    "emailDuplicate": "Cet e-mail est déjà utilisé",
+    "passwordRequired": "Le mot de passe est requis",
+    "minLength": "Doit contenir au moins {{min}} caractères",
+    "maxLength": "Ne doit pas dépasser {{max}} caractères",
+    "maxBytes": "Ne doit pas dépasser {{max}} octets (les accents et caractères spéciaux comptent plusieurs fois)"
+  },
+  "language": {
+    "label": "Langue",
+    "select": "Sélectionner la langue"
+  },
+  "login": {
+    "usernameOrEmail": "Nom d'utilisateur ou e-mail",
+    "invalidCredentials": "Identifiants invalides",
+    "registerHint": "Pas encore de compte ?"
+  },
+  "registerSuccess": {
+    "title": "Inscription réussie",
+    "message": "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter avec vos identifiants."
+  },
+  "logoutFailed": {
+    "title": "Échec de la déconnexion",
+    "message1": "Le serveur n'a pas pu confirmer la fin de votre session. Vous êtes déconnecté sur cet appareil, mais votre session pourrait être encore active.",
+    "message2": "Vous pouvez réessayer. Si le problème persiste, supprimez les cookies de ce site dans votre navigateur pour mettre fin à la session en toute sécurité.",
+    "retry": "Réessayer",
+    "retryFailed": "La nouvelle tentative a échoué."
+  },
+  "konto": {
+    "adminBadge": "Admin"
+  },
+  "admin": {
+    "back": "Retour",
+    "areas": "Zones d'administration",
+    "users": "Utilisateurs",
+    "emailColumn": "E-mail",
+    "rolesColumn": "Rôles"
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer."
+  }
+}

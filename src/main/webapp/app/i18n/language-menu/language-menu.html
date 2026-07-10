@@ -1,0 +1,14 @@
+<mat-menu class="language-menu">
+  @for (language of languages; track language.code) {
+    <button
+      mat-menu-item
+      data-test-id="languageOption"
+      [class.selected]="current() === language.code"
+      [attr.aria-current]="current() === language.code ? 'true' : null"
+      (click)="select(language.code)"
+    >
+      <mat-icon class="check">{{ current() === language.code ? 'check' : '' }}</mat-icon>
+      <span data-test-id="languageOptionName">{{ language.endonym }}</span>
+    </button>
+  }
+</mat-menu>

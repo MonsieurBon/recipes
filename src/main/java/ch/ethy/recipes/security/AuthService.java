@@ -1,5 +1,6 @@
 package ch.ethy.recipes.security;
 
+import ch.ethy.recipes.user.Language;
 import ch.ethy.recipes.user.Role;
 import ch.ethy.recipes.user.User;
 import ch.ethy.recipes.user.UserRepository;
@@ -104,7 +105,13 @@ public class AuthService {
         jwtService.generateAccessToken(
             user.getId(), user.getUsername(), roles, user.getTokenVersion());
     String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getUsername());
-    return new AuthTokens(accessToken, refreshToken, user.getUsername(), user.getEmail(), roles);
+    return new AuthTokens(
+        accessToken,
+        refreshToken,
+        user.getUsername(),
+        user.getEmail(),
+        roles,
+        user.getPreferredLanguage().code());
   }
 
   public void register(RegistrationDetails registrationDetails) {
@@ -124,6 +131,10 @@ public class AuthService {
     user.setUsername(registrationDetails.username());
     user.setEmail(registrationDetails.email());
     user.setPassword(encodedPassword);
+    // Carry over the language the visitor picked before registering; absent (or unrecognised) input
+    // falls back to the default. Validation already whitelists any supplied value.
+    user.setPreferredLanguage(
+        Language.fromCode(registrationDetails.preferredLanguage()).orElse(Language.DEFAULT));
     userRepository.save(user);
   }
 }

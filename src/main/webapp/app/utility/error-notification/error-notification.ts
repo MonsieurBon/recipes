@@ -7,6 +7,7 @@ import {
   MatSnackBarLabel,
   MatSnackBarRef,
 } from '@angular/material/snack-bar';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /** Payload the {@link NotificationService} hands to the snackbar content component. */
 export interface ErrorNotificationData {
@@ -20,7 +21,7 @@ export interface ErrorNotificationData {
  */
 @Component({
   selector: 'app-error-notification',
-  imports: [MatSnackBarLabel, MatSnackBarAction, MatIconButton, MatIcon],
+  imports: [MatSnackBarLabel, MatSnackBarAction, MatIconButton, MatIcon, TranslatePipe],
   templateUrl: './error-notification.html',
   styleUrl: './error-notification.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

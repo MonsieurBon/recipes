@@ -30,6 +30,11 @@ public class User extends BaseEntity {
   @Nonnull
   private Set<Role> roles = new HashSet<>(List.of(USER));
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "preferred_language", nullable = false)
+  @Nonnull
+  private Language preferredLanguage = Language.DEFAULT;
+
   // Bumped only via UserRepository#incrementTokenVersion (an atomic DB increment), never through a
   // setter, so concurrent revocations cannot lose updates.
   @Column(name = "token_version", nullable = false)
@@ -65,6 +70,14 @@ public class User extends BaseEntity {
 
   public int getTokenVersion() {
     return tokenVersion;
+  }
+
+  public Language getPreferredLanguage() {
+    return preferredLanguage;
+  }
+
+  public void setPreferredLanguage(Language preferredLanguage) {
+    this.preferredLanguage = preferredLanguage;
   }
 
   public void addRole(Role role) {

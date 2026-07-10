@@ -4,6 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { MockInstance } from 'vitest';
 
 import { LayoutService } from '../utility/layout.service';
+import { provideTranslateTesting } from '../testing/provide-translate-testing';
 import { AdminShell } from './admin-shell';
 
 describe('AdminShell', () => {
@@ -16,7 +17,11 @@ describe('AdminShell', () => {
 
     await TestBed.configureTestingModule({
       imports: [AdminShell],
-      providers: [provideRouter([]), { provide: LayoutService, useValue: { isCompact } }],
+      providers: [
+        provideRouter([]),
+        provideTranslateTesting(),
+        { provide: LayoutService, useValue: { isCompact } },
+      ],
     }).compileComponents();
 
     navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);

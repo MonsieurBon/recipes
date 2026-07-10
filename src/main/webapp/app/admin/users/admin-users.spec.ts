@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { LayoutService } from '../../utility/layout.service';
+import { provideTranslateTesting } from '../../testing/provide-translate-testing';
 import { AdminService } from '../admin.service';
 import { AdminUsers } from './admin-users';
 
@@ -16,6 +17,7 @@ describe('AdminUsers', () => {
     await TestBed.configureTestingModule({
       imports: [AdminUsers],
       providers: [
+        provideTranslateTesting(),
         {
           provide: AdminService,
           useValue: {

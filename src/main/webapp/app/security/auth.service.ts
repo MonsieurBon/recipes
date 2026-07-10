@@ -17,6 +17,9 @@ export interface RegistrationDetails {
   username: string;
   email: string;
   password: string;
+  // The language the visitor picked while anonymous, so the new account keeps it. Optional: the
+  // backend falls back to the default when it is absent.
+  preferredLanguage?: string;
 }
 
 export interface DuplicateUserError {
@@ -33,6 +36,7 @@ export interface LoginResponse {
   username: string;
   email: string;
   roles: string[];
+  preferredLanguage: string;
 }
 
 export interface CurrentUser {
@@ -94,6 +98,12 @@ export class AuthService {
 
   readonly currentUser = this.user.asReadonly();
 
+  // The account's stored language preference, taken from the login/refresh response. Null while
+  // anonymous; the LanguageService watches it so the profile choice wins over a local one on login.
+  private readonly profileLanguageSignal = signal<string | null>(null);
+
+  readonly profileLanguage = this.profileLanguageSignal.asReadonly();
+
   readonly isLoggedIn = computed(() => this.accessToken() !== null);
 
   readonly isAdmin = computed(() => this.roles().includes('ADMIN'));
@@ -134,6 +144,7 @@ export class AuthService {
       this.accessToken.set(response.token);
       this.roles.set(response.roles);
       this.user.set({ username: response.username, email: response.email });
+      this.profileLanguageSignal.set(response.preferredLanguage ?? null);
       this.localStorage.removeItem(AuthService.LOGGED_OUT_KEY);
       return true;
     } catch (error) {
@@ -188,6 +199,7 @@ export class AuthService {
     this.accessToken.set(null);
     this.roles.set([]);
     this.user.set(null);
+    this.profileLanguageSignal.set(null);
   }
 
   refresh(): Observable<string> {
@@ -212,6 +224,7 @@ export class AuthService {
           this.accessToken.set(response.token);
           this.roles.set(response.roles);
           this.user.set({ username: response.username, email: response.email });
+          this.profileLanguageSignal.set(response.preferredLanguage ?? null);
         }),
         map((response) => response.token),
         finalize(() => (this.refreshInFlight$ = null)),

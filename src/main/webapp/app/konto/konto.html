@@ -1,4 +1,4 @@
-<h1>Konto</h1>
+<h1>{{ 'app.account' | translate }}</h1>
 <header class="profile-header">
   <span class="avatar" aria-hidden="true" data-test-id="kontoAvatar">{{ initial() }}</span>
   <div class="identity">
@@ -7,18 +7,28 @@
   </div>
 </header>
 <mat-action-list>
+  <button mat-list-item data-test-id="kontoLanguage" (click)="openLanguagePicker()">
+    <mat-icon matListItemIcon>language</mat-icon>
+    <span matListItemTitle>{{ 'language.label' | translate }}</span>
+    <span matListItemMeta class="row-meta">
+      <span class="val" data-test-id="kontoLanguageValue">{{ currentLanguageEndonym() }}</span>
+      <mat-icon class="chevron">chevron_right</mat-icon>
+    </span>
+  </button>
   @if (isAdmin()) {
     <a mat-list-item routerLink="/admin" data-test-id="kontoAdminEntry">
       <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-      <span matListItemTitle>Administration</span>
+      <span matListItemTitle>{{ 'app.administration' | translate }}</span>
       <span matListItemMeta class="row-meta">
-        <span class="tag amber" data-test-id="kontoAdminBadge">Admin</span>
+        <span class="tag amber" data-test-id="kontoAdminBadge">{{
+          'konto.adminBadge' | translate
+        }}</span>
         <mat-icon class="chevron">chevron_right</mat-icon>
       </span>
     </a>
   }
   <button mat-list-item data-test-id="kontoLogout" (click)="logout()">
     <mat-icon matListItemIcon>logout</mat-icon>
-    <span matListItemTitle>Abmelden</span>
+    <span matListItemTitle>{{ 'app.logout' | translate }}</span>
   </button>
 </mat-action-list>

@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import ch.ethy.recipes.user.Language;
 import ch.ethy.recipes.user.Role;
 import ch.ethy.recipes.user.User;
 import ch.ethy.recipes.user.UserRepository;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -78,6 +81,7 @@ class AuthServiceTest {
     user.setUsername("alice");
     user.setEmail("alice@example.com");
     user.addRole(Role.ADMIN);
+    user.setPreferredLanguage(Language.FRENCH);
     when(userRepository.findByUsernameOrEmail("alice")).thenReturn(Optional.of(user));
     when(jwtService.generateAccessToken(42L, "alice", user.getRoles(), 0)).thenReturn("access-xyz");
     when(jwtService.generateRefreshToken(42L, "alice")).thenReturn("refresh-xyz");
@@ -89,6 +93,7 @@ class AuthServiceTest {
     assertEquals("alice", response.username());
     assertEquals("alice@example.com", response.email());
     assertEquals(user.getRoles(), response.roles());
+    assertEquals("fr", response.preferredLanguage());
   }
 
   @Test
@@ -230,6 +235,33 @@ class AuthServiceTest {
   void refreshRejectsAMissingToken() {
     assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh(null));
     assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("  "));
+  }
+
+  @Test
+  void registerStoresTheChosenPreferredLanguage() {
+    when(userRepository.existsByUsername("alice")).thenReturn(false);
+    when(userRepository.existsByEmail("alice@example.com")).thenReturn(false);
+    when(passwordEncoder.encode("long-enough-pw")).thenReturn("hashed");
+
+    authService.register(
+        new RegistrationDetails("alice", "alice@example.com", "long-enough-pw", "fr"));
+
+    ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(saved.capture());
+    assertEquals(Language.FRENCH, saved.getValue().getPreferredLanguage());
+  }
+
+  @Test
+  void registerDefaultsToGermanWhenNoLanguageIsChosen() {
+    when(userRepository.existsByUsername("bob")).thenReturn(false);
+    when(userRepository.existsByEmail("bob@example.com")).thenReturn(false);
+    when(passwordEncoder.encode("long-enough-pw")).thenReturn("hashed");
+
+    authService.register(new RegistrationDetails("bob", "bob@example.com", "long-enough-pw", null));
+
+    ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(saved.capture());
+    assertEquals(Language.GERMAN, saved.getValue().getPreferredLanguage());
   }
 
   private static User userEntity(long id, String username) {

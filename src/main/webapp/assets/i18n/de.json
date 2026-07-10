@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "Rezepte",
+    "loading": "Wird geladen",
+    "login": "Login",
+    "register": "Registrieren",
+    "account": "Konto",
+    "administration": "Administration",
+    "logout": "Abmelden"
+  },
+  "nav": {
+    "main": "Hauptnavigation"
+  },
+  "common": {
+    "close": "Schliessen"
+  },
+  "field": {
+    "username": "Benutzername",
+    "email": "Email",
+    "password": "Passwort"
+  },
+  "validation": {
+    "usernameRequired": "Benutzername ist erforderlich",
+    "usernameDuplicate": "Benutzername ist bereits vergeben",
+    "usernameOrEmailRequired": "Benutzername oder Email ist erforderlich",
+    "emailRequired": "Email ist erforderlich",
+    "emailInvalid": "Email ist ungültig",
+    "emailDuplicate": "Email ist bereits vergeben",
+    "passwordRequired": "Passwort ist erforderlich",
+    "minLength": "Muss mindestens {{min}} Zeichen lang sein",
+    "maxLength": "Darf höchstens {{max}} Zeichen lang sein",
+    "maxBytes": "Darf höchstens {{max}} Bytes lang sein (Umlaute und Sonderzeichen zählen mehrfach)"
+  },
+  "language": {
+    "label": "Sprache",
+    "select": "Sprache auswählen"
+  },
+  "login": {
+    "usernameOrEmail": "Benutzername oder Email",
+    "invalidCredentials": "Ungültige Anmeldedaten",
+    "registerHint": "Noch kein Konto?"
+  },
+  "registerSuccess": {
+    "title": "Registrierung erfolgreich",
+    "message": "Dein Konto wurde erfolgreich erstellt. Du kannst dich jetzt mit deinen Zugangsdaten anmelden."
+  },
+  "logoutFailed": {
+    "title": "Logout fehlgeschlagen",
+    "message1": "Der Server konnte nicht bestätigen, dass deine Sitzung beendet wurde. Du bist auf diesem Gerät zwar abgemeldet, deine Sitzung könnte aber noch aktiv sein.",
+    "message2": "Du kannst es erneut versuchen. Falls das Problem bestehen bleibt, lösche die Cookies dieser Website in deinem Browser, um die Sitzung sicher zu beenden.",
+    "retry": "Erneut versuchen",
+    "retryFailed": "Der erneute Versuch ist fehlgeschlagen."
+  },
+  "konto": {
+    "adminBadge": "Admin"
+  },
+  "admin": {
+    "back": "Zurück",
+    "areas": "Administrationsbereiche",
+    "users": "Benutzer",
+    "emailColumn": "E-Mail",
+    "rolesColumn": "Rollen"
+  },
+  "errors": {
+    "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+  }
+}
