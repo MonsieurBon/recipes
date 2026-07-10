@@ -1,11 +1,9 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Registrierung erfolgreich</mat-card-title>
+    <mat-card-title>{{ 'registerSuccess.title' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <p>
-      Dein Konto wurde erfolgreich erstellt. Du kannst dich jetzt mit deinen Zugangsdaten anmelden.
-    </p>
-    <a mat-flat-button routerLink="/login">Login</a>
+    <p>{{ 'registerSuccess.message' | translate }}</p>
+    <a mat-flat-button routerLink="/login">{{ 'app.login' | translate }}</a>
   </mat-card-content>
 </mat-card>

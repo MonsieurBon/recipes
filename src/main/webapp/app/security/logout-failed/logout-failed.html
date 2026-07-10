@@ -1,21 +1,17 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Logout fehlgeschlagen</mat-card-title>
+    <mat-card-title>{{ 'logoutFailed.title' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <p>
-      Der Server konnte nicht bestätigen, dass deine Sitzung beendet wurde. Du bist auf diesem Gerät
-      zwar abgemeldet, deine Sitzung könnte aber noch aktiv sein.
-    </p>
-    <p>
-      Du kannst es erneut versuchen. Falls das Problem bestehen bleibt, lösche die Cookies dieser
-      Website in deinem Browser, um die Sitzung sicher zu beenden.
-    </p>
+    <p>{{ 'logoutFailed.message1' | translate }}</p>
+    <p>{{ 'logoutFailed.message2' | translate }}</p>
     <button mat-flat-button data-test-id="retryLogout" [disabled]="retrying()" (click)="retry()">
-      Erneut versuchen
+      {{ 'logoutFailed.retry' | translate }}
     </button>
     @if (retryFailed()) {
-      <p class="retry-failed" data-test-id="retryFailed">Der erneute Versuch ist fehlgeschlagen.</p>
+      <p class="retry-failed" data-test-id="retryFailed">
+        {{ 'logoutFailed.retryFailed' | translate }}
+      </p>
     }
   </mat-card-content>
 </mat-card>

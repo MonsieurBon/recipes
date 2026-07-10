@@ -5,6 +5,7 @@ import { disabled, form, FormField, FormRoot, maxLength, required } from '@angul
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -23,6 +24,7 @@ import { AuthService } from '../auth.service';
     MatButton,
     MatProgressSpinner,
     RouterLink,
+    TranslatePipe,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -32,21 +34,11 @@ export class Login {
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   // Mirrors the backend @Size cap on LoginCredentials so an over-long value can never be submitted,
   // however it reaches the model (typing, paste, autofill, or a programmatic set).
   private static readonly MAX_FIELD_LENGTH = 256;
-
-  private readonly errorMessages = {
-    usernameOrEmail: {
-      required: 'Benutzername oder Email ist erforderlich',
-      maxlength: `Darf höchstens ${Login.MAX_FIELD_LENGTH} Zeichen lang sein`,
-    },
-    password: {
-      required: 'Passwort ist erforderlich',
-      maxlength: `Darf höchstens ${Login.MAX_FIELD_LENGTH} Zeichen lang sein`,
-    },
-  };
 
   // The backend answers a wrong username/password with a single 401; there is no field-level
   // detail to attach, so the failure surfaces as one form-level message instead.
@@ -61,15 +53,21 @@ export class Login {
     this.loginModel,
     (schemaPath) => {
       disabled(schemaPath, (ctx) => ctx.fieldTree().submitting());
+      // Messages resolve through TranslateService inside the validator, so they follow a live
+      // language switch: the reactive read re-runs the validator when the active language changes.
       required(schemaPath.usernameOrEmail, {
-        message: this.errorMessages.usernameOrEmail.required,
+        message: () => this.translate.instant('validation.usernameOrEmailRequired'),
       });
       maxLength(schemaPath.usernameOrEmail, Login.MAX_FIELD_LENGTH, {
-        message: this.errorMessages.usernameOrEmail.maxlength,
+        message: () =>
+          this.translate.instant('validation.maxLength', { max: Login.MAX_FIELD_LENGTH }),
       });
-      required(schemaPath.password, { message: this.errorMessages.password.required });
+      required(schemaPath.password, {
+        message: () => this.translate.instant('validation.passwordRequired'),
+      });
       maxLength(schemaPath.password, Login.MAX_FIELD_LENGTH, {
-        message: this.errorMessages.password.maxlength,
+        message: () =>
+          this.translate.instant('validation.maxLength', { max: Login.MAX_FIELD_LENGTH }),
       });
     },
     {

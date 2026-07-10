@@ -48,8 +48,8 @@ class AdminUserControllerTest {
     when(userService.getAllUsers())
         .thenReturn(
             List.of(
-                new UserDto(1L, "alice", "alice@example.com", Set.of(Role.USER, Role.ADMIN)),
-                new UserDto(2L, "bob", "bob@example.com", Set.of(Role.USER))));
+                new UserDto(1L, "alice", "alice@example.com", Set.of(Role.USER, Role.ADMIN), "de"),
+                new UserDto(2L, "bob", "bob@example.com", Set.of(Role.USER), "en")));
 
     mockMvc
         .perform(get("/api/admin/users"))

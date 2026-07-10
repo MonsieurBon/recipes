@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "Recipes",
+    "loading": "Loading",
+    "login": "Login",
+    "register": "Register",
+    "account": "Account",
+    "administration": "Administration",
+    "logout": "Log out"
+  },
+  "nav": {
+    "main": "Main navigation"
+  },
+  "common": {
+    "close": "Close"
+  },
+  "field": {
+    "username": "Username",
+    "email": "Email",
+    "password": "Password"
+  },
+  "validation": {
+    "usernameRequired": "Username is required",
+    "usernameDuplicate": "Username is already taken",
+    "usernameOrEmailRequired": "Username or email is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Email is invalid",
+    "emailDuplicate": "Email is already taken",
+    "passwordRequired": "Password is required",
+    "minLength": "Must be at least {{min}} characters long",
+    "maxLength": "Must be at most {{max}} characters long",
+    "maxBytes": "Must be at most {{max}} bytes long (umlauts and special characters count as several)"
+  },
+  "language": {
+    "label": "Language",
+    "select": "Select language"
+  },
+  "login": {
+    "usernameOrEmail": "Username or email",
+    "invalidCredentials": "Invalid credentials",
+    "registerHint": "No account yet?"
+  },
+  "registerSuccess": {
+    "title": "Registration successful",
+    "message": "Your account has been created successfully. You can now sign in with your credentials."
+  },
+  "logoutFailed": {
+    "title": "Logout failed",
+    "message1": "The server could not confirm that your session was ended. You are signed out on this device, but your session might still be active.",
+    "message2": "You can try again. If the problem persists, delete this site's cookies in your browser to end the session safely.",
+    "retry": "Try again",
+    "retryFailed": "The retry failed."
+  },
+  "konto": {
+    "adminBadge": "Admin"
+  },
+  "admin": {
+    "back": "Back",
+    "areas": "Administration areas",
+    "users": "Users",
+    "emailColumn": "Email",
+    "rolesColumn": "Roles"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again."
+  }
+}

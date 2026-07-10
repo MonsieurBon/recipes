@@ -426,6 +426,47 @@ describe('AuthService', () => {
     expect(service.currentUser()).toBeNull();
   });
 
+  it('exposes no preferred language before authenticating', () => {
+    expect(service.profileLanguage()).toBeNull();
+  });
+
+  it('exposes the preferred language from a login response', async () => {
+    const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
+    httpMock.expectOne('/api/auth/login').flush({
+      token: 'access-1',
+      username: 'alice',
+      email: 'alice@example.com',
+      roles: ['USER'],
+      preferredLanguage: 'fr',
+    });
+    expect(await promise).toBe(true);
+
+    expect(service.profileLanguage()).toBe('fr');
+  });
+
+  it('restores the preferred language from the refresh cookie', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock
+      .expectOne('/api/auth/refresh')
+      .flush({ token: 'restored', roles: ['USER'], preferredLanguage: 'it' });
+    await refreshed;
+
+    expect(service.profileLanguage()).toBe('it');
+  });
+
+  it('drops the preferred language when the local session is cleared', async () => {
+    const refreshed = firstValueFrom(service.refresh());
+    httpMock
+      .expectOne('/api/auth/refresh')
+      .flush({ token: 'access-1', roles: ['USER'], preferredLanguage: 'fr' });
+    await refreshed;
+    expect(service.profileLanguage()).toBe('fr');
+
+    service.clearLocalSession();
+
+    expect(service.profileLanguage()).toBeNull();
+  });
+
   it('logout drops the token but resolves false when the backend call fails', async () => {
     const refreshed = firstValueFrom(service.refresh());
     httpMock.expectOne('/api/auth/refresh').flush({ token: 'access-1', roles: ['USER'] });

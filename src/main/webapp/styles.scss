@@ -35,13 +35,41 @@ h2 {
     )
   );
 
-  .user-menu {
+  // The account menu and the language picker menu: the design's card surface with a hairline, a
+  // 14px radius and a soft shadow — lighter and rounder than the flatter, darker Material default.
+  .user-menu,
+  .language-menu {
     @include mat.menu-overrides(
       (
-        container-color: var(--mat-sys-surface),
+        container-color: var(--mat-sys-surface-container-lowest),
+        container-shape: 14px,
+        container-elevation-shadow: 0 10px 26px rgba(28, 43, 30, 0.16),
       )
     );
+    border: 1px solid var(--mat-sys-outline-variant);
+
+    // Give the rows a touch more horizontal inset so the content is not crowded against the panel
+    // border, matching the design's breathing room.
+    .mat-mdc-menu-item {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
   }
+
+  // The picker opens to the left of its trigger (the account submenu and the signed-out globe are
+  // both right-anchored); a small outer margin lifts it off the parent so the two cards read as
+  // separate, matching the design's gap.
+  .language-menu {
+    margin-right: 6px;
+  }
+}
+
+// The language bottom sheet: the design's card surface and a rounded top edge, in place of the
+// flat, darker default. Only this one bottom sheet exists, so the container is styled directly.
+.mat-bottom-sheet-container {
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+  background: var(--mat-sys-surface-container-lowest);
 }
 
 // The error snackbar renders in the CDK overlay at document level, so its compact offset lives

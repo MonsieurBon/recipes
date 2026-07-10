@@ -90,6 +90,10 @@ public class AuthController {
     response.addHeader(
         HttpHeaders.SET_COOKIE, refreshTokenCookieFactory.issue(tokens.refreshToken()).toString());
     return new LoginResponse(
-        tokens.accessToken(), tokens.username(), tokens.email(), tokens.roles());
+        tokens.accessToken(),
+        tokens.username(),
+        tokens.email(),
+        tokens.roles(),
+        tokens.preferredLanguage());
   }
 }

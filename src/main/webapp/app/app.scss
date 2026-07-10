@@ -44,3 +44,13 @@
 .spacer {
   flex: 1 1 auto;
 }
+
+// The current-language value sits at the end of the account menu's Sprache row, muted, just before
+// the submenu chevron Material appends.
+.account-language-value {
+  margin-left: auto;
+  padding-left: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85em;
+}
+

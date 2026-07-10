@@ -1,16 +1,21 @@
 <header class="admin-header">
   @if (isCompact()) {
-    <button matIconButton aria-label="Zurück" data-test-id="adminBack" (click)="back()">
+    <button
+      matIconButton
+      [attr.aria-label]="'admin.back' | translate"
+      data-test-id="adminBack"
+      (click)="back()"
+    >
       <mat-icon>chevron_left</mat-icon>
     </button>
   }
-  <h1>Administration</h1>
+  <h1>{{ 'app.administration' | translate }}</h1>
 </header>
 <nav
   mat-tab-nav-bar
   [tabPanel]="panel"
   mat-stretch-tabs="false"
-  aria-label="Administrationsbereiche"
+  [attr.aria-label]="'admin.areas' | translate"
 >
   <a
     mat-tab-link
@@ -20,7 +25,7 @@
     [active]="usersLink.isActive"
     data-test-id="adminTabUsers"
   >
-    Benutzer
+    {{ 'admin.users' | translate }}
   </a>
 </nav>
 <mat-tab-nav-panel #panel class="admin-content">

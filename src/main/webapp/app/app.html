@@ -2,34 +2,65 @@
   <mat-progress-bar
     class="activity-bar"
     mode="indeterminate"
-    aria-label="Wird geladen"
+    [attr.aria-label]="'app.loading' | translate"
     data-test-id="activityBar"
   />
 }
 <mat-toolbar>
-  <span class="wordmark" data-test-id="appTitle">Rezepte</span>
+  <span class="wordmark" data-test-id="appTitle">{{ 'app.title' | translate }}</span>
   <span class="spacer"></span>
   @if (!loggedIn()) {
-    <a mat-button routerLink="login" data-test-id="loginAction">Login</a>
+    @if (isCompact()) {
+      <button
+        matIconButton
+        data-test-id="languageGlobe"
+        [attr.aria-label]="'language.select' | translate"
+        (click)="openLanguagePicker()"
+      >
+        <mat-icon>language</mat-icon>
+      </button>
+    } @else {
+      <button
+        matIconButton
+        data-test-id="languageGlobe"
+        [attr.aria-label]="'language.select' | translate"
+        [matMenuTriggerFor]="signedOutLanguageMenu.menu()"
+      >
+        <mat-icon>language</mat-icon>
+      </button>
+      <app-language-menu #signedOutLanguageMenu />
+    }
+    <a mat-button routerLink="login" data-test-id="loginAction">{{ 'app.login' | translate }}</a>
   } @else if (!isCompact()) {
     <button
       matIconButton
       data-test-id="accountMenuTrigger"
-      aria-label="Konto"
+      [attr.aria-label]="'app.account' | translate"
       [matMenuTriggerFor]="accountMenu"
     >
       <mat-icon>person</mat-icon>
     </button>
     <mat-menu #accountMenu="matMenu" class="user-menu">
+      <button
+        mat-menu-item
+        data-test-id="accountMenuLanguage"
+        [matMenuTriggerFor]="accountLanguageMenu.menu()"
+      >
+        <mat-icon>language</mat-icon>
+        <span>{{ 'language.label' | translate }}</span>
+        <span class="account-language-value">{{ currentLanguageEndonym() }}</span>
+      </button>
       @if (isAdmin()) {
         <a mat-menu-item routerLink="/admin" data-test-id="accountMenuAdmin">
-          <mat-icon>admin_panel_settings</mat-icon><span>Administration</span>
+          <mat-icon>admin_panel_settings</mat-icon
+          ><span>{{ 'app.administration' | translate }}</span>
         </a>
       }
       <button mat-menu-item data-test-id="accountMenuLogout" (click)="logout()">
-        <mat-icon>logout</mat-icon><span>Abmelden</span>
+        <mat-icon>logout</mat-icon><span>{{ 'app.logout' | translate }}</span>
       </button>
     </mat-menu>
+    <app-language-menu #accountLanguageMenu />
   }
 </mat-toolbar>
 <div class="content" [class.has-bottom-nav]="showBottomNav()">

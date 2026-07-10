@@ -44,6 +44,11 @@ mat-action-list [mat-list-item] {
   align-items: center;
   gap: 0.5rem;
 
+  .val {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-medium);
+  }
+
   .chevron {
     color: var(--mat-sys-on-surface-variant);
   }

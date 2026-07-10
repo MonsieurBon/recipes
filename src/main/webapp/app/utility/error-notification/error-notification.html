@@ -1,4 +1,9 @@
 <span matSnackBarLabel>{{ data.message }}</span>
-<button matIconButton matSnackBarAction aria-label="Schliessen" (click)="dismiss()">
+<button
+  matIconButton
+  matSnackBarAction
+  [attr.aria-label]="'common.close' | translate"
+  (click)="dismiss()"
+>
   <mat-icon>close</mat-icon>
 </button>

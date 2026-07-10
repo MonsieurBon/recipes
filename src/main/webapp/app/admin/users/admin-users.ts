@@ -13,6 +13,7 @@ import {
   MatRowDef,
   MatTable,
 } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LayoutService } from '../../utility/layout.service';
 import { AdminService } from '../admin.service';
 
@@ -31,6 +32,7 @@ import { AdminService } from '../admin.service';
     MatTable,
     TitleCasePipe,
     UpperCasePipe,
+    TranslatePipe,
   ],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.scss',

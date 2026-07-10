@@ -1,25 +1,25 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Registrieren</mat-card-title>
+    <mat-card-title>{{ 'app.register' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <form [formRoot]="registerForm">
       <mat-form-field>
-        <mat-label>Benutzername</mat-label>
+        <mat-label>{{ 'field.username' | translate }}</mat-label>
         <input matInput type="text" [formField]="registerForm.username" />
         @if (registerForm.username().touched() && registerForm.username().errors().length > 0) {
           <mat-error>{{ registerForm.username().errors()[0].message }}</mat-error>
         }
       </mat-form-field>
       <mat-form-field>
-        <mat-label>Email</mat-label>
+        <mat-label>{{ 'field.email' | translate }}</mat-label>
         <input matInput type="email" [formField]="registerForm.email" />
         @if (registerForm.email().touched() && registerForm.email().errors().length > 0) {
           <mat-error>{{ registerForm.email().errors()[0].message }}</mat-error>
         }
       </mat-form-field>
       <mat-form-field>
-        <mat-label>Passwort</mat-label>
+        <mat-label>{{ 'field.password' | translate }}</mat-label>
         <input matInput type="password" [formField]="registerForm.password" />
         @if (registerForm.password().touched() && registerForm.password().errors().length > 0) {
           <mat-error>{{ registerForm.password().errors()[0].message }}</mat-error>
@@ -30,7 +30,7 @@
           <mat-spinner diameter="20"></mat-spinner>
         }
         <button mat-flat-button type="submit" [disabled]="registerForm().submitting()">
-          Registrieren
+          {{ 'app.register' | translate }}
         </button>
       </div>
     </form>

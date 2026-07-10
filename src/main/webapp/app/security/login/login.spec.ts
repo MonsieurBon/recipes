@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Mocked, MockInstance } from 'vitest';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { provideTranslateTesting } from '../../testing/provide-translate-testing';
 
 import { Login } from './login';
 
@@ -20,6 +21,7 @@ describe('Login', () => {
       imports: [Login],
       providers: [
         provideRouter([]),
+        provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         {
           provide: ActivatedRoute,

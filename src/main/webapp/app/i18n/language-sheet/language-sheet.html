@@ -1,0 +1,26 @@
+<button
+  type="button"
+  class="handle"
+  data-test-id="sheetHandle"
+  [attr.aria-label]="'common.close' | translate"
+  (click)="close()"
+></button>
+<p class="sheet-title" id="languageSheetTitle">{{ 'language.label' | translate }}</p>
+<div class="language-list" role="listbox" aria-labelledby="languageSheetTitle">
+  @for (language of languages; track language.code) {
+    <button
+      type="button"
+      class="language-option"
+      role="option"
+      data-test-id="languageOption"
+      [class.selected]="current() === language.code"
+      [attr.aria-selected]="current() === language.code"
+      (click)="select(language.code)"
+    >
+      <mat-icon class="check" aria-hidden="true">
+        {{ current() === language.code ? 'check' : '' }}
+      </mat-icon>
+      <span data-test-id="languageOptionName">{{ language.endonym }}</span>
+    </button>
+  }
+</div>

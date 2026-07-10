@@ -1,6 +1,6 @@
-<nav aria-label="Hauptnavigation">
+<nav [attr.aria-label]="'nav.main' | translate">
   <a routerLink="/konto" routerLinkActive="active" data-test-id="bottomNavKonto">
     <span class="indicator"><mat-icon>person</mat-icon></span>
-    <span class="label">Konto</span>
+    <span class="label">{{ 'app.account' | translate }}</span>
   </a>
 </nav>

@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "Ricette",
+    "loading": "Caricamento",
+    "login": "Accedi",
+    "register": "Registrati",
+    "account": "Account",
+    "administration": "Amministrazione",
+    "logout": "Esci"
+  },
+  "nav": {
+    "main": "Navigazione principale"
+  },
+  "common": {
+    "close": "Chiudi"
+  },
+  "field": {
+    "username": "Nome utente",
+    "email": "Email",
+    "password": "Password"
+  },
+  "validation": {
+    "usernameRequired": "Il nome utente è obbligatorio",
+    "usernameDuplicate": "Nome utente già in uso",
+    "usernameOrEmailRequired": "Nome utente o email è obbligatorio",
+    "emailRequired": "L'email è obbligatoria",
+    "emailInvalid": "L'email non è valida",
+    "emailDuplicate": "Email già in uso",
+    "passwordRequired": "La password è obbligatoria",
+    "minLength": "Deve contenere almeno {{min}} caratteri",
+    "maxLength": "Non deve superare {{max}} caratteri",
+    "maxBytes": "Non deve superare {{max}} byte (dieresi e caratteri speciali contano di più)"
+  },
+  "language": {
+    "label": "Lingua",
+    "select": "Seleziona lingua"
+  },
+  "login": {
+    "usernameOrEmail": "Nome utente o email",
+    "invalidCredentials": "Credenziali non valide",
+    "registerHint": "Non hai ancora un account?"
+  },
+  "registerSuccess": {
+    "title": "Registrazione riuscita",
+    "message": "Il tuo account è stato creato con successo. Ora puoi accedere con le tue credenziali."
+  },
+  "logoutFailed": {
+    "title": "Disconnessione non riuscita",
+    "message1": "Il server non ha potuto confermare la chiusura della tua sessione. Su questo dispositivo sei disconnesso, ma la tua sessione potrebbe essere ancora attiva.",
+    "message2": "Puoi riprovare. Se il problema persiste, elimina i cookie di questo sito nel tuo browser per terminare la sessione in modo sicuro.",
+    "retry": "Riprova",
+    "retryFailed": "Il nuovo tentativo non è riuscito."
+  },
+  "konto": {
+    "adminBadge": "Admin"
+  },
+  "admin": {
+    "back": "Indietro",
+    "areas": "Aree di amministrazione",
+    "users": "Utenti",
+    "emailColumn": "Email",
+    "rolesColumn": "Ruoli"
+  },
+  "errors": {
+    "generic": "Qualcosa è andato storto. Riprova."
+  }
+}

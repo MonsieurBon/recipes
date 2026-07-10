@@ -65,7 +65,12 @@ class AuthControllerTest {
         .thenReturn(
             CompletableFuture.completedFuture(
                 new AuthTokens(
-                    "access-1", "refresh-1", "alice", "alice@example.com", Set.of(Role.USER))));
+                    "access-1",
+                    "refresh-1",
+                    "alice",
+                    "alice@example.com",
+                    Set.of(Role.USER),
+                    "fr")));
 
     MvcResult suspended =
         mockMvc
@@ -83,6 +88,7 @@ class AuthControllerTest {
             .andExpect(jsonPath("$.token").value("access-1"))
             .andExpect(jsonPath("$.username").value("alice"))
             .andExpect(jsonPath("$.email").value("alice@example.com"))
+            .andExpect(jsonPath("$.preferredLanguage").value("fr"))
             .andReturn();
 
     String setCookie = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);
@@ -155,7 +161,12 @@ class AuthControllerTest {
         .thenReturn(
             CompletableFuture.completedFuture(
                 new AuthTokens(
-                    "access-1", "refresh-1", "alice", "alice@example.com", Set.of(Role.USER))));
+                    "access-1",
+                    "refresh-1",
+                    "alice",
+                    "alice@example.com",
+                    Set.of(Role.USER),
+                    "de")));
     String maxLength = "a".repeat(256); // exactly the @Size(max) cap — must pass, not 400
 
     MvcResult suspended =
@@ -249,6 +260,28 @@ class AuthControllerTest {
   }
 
   @Test
+  void registerCarriesTheChosenPreferredLanguage() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"long-enough-pw\",\"preferredLanguage\":\"fr\"}"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void registerWithAnUnsupportedPreferredLanguageReturns400() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"long-enough-pw\",\"preferredLanguage\":\"es\"}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void registerWithDuplicateUserReturns409() throws Exception {
     doThrow(new DuplicateUserException(List.of("username"))).when(authService).register(any());
 
@@ -289,7 +322,7 @@ class AuthControllerTest {
     when(authService.refresh("old-refresh"))
         .thenReturn(
             new AuthTokens(
-                "access-2", "refresh-2", "alice", "alice@example.com", Set.of(Role.USER)));
+                "access-2", "refresh-2", "alice", "alice@example.com", Set.of(Role.USER), "it"));
 
     MvcResult result =
         mockMvc
@@ -298,6 +331,7 @@ class AuthControllerTest {
             .andExpect(jsonPath("$.token").value("access-2"))
             .andExpect(jsonPath("$.username").value("alice"))
             .andExpect(jsonPath("$.email").value("alice@example.com"))
+            .andExpect(jsonPath("$.preferredLanguage").value("it"))
             .andReturn();
 
     String setCookie = result.getResponse().getHeader(HttpHeaders.SET_COOKIE);

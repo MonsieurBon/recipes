@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Mocked } from 'vitest';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { LanguageService } from '../../i18n/language.service';
+import { provideTranslateTesting } from '../../testing/provide-translate-testing';
 
 import { Register } from './register';
 
@@ -18,8 +20,10 @@ describe('Register', () => {
     await TestBed.configureTestingModule({
       imports: [Register],
       providers: [
+        provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: LanguageService, useValue: { current: () => 'fr' } },
       ],
     }).compileComponents();
 
@@ -273,6 +277,7 @@ describe('Register', () => {
       username: 'user',
       email: 'user@example.com',
       password: 'long-enough-pw',
+      preferredLanguage: 'fr',
     });
     expect(routerSpy.navigate).toHaveBeenCalledExactlyOnceWith(['register', 'success']);
     expect(fixture.nativeElement.querySelectorAll('mat-error').length).toBe(0);

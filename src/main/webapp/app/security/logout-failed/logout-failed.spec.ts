@@ -3,6 +3,7 @@ import { Mocked } from 'vitest';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
+import { provideTranslateTesting } from '../../testing/provide-translate-testing';
 import { LogoutFailed } from './logout-failed';
 
 describe('LogoutFailed', () => {
@@ -17,6 +18,7 @@ describe('LogoutFailed', () => {
     await TestBed.configureTestingModule({
       imports: [LogoutFailed],
       providers: [
+        provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
       ],

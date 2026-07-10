@@ -1,11 +1,11 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Login</mat-card-title>
+    <mat-card-title>{{ 'app.login' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <form [formRoot]="loginForm">
       <mat-form-field>
-        <mat-label>Benutzername oder Email</mat-label>
+        <mat-label>{{ 'login.usernameOrEmail' | translate }}</mat-label>
         <input
           matInput
           type="text"
@@ -19,7 +19,7 @@
         }
       </mat-form-field>
       <mat-form-field>
-        <mat-label>Passwort</mat-label>
+        <mat-label>{{ 'field.password' | translate }}</mat-label>
         <input
           matInput
           type="password"
@@ -31,18 +31,22 @@
         }
       </mat-form-field>
       @if (loginFailed()) {
-        <p class="login-error" data-test-id="loginError">Ungültige Anmeldedaten</p>
+        <p class="login-error" data-test-id="loginError">
+          {{ 'login.invalidCredentials' | translate }}
+        </p>
       }
       <div class="submit-row">
         @if (loginForm().submitting()) {
           <mat-spinner diameter="20"></mat-spinner>
         }
-        <button mat-flat-button type="submit" [disabled]="loginForm().submitting()">Login</button>
+        <button mat-flat-button type="submit" [disabled]="loginForm().submitting()">
+          {{ 'app.login' | translate }}
+        </button>
       </div>
     </form>
     <p class="register-hint">
-      Noch kein Konto?
-      <a routerLink="/register" data-test-id="registerLink">Registrieren</a>
+      {{ 'login.registerHint' | translate }}
+      <a routerLink="/register" data-test-id="registerLink">{{ 'app.register' | translate }}</a>
     </p>
   </mat-card-content>
 </mat-card>

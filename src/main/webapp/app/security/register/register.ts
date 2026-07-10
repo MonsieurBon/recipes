@@ -15,7 +15,9 @@ import {
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth.service';
+import { LanguageService } from '../../i18n/language.service';
 
 @Component({
   selector: 'app-register',
@@ -32,6 +34,7 @@ import { AuthService } from '../auth.service';
     MatLabel,
     MatButton,
     MatProgressSpinner,
+    TranslatePipe,
   ],
   templateUrl: './register.html',
   styleUrl: './register.scss',
@@ -39,7 +42,9 @@ import { AuthService } from '../auth.service';
 })
 export class Register {
   private authService = inject(AuthService);
+  private language = inject(LanguageService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   // Mirrors the backend @Size cap on RegistrationDetails (itself aligned to the VARCHAR(255)
   // column width) so an over-long value can never be submitted, however it reaches the model
@@ -55,62 +60,65 @@ export class Register {
   // validated separately from the character count.
   private static readonly MAX_PASSWORD_BYTES = 72;
 
-  private readonly errorMessages: Record<string, Record<string, string>> = {
-    username: {
-      required: 'Benutzername ist erforderlich',
-      maxlength: `Darf höchstens ${Register.MAX_FIELD_LENGTH} Zeichen lang sein`,
-      duplicate: 'Benutzername ist bereits vergeben',
-    },
-    email: {
-      required: 'Email ist erforderlich',
-      invalid: 'Email ist ungültig',
-      maxlength: `Darf höchstens ${Register.MAX_FIELD_LENGTH} Zeichen lang sein`,
-      duplicate: 'Email ist bereits vergeben',
-    },
-    password: {
-      required: 'Passwort ist erforderlich',
-      minlength: `Muss mindestens ${Register.MIN_PASSWORD_LENGTH} Zeichen lang sein`,
-      maxlength: `Darf höchstens ${Register.MAX_PASSWORD_BYTES} Zeichen lang sein`,
-      maxbytes: `Darf höchstens ${Register.MAX_PASSWORD_BYTES} Bytes lang sein (Umlaute und Sonderzeichen zählen mehrfach)`,
-    },
-  };
-
   registerModel = signal({
     username: '',
     email: '',
     password: '',
   });
 
+  // Messages resolve through TranslateService inside the validators, so they follow a live language
+  // switch: the reactive read re-runs the validator when the active language changes.
   registerForm = form(
     this.registerModel,
     (schemaPath) => {
       disabled(schemaPath, (ctx) => ctx.fieldTree().submitting());
-      required(schemaPath.username, { message: this.errorMessages['username']['required'] });
+      required(schemaPath.username, {
+        message: () => this.translate.instant('validation.usernameRequired'),
+      });
       maxLength(schemaPath.username, Register.MAX_FIELD_LENGTH, {
-        message: this.errorMessages['username']['maxlength'],
+        message: () =>
+          this.translate.instant('validation.maxLength', { max: Register.MAX_FIELD_LENGTH }),
       });
-      required(schemaPath.email, { message: this.errorMessages['email']['required'] });
-      email(schemaPath.email, { message: this.errorMessages['email']['invalid'] });
+      required(schemaPath.email, {
+        message: () => this.translate.instant('validation.emailRequired'),
+      });
+      email(schemaPath.email, {
+        message: () => this.translate.instant('validation.emailInvalid'),
+      });
       maxLength(schemaPath.email, Register.MAX_FIELD_LENGTH, {
-        message: this.errorMessages['email']['maxlength'],
+        message: () =>
+          this.translate.instant('validation.maxLength', { max: Register.MAX_FIELD_LENGTH }),
       });
-      required(schemaPath.password, { message: this.errorMessages['password']['required'] });
+      required(schemaPath.password, {
+        message: () => this.translate.instant('validation.passwordRequired'),
+      });
       minLength(schemaPath.password, Register.MIN_PASSWORD_LENGTH, {
-        message: this.errorMessages['password']['minlength'],
+        message: () =>
+          this.translate.instant('validation.minLength', { min: Register.MIN_PASSWORD_LENGTH }),
       });
       maxLength(schemaPath.password, Register.MAX_PASSWORD_BYTES, {
-        message: this.errorMessages['password']['maxlength'],
+        message: () =>
+          this.translate.instant('validation.maxLength', { max: Register.MAX_PASSWORD_BYTES }),
       });
       validate(schemaPath.password, (ctx) =>
         new TextEncoder().encode(ctx.value()).length > Register.MAX_PASSWORD_BYTES
-          ? { kind: 'maxBytes', message: this.errorMessages['password']['maxbytes'] }
+          ? {
+              kind: 'maxBytes',
+              message: this.translate.instant('validation.maxBytes', {
+                max: Register.MAX_PASSWORD_BYTES,
+              }),
+            }
           : undefined,
       );
     },
     {
       submission: {
         action: async (field) => {
-          const error = await this.authService.register(this.registerModel());
+          // Carry the language the visitor picked while anonymous so their new account keeps it.
+          const error = await this.authService.register({
+            ...this.registerModel(),
+            preferredLanguage: this.language.current(),
+          });
           if (!error) {
             await this.router.navigate(['register', 'success']);
             return;
@@ -118,7 +126,7 @@ export class Register {
 
           return error.conflictingFields.map((f) => ({
             kind: 'duplicate',
-            message: this.errorMessages[f]['duplicate'],
+            message: this.translate.instant(`validation.${f}Duplicate`),
             fieldTree: field[f as keyof typeof field] as never,
           }));
         },
