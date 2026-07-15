@@ -24,19 +24,17 @@ public class UserService {
   }
 
   /**
-   * Stores a user's preferred UI language. The username comes from the authenticated principal (the
-   * token's {@code username} claim), so the lookup is by exact username — never the email column —
-   * and a valid token guarantees the user exists; a missing row therefore signals corrupted state
-   * rather than bad input.
+   * Stores a user's preferred UI language. The id comes from the authenticated principal (the
+   * token's {@code uid} claim) — the stable, immutable key — and a valid token guarantees the user
+   * exists; a missing row therefore signals corrupted state rather than bad input.
    */
   @Transactional
-  public void updatePreferredLanguage(String username, Language language) {
+  public void updatePreferredLanguage(long userId, Language language) {
     User user =
         userRepository
-            .findByUsername(username)
+            .findById(userId)
             .orElseThrow(
-                () ->
-                    new IllegalStateException("Authenticated user no longer exists: " + username));
+                () -> new IllegalStateException("Authenticated user no longer exists: " + userId));
     user.setPreferredLanguage(language);
     userRepository.save(user);
   }

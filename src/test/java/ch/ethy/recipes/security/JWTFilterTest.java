@@ -55,6 +55,22 @@ class JWTFilterTest {
   }
 
   @Test
+  void carriesTheTokenUserIdOnThePrincipal() throws Exception {
+    when(jwtService.parseToken("opaque-token")).thenReturn(accessToken(42L, 5));
+    when(tokenVersionService.getCurrentVersion(42L)).thenReturn(5);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer opaque-token");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockFilterChain chain = new MockFilterChain();
+
+    filter.doFilter(request, response, chain);
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    assertNotNull(auth);
+    assertEquals(42L, ((AuthenticatedUser) auth.getPrincipal()).getUserId());
+  }
+
+  @Test
   void rejectsAccessTokenWhoseVersionIsStale() throws Exception {
     when(jwtService.parseToken("stale-token")).thenReturn(accessToken(42L, 5));
     when(tokenVersionService.getCurrentVersion(42L)).thenReturn(6);

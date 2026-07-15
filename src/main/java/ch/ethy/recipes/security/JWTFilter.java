@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -40,14 +39,8 @@ public class JWTFilter extends OncePerRequestFilter {
           response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
           return;
         }
-        // The principal authenticates solely via the validated JWT, so its password is never
-        // checked. The {noop} prefix keeps that explicit and degrades gracefully (a non-match,
-        // not a DelegatingPasswordEncoder parse failure) if it ever reaches a password check.
         UserDetails userDetails =
-            User.withUsername(tokenData.username())
-                .password("{noop}NONE")
-                .authorities(tokenData.roles())
-                .build();
+            new AuthenticatedUser(tokenData.userId(), tokenData.username(), tokenData.roles());
         Authentication authentication = new JWTAuthenticationToken(userDetails, token);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {

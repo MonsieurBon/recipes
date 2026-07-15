@@ -61,13 +61,13 @@ class UserServiceTest {
   }
 
   @Test
-  void updatePreferredLanguageResolvesTheCallerByExactUsernameAndSaves() {
+  void updatePreferredLanguageResolvesTheCallerByIdAndSaves() {
     User user = new User();
     user.setUsername("alice");
     user.setEmail("alice@example.com");
-    when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+    when(userRepository.findById(7L)).thenReturn(Optional.of(user));
 
-    userService.updatePreferredLanguage("alice", Language.FRENCH);
+    userService.updatePreferredLanguage(7L, Language.FRENCH);
 
     assertEquals(Language.FRENCH, user.getPreferredLanguage());
     verify(userRepository).save(user);
