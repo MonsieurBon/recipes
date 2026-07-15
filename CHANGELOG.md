@@ -1,3 +1,10 @@
+# [2.17.0](https://github.com/MonsieurBon/recipes/compare/v2.16.0...v2.17.0) (2026-07-15)
+
+
+### Features
+
+* resolve self-service language write by immutable user id ([7b45a6f](https://github.com/MonsieurBon/recipes/commit/7b45a6f471f2434b4e2666d8c7ee3c56da056aff)), closes [#302](https://github.com/MonsieurBon/recipes/issues/302)
+
 # [2.16.0](https://github.com/MonsieurBon/recipes/compare/v2.15.0...v2.16.0) (2026-07-15)
 
 
