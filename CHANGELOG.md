@@ -1,3 +1,10 @@
+# [2.16.0](https://github.com/MonsieurBon/recipes/compare/v2.15.0...v2.16.0) (2026-07-15)
+
+
+### Features
+
+* internationalize the UI with ngx-translate (de/en/fr/it) ([7d257ac](https://github.com/MonsieurBon/recipes/commit/7d257ac75f3e1306215ef8c69fb27b025a5ddcab)), closes [#242](https://github.com/MonsieurBon/recipes/issues/242)
+
 # [2.15.0](https://github.com/MonsieurBon/recipes/compare/v2.14.0...v2.15.0) (2026-07-09)
 
 
