@@ -7,6 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Mock } from 'vitest';
+import { NotificationService } from '../utility/notification.service';
 import { AuthService } from './auth.service';
 import { loggedInGuard } from './logged-in-guard';
 
@@ -27,6 +28,7 @@ describe('loggedInGuard', () => {
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: { isLoggedIn, whenSessionRestored } },
+        { provide: NotificationService, useValue: { showAccessDenied: vi.fn() } },
       ],
     });
   });

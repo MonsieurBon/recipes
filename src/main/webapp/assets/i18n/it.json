@@ -61,6 +61,9 @@
     "emailColumn": "Email",
     "rolesColumn": "Ruoli"
   },
+  "access": {
+    "denied": "Non hai accesso a questa pagina."
+  },
   "errors": {
     "generic": "Qualcosa è andato storto. Riprova."
   }
