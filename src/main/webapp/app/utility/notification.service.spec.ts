@@ -43,6 +43,26 @@ describe('NotificationService', () => {
     });
   });
 
+  it('opens the access-denied notice with the fixed German message', () => {
+    createService().showAccessDenied();
+
+    expect(snackBar.openFromComponent).toHaveBeenCalledOnce();
+    expect(snackBar.openFromComponent.mock.calls[0][0]).toBe(ErrorNotification);
+    expect(lastConfig().data).toEqual({
+      message: 'Du hast keinen Zugriff auf diese Seite.',
+    });
+  });
+
+  it('lifts the access-denied notice above the bottom nav when compact and logged in', () => {
+    const service = createService();
+    isCompact.set(true);
+    isLoggedIn.set(true);
+
+    service.showAccessDenied();
+
+    expect(lastConfig().panelClass).toEqual(['notification-above-bottom-nav']);
+  });
+
   it('auto-dismisses after about six seconds', () => {
     createService().showGenericError();
 

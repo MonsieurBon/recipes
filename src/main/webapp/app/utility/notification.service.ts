@@ -7,9 +7,11 @@ import { ErrorNotification, ErrorNotificationData } from './error-notification/e
 import { LayoutService } from './layout.service';
 
 /**
- * Central producer of the app's shared error notification. The global {@code ErrorHandler} routes
- * through here so there is a single owner of the message text, timing, and placement — the message
- * is fixed and generic on purpose, so an error's own text is never surfaced to the user.
+ * Central owner of the app's transient snackbar notices, so their text, timing, and placement live
+ * in one place. It surfaces the generic error notification (which the global {@code ErrorHandler}
+ * routes through here) as well as the not-authorized notice a route guard raises when it turns a
+ * signed-in user away. Every message is a fixed translation key: nothing from an error — its own
+ * text, response body, or stack — is ever interpolated into what the user sees.
  */
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,9 @@ export class NotificationService {
   // Resolved in the active language when the notice is shown. Kept deliberately generic: never
   // interpolate an error's message, response body, or stack — those belong in the console/log only.
   private static readonly GENERIC_ERROR_KEY = 'errors.generic';
+
+  // Shown when a route guard turns away a signed-in user who lacks permission for the page.
+  private static readonly ACCESS_DENIED_KEY = 'access.denied';
 
   // Auto-dismiss window; a ✕ in the content component closes it sooner. MatSnackBar shows one
   // notice at a time and replaces the visible one when a newer error arrives, so they never stack.
@@ -30,12 +35,21 @@ export class NotificationService {
 
   /** Surfaces the one generic notification for any error the user cannot act on. */
   showGenericError(): void {
+    this.show(NotificationService.GENERIC_ERROR_KEY);
+  }
+
+  /** Tells a signed-in user, briefly, that they lack access to the page they requested. */
+  showAccessDenied(): void {
+    this.show(NotificationService.ACCESS_DENIED_KEY);
+  }
+
+  private show(messageKey: string): void {
     // The fixed bottom navigation — shown only to a signed-in user on a phone — owns the bottom
     // edge, so lift the toast clear of it exactly when that nav is present.
     const aboveBottomNav = this.layout.isCompact() && this.auth.isLoggedIn();
     this.snackBar.openFromComponent(ErrorNotification, {
       data: {
-        message: this.translate.instant(NotificationService.GENERIC_ERROR_KEY),
+        message: this.translate.instant(messageKey),
       } satisfies ErrorNotificationData,
       duration: NotificationService.DURATION_MS,
       panelClass: aboveBottomNav ? ['notification-above-bottom-nav'] : [],
