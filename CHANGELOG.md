@@ -1,3 +1,10 @@
+# [2.18.0](https://github.com/MonsieurBon/recipes/compare/v2.17.0...v2.18.0) (2026-07-16)
+
+
+### Features
+
+* notify unauthorized users on guard redirect instead of silent bounce ([431bedb](https://github.com/MonsieurBon/recipes/commit/431bedbd733cec270f6f0bf2145c43e4ed089312)), closes [#246](https://github.com/MonsieurBon/recipes/issues/246)
+
 # [2.17.0](https://github.com/MonsieurBon/recipes/compare/v2.16.0...v2.17.0) (2026-07-15)
 
 
