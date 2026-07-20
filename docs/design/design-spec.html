@@ -172,6 +172,9 @@
     --a-inverse-surface: #2e312d; /* inverse-surface (neutral 20) */
     --a-inverse-ink: #f0f1eb; /* inverse-on-surface (neutral 95) */
     --a-inverse-green: #9dd49e; /* inverse-primary (primary 80) */
+    --a-error: #ba1a1a; /* error (tone 40) */
+    --a-tert-container: #ffdcbf; /* tertiary-container */
+    --a-on-tert-container: #6a3b00; /* on-tertiary-container */
     background: var(--a-bg);
     color: var(--a-ink);
   }
@@ -188,6 +191,9 @@
     --a-inverse-surface: #e1e3dd; /* inverse-surface (neutral 90) */
     --a-inverse-ink: #2e312d; /* inverse-on-surface (neutral 20) */
     --a-inverse-green: #37693d; /* inverse-primary (primary 40) */
+    --a-error: #ffb4ab; /* error (tone 80) */
+    --a-tert-container: #513500; /* tertiary-container (tone 30) */
+    --a-on-tert-container: #ffdcbf; /* on-tertiary-container (tone 90) */
     background: var(--a-bg);
     color: var(--a-ink);
   }
@@ -454,8 +460,8 @@
     color: var(--a-muted);
   }
   .tag.amber {
-    background: #ffdcbf; /* tertiary-container */
-    color: #6a3b00; /* on-tertiary-container */
+    background: var(--a-tert-container);
+    color: var(--a-on-tert-container);
   }
   .appbar-action {
     font-size: 0.9rem;
@@ -567,6 +573,703 @@
     border-bottom: 1px solid var(--a-line);
   }
   .urow .who { flex: 1; min-width: 0; }
+  .urow .chev { color: var(--a-muted); flex-shrink: 0; }
+  .urow.dis .avatar,
+  .urow.dis .who { opacity: 0.5; }
+  .tag.mutd {
+    background: transparent;
+    border: 1px solid var(--a-line);
+    color: var(--a-muted);
+  }
+
+  /* admin editing */
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.1rem;
+    padding: 0.35rem 0.9rem 0.15rem;
+    font-size: 0.78rem;
+    color: var(--a-muted);
+  }
+  .pager > span:first-child { margin-right: 0.4rem; }
+  .pager .iconbtn { width: 32px; height: 32px; color: var(--a-muted); }
+  .iconbtn.dim { opacity: 0.35; }
+  .tgl {
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--a-green);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .tgl::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--a-on-green);
+  }
+  .tgl.off { background: var(--a-line); }
+  .tgl.off::after {
+    right: auto;
+    left: 3px;
+    background: var(--a-card);
+  }
+  .selval {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--a-line);
+    border-radius: 8px;
+    padding: 0.32rem 0.65rem;
+    font-size: 0.84rem;
+    white-space: nowrap;
+  }
+  .selval svg { color: var(--a-muted); flex-shrink: 0; }
+  .mrow.danger,
+  .mrow.danger > svg { color: var(--a-error); }
+  .mrow.last { border-bottom: none; }
+  .sheet .acct-head { margin: 0.3rem 0 0.4rem; }
+  .dialog {
+    position: absolute;
+    left: 1.1rem;
+    right: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--a-card);
+    border-radius: 24px;
+    padding: 1.35rem 1.4rem 0.9rem;
+    z-index: 4;
+    box-shadow: 0 12px 32px rgba(15, 22, 15, 0.3);
+  }
+  .dialog .dtitle {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 40;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin: 0 0 0.55rem;
+  }
+  .dialog .dtext {
+    font-size: 0.88rem;
+    color: var(--a-muted);
+    line-height: 1.5;
+    margin: 0 0 0.9rem;
+  }
+  .dialog .dfield {
+    border: 1px solid var(--a-line);
+    border-radius: 10px;
+    padding: 0.55rem 0.9rem 0.6rem;
+    font-size: 0.92rem;
+    margin-bottom: 1rem;
+  }
+  .dialog .dfield small {
+    display: block;
+    font-size: 0.66rem;
+    color: var(--a-muted);
+    margin-bottom: 0.05rem;
+  }
+  .dlabel {
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--a-muted);
+    margin: 0 0 0.45rem;
+  }
+  .months {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.4rem;
+    margin-bottom: 0.55rem;
+  }
+  .mth {
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--a-line);
+    display: grid;
+    place-items: center;
+    font-size: 0.7rem;
+    color: var(--a-muted);
+  }
+  .mth.on {
+    background: var(--a-green);
+    border-color: var(--a-green);
+    color: var(--a-on-green);
+    font-weight: 600;
+  }
+  .dhint {
+    font-size: 0.75rem;
+    color: var(--a-muted);
+    margin: 0 0 0.7rem;
+  }
+  .dactions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.15rem;
+    margin: 0 -0.5rem;
+  }
+  .dactions .grow { flex: 1; }
+  .tbtn {
+    padding: 0.55rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--a-accent-ink, var(--a-green));
+    white-space: nowrap;
+  }
+  .tbtn.danger { color: var(--a-error); }
+  .d-thead.cols-u,
+  .d-tr.cols-u { grid-template-columns: 1.05fr 1.6fr 0.55fr 0.9fr 34px; }
+  .d-tr.dis > span:first-child,
+  .d-tr.dis .cell-mail { opacity: 0.5; }
+  .rowbtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--a-error);
+  }
+  .rowbtn.dim { opacity: 0.3; }
+  .d-pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    padding-top: 0.65rem;
+    font-size: 0.8rem;
+    color: var(--a-muted);
+  }
+  .d-pager .selval { padding: 0.18rem 0.5rem; font-size: 0.78rem; }
+  .d-pager .range { margin: 0 0.5rem; }
+  .d-pager .iconbtn { width: 30px; height: 30px; color: var(--a-muted); }
+
+  /* recipe editor */
+  .eform {
+    padding: 0.2rem 1.2rem 0;
+    flex: 1;
+    overflow: hidden;
+  }
+  .photo-add {
+    border: 1.5px dashed var(--a-line);
+    border-radius: 14px;
+    height: 92px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    color: var(--a-muted);
+    font-size: 0.8rem;
+    margin-bottom: 0.85rem;
+  }
+  .ffield {
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 10px;
+    padding: 0.5rem 0.85rem 0.55rem;
+    font-size: 0.92rem;
+    margin-bottom: 0.8rem;
+  }
+  .ffield small {
+    display: block;
+    font-size: 0.66rem;
+    color: var(--a-muted);
+  }
+  .ffield .ph { color: var(--a-muted); }
+  .ffield.area { min-height: 84px; }
+  .ffield.area p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .ffield.focus {
+    border-color: var(--a-green);
+    box-shadow: inset 0 0 0 1px var(--a-green);
+  }
+  .fmeta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.55rem;
+  }
+  .fmeta .ffield { margin-bottom: 0; }
+  .ingrow {
+    display: grid;
+    grid-template-columns: 54px 48px 1fr 26px;
+    gap: 0.45rem;
+    align-items: center;
+    margin-bottom: 0.55rem;
+  }
+  .inghead {
+    display: grid;
+    grid-template-columns: 54px 48px 1fr 26px;
+    gap: 0.45rem;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--a-muted);
+    margin-bottom: 0.35rem;
+  }
+  .ingrow .ffield {
+    margin-bottom: 0;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.88rem;
+  }
+  .ingrow .rm {
+    display: grid;
+    place-items: center;
+    color: var(--a-muted);
+  }
+  .acpanel {
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 12px;
+    box-shadow: 0 10px 26px rgba(28, 43, 30, 0.16);
+    margin: -0.1rem 0 0.7rem;
+    overflow: hidden;
+  }
+  .acrow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--a-line);
+  }
+  .acrow:last-child { border-bottom: none; }
+  .acrow svg { flex-shrink: 0; }
+  .acrow.new {
+    color: var(--a-accent-ink, var(--a-green));
+    font-weight: 600;
+    font-size: 0.86rem;
+  }
+  .addbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--a-green-soft);
+    color: var(--a-accent-ink, var(--a-green));
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .stepcard {
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 14px;
+    padding: 0.65rem 0.85rem 0.7rem;
+    margin-bottom: 0.65rem;
+  }
+  .stepcard .shead {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+  .snum {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--a-accent-ink, var(--a-green));
+  }
+  .shead .grip { color: var(--a-muted); margin-left: auto; }
+  .stext {
+    margin: 0 0 0.55rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .schips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .schip {
+    font-size: 0.72rem;
+    border: 1px solid var(--a-line);
+    border-radius: 999px;
+    padding: 0.18rem 0.6rem;
+    color: var(--a-muted);
+  }
+  .schip.addc {
+    border-style: dashed;
+    color: var(--a-accent-ink, var(--a-green));
+    font-weight: 600;
+  }
+
+  /* content-language fallback */
+  .inline-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.7rem 0 0;
+    padding: 0.55rem 0.75rem;
+    border-radius: 12px;
+    background: var(--a-tert-container);
+    color: var(--a-on-tert-container);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .inline-note svg { flex-shrink: 0; margin-top: 1px; }
+
+  /* import */
+  .ffield.warn {
+    border-color: var(--a-saffron);
+    box-shadow: inset 0 0 0 1px var(--a-saffron);
+  }
+  .ferr {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--a-error);
+    margin: -0.35rem 0.2rem 0.8rem;
+  }
+  .sheet .srow .sic { color: var(--a-muted); flex-shrink: 0; }
+  .sheet .ffield { margin-top: 0.4rem; }
+  .sheet .mp-btn { margin: 0.8rem 0 0.2rem; }
+  .imp-photo {
+    height: 130px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    margin-bottom: 0.85rem;
+  }
+  .imp-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--a-green-soft);
+    overflow: hidden;
+    margin: 1.6rem 0 0.7rem;
+  }
+  .imp-progress i {
+    display: block;
+    height: 100%;
+    width: 62%;
+    border-radius: 2px;
+    background: var(--a-green);
+  }
+  .imp-status {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--a-muted);
+    margin: 0;
+  }
+
+  /* recipe editor, expanded */
+  .ed-col {
+    flex: none;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0.4rem 0 0;
+  }
+
+  /* meal plan */
+  .wknav {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0 1.1rem 0.7rem;
+  }
+  .wknav .iconbtn {
+    width: 32px;
+    height: 32px;
+    color: var(--a-muted);
+  }
+  .wknav .wklabel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .mp-grid {
+    margin: 0 1.1rem;
+    display: grid;
+    grid-template-columns: 34px 1fr 1fr;
+    gap: 0.3rem 0.4rem;
+    align-items: stretch;
+  }
+  .mp-colhead {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--a-muted);
+    text-align: center;
+    padding-bottom: 0.15rem;
+  }
+  .mp-day {
+    align-self: center;
+    justify-self: center;
+    width: 32px;
+    padding: 0.25rem 0;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.62rem;
+    line-height: 1.3;
+    color: var(--a-muted);
+  }
+  .mp-day b {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--a-ink);
+  }
+  .mp-day.today {
+    background: var(--a-green-soft);
+    color: var(--a-accent-ink, var(--a-green));
+  }
+  .mp-day.today b { color: inherit; }
+  .mp-slot {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 46px;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 12px;
+    padding: 0.3rem 0.5rem;
+  }
+  .mp-slot .thumb {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    flex-shrink: 0;
+  }
+  .mp-slot .thumb .hrt {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    filter: drop-shadow(0 0 1.5px var(--a-card));
+  }
+  .mp-slot .mname {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 0.7rem;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hrt { color: #b3402e; vertical-align: -1px; }
+  .mp-slot.empty {
+    justify-content: center;
+    background: transparent;
+    border-style: dashed;
+    color: var(--a-muted);
+  }
+  .mp-empty {
+    margin: 3.2rem 1.8rem 0;
+    text-align: center;
+  }
+  .mp-empty > svg { color: var(--a-muted); }
+  .page-head {
+    display: flex;
+    align-items: center;
+  }
+  .p-menu {
+    position: absolute;
+    top: 118px;
+    right: 14px;
+    width: 200px;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 14px;
+    box-shadow: 0 10px 26px rgba(28, 43, 30, 0.16);
+    padding: 0.4rem 0;
+    z-index: 4;
+  }
+  .p-menu .mi {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.9rem;
+  }
+  .p-menu .mi > svg { flex-shrink: 0; }
+  .p-menu .mi.danger { color: var(--a-error); }
+  .page-head .page-title { flex: 1; }
+  .page-head .iconbtn { margin-right: 0.8rem; }
+  .mp-fields {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 0.55rem;
+    margin: 0 0 1.3rem;
+    text-align: left;
+  }
+  .mp-fields .ffield { margin-bottom: 0; }
+  .mp-slot .done {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--a-line);
+    color: transparent;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .mp-slot .done.on {
+    background: var(--a-green);
+    border-color: var(--a-green);
+    color: var(--a-on-green);
+  }
+  .mpd-slot .photo .done {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--a-green);
+    color: var(--a-on-green);
+    display: grid;
+    place-items: center;
+  }
+  .mp-empty .mp-etitle {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 40;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0.9rem 0 0.4rem;
+  }
+  .mp-empty p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--a-muted);
+    margin: 0 0 1.4rem;
+  }
+  .mp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    padding: 0.8rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0 0.6rem;
+  }
+  .mp-btn.solid { background: var(--a-green); color: var(--a-on-green); }
+  .mp-btn.ghost {
+    border: 1px solid var(--a-line);
+    color: var(--a-accent-ink, var(--a-green));
+  }
+  .mp-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.8rem 1.1rem 0;
+  }
+  .mp-actions .mp-btn { flex: 1; margin: 0; }
+  .mp-actions + .bottomnav { margin-top: 0.8rem; }
+  .sheet .search { margin: 0.3rem 0 0.4rem; }
+  .sheet .srow .thumb {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .sheet .srow .tag { margin-left: auto; }
+
+  /* meal plan, expanded */
+  .mpd-head {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+  .mpd-head .wklabel {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0.4rem;
+  }
+  .mpd-head .iconbtn { width: 32px; height: 32px; color: var(--a-muted); }
+  .mpd-head .grow { flex: 1; }
+  .mpd-board {
+    display: grid;
+    grid-template-columns: 52px repeat(7, 1fr);
+    gap: 0.55rem;
+    align-items: stretch;
+  }
+  .mpd-dayhead {
+    justify-self: center;
+    min-width: 44px;
+    padding: 0.25rem 0.4rem;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.68rem;
+    line-height: 1.3;
+    color: var(--a-muted);
+  }
+  .mpd-dayhead b {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--a-ink);
+  }
+  .mpd-dayhead.today {
+    background: var(--a-green-soft);
+    color: var(--a-accent-ink, var(--a-green));
+  }
+  .mpd-dayhead.today b { color: inherit; }
+  .mpd-rowlabel {
+    align-self: center;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--a-muted);
+  }
+  .mpd-slot {
+    display: flex;
+    flex-direction: column;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .mpd-slot .photo {
+    position: relative;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+  }
+  .mpd-slot .photo .hrt {
+    position: absolute;
+    right: 5px;
+    bottom: 4px;
+    filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.8));
+  }
+  .mpd-slot .mname {
+    padding: 0.35rem 0.5rem 0.45rem;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .mpd-slot.empty {
+    align-items: center;
+    justify-content: center;
+    min-height: 92px;
+    background: transparent;
+    border-style: dashed;
+    color: var(--a-muted);
+  }
 
   /* desktop frames */
   .deskwrap {
@@ -668,6 +1371,7 @@
     gap: 0.5rem;
     margin-bottom: 1rem;
   }
+  .d-row .grow { flex: 1; }
   .d-cta {
     background: var(--a-green);
     color: var(--a-on-green);
@@ -1383,6 +2087,11 @@
                 <path d="M14.5 5.5 8 12l6.5 6.5"></path>
               </svg>
             </span>
+            <span class="fav" style="right: 52px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 19.5l.9-3.7L16.2 5a1.7 1.7 0 0 1 2.4 0l.4.4a1.7 1.7 0 0 1 0 2.4L8.2 18.6l-3.7.9z"></path>
+              </svg>
+            </span>
             <span class="fav active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path>
@@ -1420,7 +2129,8 @@
         </div>
         <p class="frame-caption">
           <strong>Rezeptdetail.</strong> Full-bleed photo, portion stepper that rescales the
-          ingredient quantities, and a sticky call-to-action into cooking mode.
+          ingredient quantities, and a sticky call-to-action into cooking mode. The pencil
+          shows only for the recipe's author and for admins — it opens the editor prefilled.
         </p>
       </div>
 
@@ -1463,6 +2173,1411 @@
         </p>
       </div>
     </div>
+  </section>
+
+  <section>
+    <h2>Creating &amp; editing recipes</h2>
+    <p class="sub">
+      Create and edit are one full-screen form — no dialog, no bottom nav, like the detail
+      view it feeds. The FAB (compact) and «+ Neues Rezept» (larger widths) open it empty;
+      the pencil on a recipe's detail — visible to its author and to admins — and the admin
+      recipe list's edit action open the same form prefilled as «Rezept bearbeiten». One
+      column in the order the finished recipe reads: photo, basics, ingredients, steps.
+      Speichern sits fixed in the top bar and validates on tap — every invalid field shows
+      its message directly beneath it, the first one scrolled into view. Closing with
+      unsaved changes asks through the shared confirm dialog («Änderungen verwerfen?»).
+      On larger screens the form keeps this single column at a capped width.
+    </p>
+
+    <div class="screens">
+      <!-- ============ SCREEN: editor, basics ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Neues Rezept</span>
+            <span class="grow"></span>
+            <span class="appbar-action">Speichern</span>
+          </div>
+          <div class="eform">
+            <div class="photo-add">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"></path>
+                <circle cx="12" cy="13" r="3.4"></circle>
+              </svg>
+              Foto hinzufügen
+            </div>
+            <div class="ffield"><small>Name</small>Tomaten-Zucchetti-Gratin</div>
+            <div class="ffield area">
+              <small>Beschreibung</small>
+              <p>Sommerliches Gratin aus dem Ofen — Tomaten und Zucchetti unter einer knusprigen Käsekruste.</p>
+            </div>
+            <div class="fmeta">
+              <div class="ffield"><small>Portionen</small>4</div>
+              <div class="ffield"><small>Vorbereitung</small>20 Min</div>
+              <div class="ffield"><small>Kochzeit</small>25 Min</div>
+            </div>
+            <div class="sect"><h4>Zutaten</h4></div>
+            <div class="inghead"><span>Menge</span><span>Einheit</span><span>Zutat</span><span></span></div>
+            <div class="ingrow">
+              <div class="ffield">600</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Tomaten</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">400</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Zucchetti</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Neues Rezept.</strong> The form reads like the recipe will: photo, name,
+          description, the three numbers, then ingredients and steps. Menge and Einheit stay
+          free-form; the photo slot ships with the photo slice — until then the form starts
+          at Name and photo-less recipes keep the gradient fallback.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: ingredient autocomplete ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Neues Rezept</span>
+            <span class="grow"></span>
+            <span class="appbar-action">Speichern</span>
+          </div>
+          <div class="eform">
+            <div class="sect" style="margin-top: 0.4rem"><h4>Zutaten</h4></div>
+            <div class="inghead"><span>Menge</span><span>Einheit</span><span>Zutat</span><span></span></div>
+            <div class="ingrow">
+              <div class="ffield">600</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Tomaten</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">400</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Zucchetti</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">200</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Bergkäse</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">2</div>
+              <div class="ffield">EL</div>
+              <div class="ffield">Olivenöl</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">&nbsp;</div>
+              <div class="ffield">&nbsp;</div>
+              <div class="ffield focus">Zwie</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="acpanel">
+              <div class="acrow"><span><b>Zwie</b>beln</span></div>
+              <div class="acrow new">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                «Zwie» als neue Zutat anlegen
+              </div>
+            </div>
+            <span class="addbtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              Zutat
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Zutaten.</strong> One label line heads the columns — the narrow fields
+          carry no labels of their own. The Zutat field autocompletes against the curated
+          catalog — picking a match reuses the entry, so seasonality keeps working. The
+          create-new row is the escape hatch for genuine misses; a fresh ingredient counts
+          as year-round until an admin gives it a season in the Zutaten admin tab. Einheit
+          stays free-form but suggests the units already in use as a dropdown on focus —
+          the same panel the Zutat field shows here, just anchored to its narrow column,
+          sized to the short values and ordered most-used first (g, ml, EL, TL, …).
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: steps ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Neues Rezept</span>
+            <span class="grow"></span>
+            <span class="appbar-action">Speichern</span>
+          </div>
+          <div class="eform">
+            <div class="sect" style="margin-top: 0.4rem"><h4>Zubereitung</h4></div>
+            <div class="stepcard">
+              <div class="shead">
+                <span class="snum">1</span>
+                <span class="grip">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle>
+                    <circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle>
+                    <circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle>
+                  </svg>
+                </span>
+              </div>
+              <p class="stext">
+                Zucchetti und Tomaten in Scheiben schneiden, salzen und 10 Minuten ziehen
+                lassen.
+              </p>
+              <div class="schips">
+                <span class="schip">Tomaten</span>
+                <span class="schip">Zucchetti</span>
+                <span class="schip addc">+ Zutat</span>
+              </div>
+            </div>
+            <div class="stepcard">
+              <div class="shead">
+                <span class="snum">2</span>
+                <span class="grip">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle>
+                    <circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle>
+                    <circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle>
+                  </svg>
+                </span>
+              </div>
+              <p class="stext">
+                Gemüse dachziegelartig in die Gratinform schichten und mit Olivenöl
+                beträufeln.
+              </p>
+              <div class="schips">
+                <span class="schip">Olivenöl</span>
+                <span class="schip addc">+ Zutat</span>
+              </div>
+            </div>
+            <div class="stepcard">
+              <div class="shead">
+                <span class="snum">3</span>
+                <span class="grip">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle>
+                    <circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle>
+                    <circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle>
+                  </svg>
+                </span>
+              </div>
+              <p class="stext">Mit Bergkäse bestreuen und 25 Minuten bei 200 °C überbacken.</p>
+              <div class="schips">
+                <span class="schip">Bergkäse</span>
+                <span class="schip addc">+ Zutat</span>
+              </div>
+            </div>
+            <span class="addbtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              Schritt
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Zubereitung.</strong> Steps are cards: the handle drags to reorder — the
+          card order is the recipe order — and the chips link a step to the ingredients it
+          uses, picked from this recipe's own list. Those links feed the detail view and,
+          later, the per-step ingredient display in cooking mode.
+        </p>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 2.5rem">…and on larger screens</h2>
+    <p class="sub">
+      The editor stays a focused flow at every width: no nav pills, no sidebars — just the
+      form bar (close, title, Speichern) over the single column, capped and centered on the
+      quiet surface.
+    </p>
+    <div class="deskwrap">
+      <div class="desk app-light">
+        <div class="d-bar">
+          <span class="iconbtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M6 6l12 12M18 6 6 18"></path>
+            </svg>
+          </span>
+          <span class="appbar-title">Neues Rezept</span>
+          <span class="grow"></span>
+          <span class="d-cta">Speichern</span>
+        </div>
+        <div class="d-body">
+          <div class="eform ed-col">
+            <div class="photo-add">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"></path>
+                <circle cx="12" cy="13" r="3.4"></circle>
+              </svg>
+              Foto hinzufügen
+            </div>
+            <div class="ffield"><small>Name</small>Tomaten-Zucchetti-Gratin</div>
+            <div class="ffield area">
+              <small>Beschreibung</small>
+              <p>Sommerliches Gratin aus dem Ofen — Tomaten und Zucchetti unter einer knusprigen Käsekruste.</p>
+            </div>
+            <div class="fmeta">
+              <div class="ffield"><small>Portionen</small>4</div>
+              <div class="ffield"><small>Vorbereitung</small>20 Min</div>
+              <div class="ffield"><small>Kochzeit</small>25 Min</div>
+            </div>
+            <div class="sect"><h4>Zutaten</h4></div>
+            <div class="inghead"><span>Menge</span><span>Einheit</span><span>Zutat</span><span></span></div>
+            <div class="ingrow">
+              <div class="ffield">600</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Tomaten</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">400</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Zucchetti</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <span class="addbtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              Zutat
+            </span>
+            <div class="sect"><h4>Zubereitung</h4></div>
+            <div class="stepcard">
+              <div class="shead">
+                <span class="snum">1</span>
+                <span class="grip">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle>
+                    <circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle>
+                    <circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle>
+                  </svg>
+                </span>
+              </div>
+              <p class="stext">
+                Zucchetti und Tomaten in Scheiben schneiden, salzen und 10 Minuten ziehen
+                lassen.
+              </p>
+              <div class="schips">
+                <span class="schip">Tomaten</span>
+                <span class="schip">Zucchetti</span>
+                <span class="schip addc">+ Zutat</span>
+              </div>
+            </div>
+            <span class="addbtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              Schritt
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>Editor, expanded (≥ 905 px).</strong> Identical fields in the identical
+      order — the width buys margin, not columns, so create and edit behave the same
+      everywhere and long forms stay scannable. Speichern moves into the form bar top
+      right; the ✕ leaves the flow and asks about unsaved changes through the shared
+      confirm dialog. Autocomplete panels anchor to their fields exactly as on compact.
+    </p>
+  </section>
+
+  <section>
+    <h2>Importing recipes</h2>
+    <p class="sub">
+      Import is a second door into the same editor. Every source — a weblink, a photo of a
+      cookbook page, a PDF, pasted text — is extracted into a structured draft that opens
+      the recipe editor prefilled for review; imports are never saved blindly.
+      «Neues Rezept» therefore grows into a small source choice, and the app only offers
+      what the instance can actually do: Aus Link always works (it reads the structured
+      recipe data most sites embed), the photo, PDF and text sources appear only when an
+      AI extraction backend is configured. The one job unique to review is ingredient
+      mapping — every imported line has to land on the curated ingredient catalog, as a
+      match or a deliberately created new entry, so seasonality and admin curation keep
+      working.
+    </p>
+
+    <div class="screens">
+      <!-- ============ SCREEN: source chooser ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <div class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Rezepte durchsuchen
+          </div>
+          <div class="chips">
+            <span class="chip on">Alle</span>
+            <span class="chip">Hauptgericht</span>
+            <span class="chip">Vegi</span>
+            <span class="chip">Dessert</span>
+            <span class="chip">Schnell</span>
+          </div>
+          <div class="cards">
+            <div class="rcard">
+              <div class="photo tomaten">
+                🍅
+                <span class="season">Saison · Tomaten &amp; Zucchetti</span>
+                <span class="fav active">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path>
+                  </svg>
+                </span>
+              </div>
+              <div class="body">
+                <p class="rtitle">Tomaten-Zucchetti-Gratin</p>
+                <div class="meta">
+                  <span>45 Min</span>
+                  <span class="tag">Vegi</span>
+                </div>
+              </div>
+            </div>
+            <div class="rcard row">
+              <div class="photo aprikose">🥧</div>
+              <div class="body">
+                <p class="rtitle">Aprikosenwähe</p>
+                <div class="meta"><span>60 Min</span><span class="tag">Dessert</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <p class="stitle">Neues Rezept</p>
+            <div class="srow">
+              <svg class="sic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 19.5l1-3.8L16 5.2a2 2 0 0 1 2.8 2.8L8.3 18.5l-3.8 1Z"></path>
+              </svg>
+              <span>Manuell</span>
+            </div>
+            <div class="srow">
+              <svg class="sic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.2 13.8a4 4 0 0 0 5.6 0l3-3a4 4 0 0 0-5.7-5.6l-1.2 1.2"></path>
+                <path d="M13.8 10.2a4 4 0 0 0-5.6 0l-3 3a4 4 0 0 0 5.7 5.6l1.2-1.2"></path>
+              </svg>
+              <span>Aus Link</span>
+            </div>
+            <div class="srow">
+              <svg class="sic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"></path>
+                <circle cx="12" cy="13" r="3.4"></circle>
+              </svg>
+              <span>Aus Foto oder PDF</span>
+            </div>
+            <div class="srow">
+              <svg class="sic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M5 7h14M5 12h14M5 17h9"></path>
+              </svg>
+              <span>Aus Text</span>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Choosing a source.</strong> The FAB (and «+ Neues Rezept») no longer
+          jumps straight into the empty form — it asks where the recipe comes from.
+          Manuell opens the editor as before; the other sources produce a prefilled draft
+          first. On an instance without an extraction backend the sheet shows only Manuell
+          and Aus Link — the server's capabilities decide, the UI never offers a dead end.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: link import ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <div class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Rezepte durchsuchen
+          </div>
+          <div class="chips">
+            <span class="chip on">Alle</span>
+            <span class="chip">Hauptgericht</span>
+            <span class="chip">Vegi</span>
+            <span class="chip">Dessert</span>
+            <span class="chip">Schnell</span>
+          </div>
+          <div class="cards">
+            <div class="rcard">
+              <div class="photo tomaten">
+                🍅
+                <span class="season">Saison · Tomaten &amp; Zucchetti</span>
+              </div>
+              <div class="body">
+                <p class="rtitle">Tomaten-Zucchetti-Gratin</p>
+                <div class="meta">
+                  <span>45 Min</span>
+                  <span class="tag">Vegi</span>
+                </div>
+              </div>
+            </div>
+            <div class="rcard row">
+              <div class="photo aprikose">🥧</div>
+              <div class="body">
+                <p class="rtitle">Aprikosenwähe</p>
+                <div class="meta"><span>60 Min</span><span class="tag">Dessert</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <p class="stitle">Aus Link</p>
+            <div class="ffield warn"><small>Link</small>https://blog-beispiel.ch/sommerkuechlein</div>
+            <p class="ferr">
+              Auf dieser Seite wurde kein Rezept gefunden. Tipp: Kopiere den Rezepttext und
+              nutze «Aus Text».
+            </p>
+            <span class="mp-btn solid">Importieren</span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Aus Link.</strong> One field, one action: Importieren fetches the page
+          server-side, turns its recipe data into a draft and opens it directly in review;
+          the activity bar runs while it works. A page without readable recipe data says
+          so right here — no half-empty draft — and points to Aus Text as the way out.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: extraction progress ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Aus Foto</span>
+            <span class="grow"></span>
+          </div>
+          <div class="eform">
+            <div class="imp-photo photo magronen">📖</div>
+            <div class="imp-progress"><i></i></div>
+            <p class="imp-status">Rezept wird gelesen …</p>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Aus Foto.</strong> A photo from camera or gallery — PDFs and pasted text
+          follow the same path — is read into a draft by the instance's configured
+          backend. When extraction finishes, review opens; a weaker local model simply
+          means more to correct there. The flow never varies by backend, only the quality
+          of the prefill does.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: review ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Rezept prüfen</span>
+            <span class="grow"></span>
+            <span class="appbar-action">Speichern</span>
+          </div>
+          <div class="eform">
+            <div class="imp-photo photo waehe">🥧</div>
+            <div class="ffield"><small>Name</small>Tomaten-Galette</div>
+            <div class="ffield area">
+              <small>Beschreibung</small>
+              <p>Knusprige Galette mit Tomaten, Senf und Ziegenkäse — direkt vom Blech.</p>
+            </div>
+            <div class="fmeta">
+              <div class="ffield"><small>Portionen</small>4</div>
+              <div class="ffield"><small>Vorbereitung</small>30 Min</div>
+              <div class="ffield"><small>Kochzeit</small>40 Min</div>
+            </div>
+            <div class="sect"><h4>Zutaten</h4></div>
+            <div class="inghead"><span>Menge</span><span>Einheit</span><span>Zutat</span><span></span></div>
+            <div class="ingrow">
+              <div class="ffield">600</div>
+              <div class="ffield">g</div>
+              <div class="ffield">Tomaten</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="ingrow">
+              <div class="ffield">1</div>
+              <div class="ffield">Rolle</div>
+              <div class="ffield warn">Blätterteig</div>
+              <span class="rm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M6 6l12 12M18 6 6 18"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="acpanel">
+              <div class="acrow"><span>Kuchenteig</span></div>
+              <div class="acrow new">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                «Blätterteig» als neue Zutat anlegen
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Review.</strong> Every import lands in the familiar editor, prefilled:
+          name, description, times, photo, ingredients, steps. Ingredient lines the
+          catalog couldn't match are flagged saffron and open the usual suggestion panel —
+          pick the closest entry or create the miss as a new ingredient in one tap.
+          Speichern is the moment an import becomes a recipe, never earlier.
+        </p>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 2.5rem">…and on larger screens</h2>
+    <p class="sub">
+      The source choice hangs as a menu under «+ Neues Rezept»; Aus Link and Aus Text
+      become small dialogs, and review uses the expanded editor shown above. Sources the
+      instance doesn't support don't appear here either.
+    </p>
+    <div class="deskwrap">
+      <div class="desk app-light">
+        <div class="d-bar">
+          <span class="wordmark">Rezepte</span>
+          <span class="d-links">
+            <span class="d-link on">Rezepte</span>
+            <span class="d-link">Menüplan</span>
+          </span>
+          <span class="grow"></span>
+          <div class="search d-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Rezepte durchsuchen
+          </div>
+          <span class="iconbtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8.2" r="3.4"></circle>
+              <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="d-body">
+          <div class="d-row">
+            <span class="chip on">Alle</span>
+            <span class="chip">Hauptgericht</span>
+            <span class="chip">Vegi</span>
+            <span class="chip">Dessert</span>
+            <span class="chip">Schnell</span>
+            <span class="grow"></span>
+            <span class="d-cta">+ Neues Rezept</span>
+          </div>
+          <div class="d-grid">
+            <div class="rcard">
+              <div class="photo tomaten">🍅</div>
+              <div class="body">
+                <p class="rtitle">Tomaten-Zucchetti-Gratin</p>
+                <div class="meta"><span>45 Min</span><span class="tag">Vegi</span></div>
+              </div>
+            </div>
+            <div class="rcard">
+              <div class="photo aprikose">🥧</div>
+              <div class="body">
+                <p class="rtitle">Aprikosenwähe</p>
+                <div class="meta"><span>60 Min</span><span class="tag">Dessert</span></div>
+              </div>
+            </div>
+            <div class="rcard">
+              <div class="photo gurke">🥒</div>
+              <div class="body">
+                <p class="rtitle">Gurkensalat mit Dill</p>
+                <div class="meta"><span>15 Min</span><span class="tag">Vegi</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="d-menu" style="top: 110px; right: 24px">
+            <div class="mi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 19.5l1-3.8L16 5.2a2 2 0 0 1 2.8 2.8L8.3 18.5l-3.8 1Z"></path>
+              </svg>
+              <span class="grow">Manuell</span>
+            </div>
+            <div class="mi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.2 13.8a4 4 0 0 0 5.6 0l3-3a4 4 0 0 0-5.7-5.6l-1.2 1.2"></path>
+                <path d="M13.8 10.2a4 4 0 0 0-5.6 0l-3 3a4 4 0 0 0 5.7 5.6l1.2-1.2"></path>
+              </svg>
+              <span class="grow">Aus Link</span>
+            </div>
+            <div class="mi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"></path>
+                <circle cx="12" cy="13" r="3.4"></circle>
+              </svg>
+              <span class="grow">Aus Foto oder PDF</span>
+            </div>
+            <div class="mi">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M5 7h14M5 12h14M5 17h9"></path>
+              </svg>
+              <span class="grow">Aus Text</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>Import entry, expanded (≥ 905 px).</strong> «+ Neues Rezept» opens the same
+      four sources as a menu anchored to the button. Manuell goes straight to the expanded
+      editor; Aus Link and Aus Text open as centered dialogs with the same content as
+      their compact sheets; Aus Foto oder PDF opens the file picker directly.
+    </p>
+  </section>
+
+  <section>
+    <h2>Meal planning</h2>
+    <p class="sub">
+      The Menüplan tab plans one <b>Plan</b> at a time as a small grid — days as rows,
+      <b>Mittag</b> and <b>Abend</b> as columns, one recipe per slot. A plan is not a
+      calendar week: it runs 1–10 days from any start date, matching the household's real
+      rhythm — shopping on Wednesday means planning Wednesday through Tuesday, and an
+      upcoming holiday stretches the next plan by a few days. The chevrons step between
+      plans chronologically. Slots carry the whole interaction: tapping one — filled or
+      empty — opens a picker that sets, replaces or clears that meal, and every pick saves
+      immediately; there is no edit mode and no save button. Each meal that was actually
+      cooked gets a one-tap confirmation — that cooked history is what keeps the
+      suggestions from proposing the same dishes again next time. Beyond the newest plan,
+      the tab offers the two ways into the next one: start empty, or have the whole range
+      suggested and take it over as one. A saved plan stays malleable — its menu fills the
+      slots left empty and moves the start or duration when the days turn out different.
+      Compact and medium keep the days as rows; on
+      expanded screens the plan turns on its side into a planner board — days as columns,
+      below.
+    </p>
+
+    <div class="screens">
+      <!-- ============ SCREEN: empty week ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <p class="page-title">Menüplan</p>
+          <div class="wknav">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 22. – Do 30. Juli</span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="mp-empty">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+              <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+              <path d="M12 12.6l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9Z"></path>
+            </svg>
+            <p class="mp-etitle">Noch kein Menüplan</p>
+            <p>Plane 1–10 Tage ab einem beliebigen Starttag — selbst, oder lass dir die Tage vorschlagen, saisonal und mit deinen Favoriten.</p>
+            <div class="mp-fields">
+              <div class="ffield"><small>Start</small>Mi, 22. Juli</div>
+              <div class="ffield"><small>Dauer</small>9 Tage</div>
+            </div>
+            <span class="mp-btn solid">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10.8 4.5 12.5 9.3 17.3 11 12.5 12.7 10.8 17.5 9.1 12.7 4.3 11 9.1 9.3Z"></path>
+                <path d="M17.6 4.2l.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7Z"></path>
+              </svg>
+              Vorschlagen
+            </span>
+            <span class="mp-btn ghost">Leer beginnen</span>
+          </div>
+          <div class="bottomnav">
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                  <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5Z"></path>
+                  <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5Z"></path>
+                </svg>
+              </span>
+              Rezepte
+            </span>
+            <span class="navitem on">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+                  <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+                </svg>
+              </span>
+              Menüplan
+            </span>
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4"></circle>
+                  <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+                </svg>
+              </span>
+              Konto
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Starting a plan.</strong> Stepping past the newest plan lands here.
+          Start and Dauer default to the household rhythm — the day after the last plan
+          ends, the last plan's length — so the regular Tuesday-evening planning for
+          Wednesday through Tuesday needs no adjusting; here the Dauer was bumped to 9
+          Tage for an upcoming holiday. «Leer beginnen» creates the blank grid to fill by
+          hand; «Vorschlagen» jumps straight to a suggested draft for exactly that range.
+          Past plans stay readable through the back chevron. The ⋮ menu only appears once
+          a plan exists.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: planned week ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <div class="page-head">
+            <p class="page-title">Menüplan</p>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5.4" r="1.9"></circle>
+                <circle cx="12" cy="12" r="1.9"></circle>
+                <circle cx="12" cy="18.6" r="1.9"></circle>
+              </svg>
+            </span>
+          </div>
+          <div class="wknav">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 15. – Di 21. Juli</span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="mp-grid">
+            <span></span>
+            <span class="mp-colhead">Mittag</span>
+            <span class="mp-colhead">Abend</span>
+            <div class="mp-day"><b>Mi</b>15.</div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Gurkensalat mit Dill</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo magronen"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Älplermagronen</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Do</b>16.</div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-slot"><span class="thumb photo geschnetzeltes"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Zürcher Geschnetzeltes</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day today"><b>Fr</b>17.</div>
+            <div class="mp-slot"><span class="thumb photo suppe"></span><span class="mname">Kalte Gurkensuppe</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo tomaten"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Tomaten-Zucchetti-Gratin</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Sa</b>18.</div>
+            <div class="mp-slot"><span class="thumb photo salat"></span><span class="mname">Sommersalat</span></div>
+            <div class="mp-slot"><span class="thumb photo roesti"></span><span class="mname">Rösti</span></div>
+            <div class="mp-day"><b>So</b>19.</div>
+            <div class="mp-slot"><span class="thumb photo waehe"></span><span class="mname">Gemüsewähe</span></div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-day"><b>Mo</b>20.</div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-slot"><span class="thumb photo aprikose"></span><span class="mname">Aprikosenwähe</span></div>
+            <div class="mp-day"><b>Di</b>21.</div>
+            <div class="mp-slot"><span class="thumb photo beeren"></span><span class="mname">Beerenquark</span></div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+          </div>
+          <div class="bottomnav">
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                  <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5Z"></path>
+                  <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5Z"></path>
+                </svg>
+              </span>
+              Rezepte
+            </span>
+            <span class="navitem on">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+                  <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+                </svg>
+              </span>
+              Menüplan
+            </span>
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4"></circle>
+                  <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+                </svg>
+              </span>
+              Konto
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>The plan.</strong> A Wednesday-to-Tuesday plan around the Wednesday
+          shopping day; Heute is marked in the day rail. Filled slots show photo and
+          name — hearts mark favorites — and dashed slots are meals nobody planned yet;
+          both kinds tap open the same picker. From a meal's day on, its slot grows the
+          cooked circle: one tap confirms «gekocht» and fills it green — that history is
+          what the suggestions avoid repeating. Unconfirmed meals (like the skipped
+          Geschnetzeltes on Do) simply stay open and remain fair game for the next
+          suggestion. Deleting the whole plan sits behind ⋮ → «Plan löschen» and passes
+          the shared confirm dialog.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: plan menu ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <div class="page-head">
+            <p class="page-title">Menüplan</p>
+            <span class="iconbtn on">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5.4" r="1.9"></circle>
+                <circle cx="12" cy="12" r="1.9"></circle>
+                <circle cx="12" cy="18.6" r="1.9"></circle>
+              </svg>
+            </span>
+          </div>
+          <div class="wknav">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 15. – Di 21. Juli</span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="mp-grid">
+            <span></span>
+            <span class="mp-colhead">Mittag</span>
+            <span class="mp-colhead">Abend</span>
+            <div class="mp-day"><b>Mi</b>15.</div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Gurkensalat mit Dill</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo magronen"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Älplermagronen</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Do</b>16.</div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-slot"><span class="thumb photo geschnetzeltes"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Zürcher Geschnetzeltes</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day today"><b>Fr</b>17.</div>
+            <div class="mp-slot"><span class="thumb photo suppe"></span><span class="mname">Kalte Gurkensuppe</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo tomaten"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Tomaten-Zucchetti-Gratin</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Sa</b>18.</div>
+            <div class="mp-slot"><span class="thumb photo salat"></span><span class="mname">Sommersalat</span></div>
+            <div class="mp-slot"><span class="thumb photo roesti"></span><span class="mname">Rösti</span></div>
+            <div class="mp-day"><b>So</b>19.</div>
+            <div class="mp-slot"><span class="thumb photo waehe"></span><span class="mname">Gemüsewähe</span></div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-day"><b>Mo</b>20.</div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-slot"><span class="thumb photo aprikose"></span><span class="mname">Aprikosenwähe</span></div>
+            <div class="mp-day"><b>Di</b>21.</div>
+            <div class="mp-slot"><span class="thumb photo beeren"></span><span class="mname">Beerenquark</span></div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+          </div>
+          <div class="p-menu">
+            <div class="mi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10.8 4.5 12.5 9.3 17.3 11 12.5 12.7 10.8 17.5 9.1 12.7 4.3 11 9.1 9.3Z"></path>
+                <path d="M17.6 4.2l.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7Z"></path>
+              </svg>
+              <span class="grow">Leere Slots füllen</span>
+            </div>
+            <div class="mi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+                <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+              </svg>
+              <span class="grow">Zeitraum anpassen</span>
+            </div>
+            <div class="mi danger">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 7h15"></path>
+                <path d="M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7"></path>
+                <path d="M18 7l-.8 11.2a1.9 1.9 0 0 1-1.9 1.8H8.7a1.9 1.9 0 0 1-1.9-1.8L6 7"></path>
+                <path d="M10.1 10.5v6M13.9 10.5v6"></path>
+              </svg>
+              <span class="grow">Plan löschen</span>
+            </div>
+          </div>
+          <div class="bottomnav">
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                  <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5Z"></path>
+                  <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5Z"></path>
+                </svg>
+              </span>
+              Rezepte
+            </span>
+            <span class="navitem on">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+                  <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+                </svg>
+              </span>
+              Menüplan
+            </span>
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4"></circle>
+                  <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+                </svg>
+              </span>
+              Konto
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>The plan menu.</strong> Everything behind the ⋮ acts on the plan being
+          shown, in escalating weight. «Leere Slots füllen» sends the untouched slots back
+          through the suggestion algorithm and returns them as a draft over the existing
+          plan — the same Entwurf treatment as a fresh suggestion, so a half-planned range
+          never has to be finished by hand or thrown away. «Zeitraum anpassen» reopens
+          Start and Dauer on a saved plan, for the holiday that got confirmed after
+          planning. «Plan löschen» sits last, in the error color. All three answer through
+          the shared confirm dialog where they destroy something. The menu keeps
+          destructive actions two taps away and stays the home for plan-level work; on
+          expanded widths it hangs from the ⋮ in the board header.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: adjust range ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <div class="page-head">
+            <p class="page-title">Menüplan</p>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5.4" r="1.9"></circle>
+                <circle cx="12" cy="12" r="1.9"></circle>
+                <circle cx="12" cy="18.6" r="1.9"></circle>
+              </svg>
+            </span>
+          </div>
+          <div class="wknav">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 15. – Di 21. Juli</span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="mp-grid">
+            <span></span>
+            <span class="mp-colhead">Mittag</span>
+            <span class="mp-colhead">Abend</span>
+            <div class="mp-day"><b>Mi</b>15.</div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Gurkensalat mit Dill</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo magronen"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Älplermagronen</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Do</b>16.</div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-slot"><span class="thumb photo geschnetzeltes"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Zürcher Geschnetzeltes</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day today"><b>Fr</b>17.</div>
+            <div class="mp-slot"><span class="thumb photo suppe"></span><span class="mname">Kalte Gurkensuppe</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo tomaten"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Tomaten-Zucchetti-Gratin</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Sa</b>18.</div>
+            <div class="mp-slot"><span class="thumb photo salat"></span><span class="mname">Sommersalat</span></div>
+            <div class="mp-slot"><span class="thumb photo roesti"></span><span class="mname">Rösti</span></div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <p class="stitle">Zeitraum anpassen</p>
+            <div class="mp-fields" style="margin-bottom: 0.7rem">
+              <div class="ffield"><small>Start</small>Mi, 15. Juli</div>
+              <div class="ffield warn"><small>Dauer</small>5 Tage</div>
+            </div>
+            <div class="inline-note">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4.5 21 19.5H3Z"></path>
+                <path d="M12 10v4M12 16.6v.2"></path>
+              </svg>
+              Kürzer als bisher: 2 geplante Mahlzeiten am Mo und Di fallen weg.
+            </div>
+            <span class="mp-btn solid">Speichern</span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Zeitraum anpassen.</strong> The same Start and Dauer fields as the setup
+          screen, prefilled with the plan's current range — extending appends empty days,
+          shortening drops the tail. Because shortening destroys planned meals, the sheet
+          names the cost the moment the duration goes below the current one, and Speichern
+          asks once more through the shared confirm dialog. Adjusting into another plan's
+          days is refused with the same inline treatment.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: slot picker ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <div class="page-head">
+            <p class="page-title">Menüplan</p>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5.4" r="1.9"></circle>
+                <circle cx="12" cy="12" r="1.9"></circle>
+                <circle cx="12" cy="18.6" r="1.9"></circle>
+              </svg>
+            </span>
+          </div>
+          <div class="wknav">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 15. – Di 21. Juli</span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="mp-grid">
+            <span></span>
+            <span class="mp-colhead">Mittag</span>
+            <span class="mp-colhead">Abend</span>
+            <div class="mp-day"><b>Mi</b>15.</div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Gurkensalat mit Dill</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo magronen"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Älplermagronen</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Do</b>16.</div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mp-slot"><span class="thumb photo geschnetzeltes"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Zürcher Geschnetzeltes</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day today"><b>Fr</b>17.</div>
+            <div class="mp-slot"><span class="thumb photo suppe"></span><span class="mname">Kalte Gurkensuppe</span><span class="done on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-slot"><span class="thumb photo tomaten"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Tomaten-Zucchetti-Gratin</span><span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></div>
+            <div class="mp-day"><b>Sa</b>18.</div>
+            <div class="mp-slot"><span class="thumb photo salat"></span><span class="mname">Sommersalat</span></div>
+            <div class="mp-slot"><span class="thumb photo roesti"></span><span class="mname">Rösti</span></div>
+            <div class="mp-day"><b>So</b>19.</div>
+            <div class="mp-slot"><span class="thumb photo waehe"></span><span class="mname">Gemüsewähe</span></div>
+            <div class="mp-slot empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <p class="stitle">Montag · Mittag</p>
+            <div class="search">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Rezepte durchsuchen
+            </div>
+            <div class="srow"><span class="thumb photo tomaten"></span><span>Tomaten-Zucchetti-Gratin
+              <svg class="hrt" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span>
+              <span class="tag">Saison</span></div>
+            <div class="srow"><span class="thumb photo geschnetzeltes"></span><span>Zürcher Geschnetzeltes
+              <svg class="hrt" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span></div>
+            <div class="srow"><span class="thumb photo beeren"></span><span>Beerenquark</span>
+              <span class="tag">Saison</span></div>
+            <div class="srow"><span class="thumb photo roesti"></span><span>Rösti</span></div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Slot picker.</strong> Tapping Montag Mittag lifts the picker: favorites
+          and in-season recipes lead, the search reaches the whole collection. One tap
+          writes the slot, dismisses the sheet and saves — replacing a filled slot is the
+          same movement, and there the list ends in a «Slot leeren» row for planning
+          nothing at all.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: suggested week (draft) ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="wordmark">Rezepte</span>
+            <span class="grow"></span>
+          </div>
+          <p class="page-title">Menüplan</p>
+          <div class="wknav">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 22. – Do 30. Juli <span class="tag amber">Entwurf</span></span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="mp-grid">
+            <span></span>
+            <span class="mp-colhead">Mittag</span>
+            <span class="mp-colhead">Abend</span>
+            <div class="mp-day"><b>Mi</b>22.</div>
+            <div class="mp-slot"><span class="thumb photo tomaten"></span><span class="mname">Caprese mit Burrata</span></div>
+            <div class="mp-slot"><span class="thumb photo aprikose"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Riz Casimir</span></div>
+            <div class="mp-day"><b>Do</b>23.</div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Bohnensalat mit Ei</span></div>
+            <div class="mp-slot"><span class="thumb photo waehe"></span><span class="mname">Fischknusperli</span></div>
+            <div class="mp-day"><b>Fr</b>24.</div>
+            <div class="mp-slot"><span class="thumb photo aprikose"></span><span class="mname">Melone mit Rohschinken</span></div>
+            <div class="mp-slot"><span class="thumb photo roesti"></span><span class="mname">Peperonata mit Polenta</span></div>
+            <div class="mp-day"><b>Sa</b>25.</div>
+            <div class="mp-slot"><span class="thumb photo tomaten"></span><span class="mname">Gazpacho</span></div>
+            <div class="mp-slot"><span class="thumb photo geschnetzeltes"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Pouletspiessli</span></div>
+            <div class="mp-day"><b>So</b>26.</div>
+            <div class="mp-slot"><span class="thumb photo salat"></span><span class="mname">Couscous-Salat</span></div>
+            <div class="mp-slot"><span class="thumb photo magronen"><svg class="hrt" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Spaghetti al Limone</span></div>
+            <div class="mp-day"><b>Mo</b>27.</div>
+            <div class="mp-slot"><span class="thumb photo beeren"></span><span class="mname">Beeren-Porridge</span></div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Grillgemüse mit Halloumi</span></div>
+            <div class="mp-day"><b>Di</b>28.</div>
+            <div class="mp-slot"><span class="thumb photo waehe"></span><span class="mname">Flammkuchen</span></div>
+            <div class="mp-slot"><span class="thumb photo suppe"></span><span class="mname">Forelle mit Kartoffeln</span></div>
+            <div class="mp-day"><b>Mi</b>29.</div>
+            <div class="mp-slot"><span class="thumb photo beeren"></span><span class="mname">Birchermüesli</span></div>
+            <div class="mp-slot"><span class="thumb photo tomaten"></span><span class="mname">Pizza Margherita</span></div>
+            <div class="mp-day"><b>Do</b>30.</div>
+            <div class="mp-slot"><span class="thumb photo gurke"></span><span class="mname">Ofengemüse mit Feta</span></div>
+            <div class="mp-slot"><span class="thumb photo aprikose"></span><span class="mname">Crêpes mit Beeren</span></div>
+          </div>
+          <div class="mp-actions">
+            <span class="mp-btn ghost">Verwerfen</span>
+            <span class="mp-btn solid">Übernehmen</span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Suggested plan.</strong> «Vorschlagen» fills the requested range — here
+          the 9-day holiday stretch — as a draft; the amber tag says nothing is stored
+          yet, and while the draft is open the action bar takes the bottom nav's place.
+          The mix is the collection at its best for these dates: in-season dishes,
+          favorites among new ideas, and nothing the household actually cooked recently —
+          the confirmations from past plans are the memory, so a planned-but-skipped dish
+          may well return. Single slots can still be swapped through the same picker
+          before «Übernehmen» makes it the real plan; «Verwerfen» drops back to the setup
+          screen.
+        </p>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 2.5rem">…and on larger screens</h2>
+    <p class="sub">
+      From expanded width (≥&nbsp;905&nbsp;px) the plan reads like a wall planner: days as
+      columns, Mittag and Abend as rows — a longer plan simply brings more columns, up to
+      ten. Medium widths (600–905&nbsp;px) keep the compact row layout inside the desktop
+      chrome.
+    </p>
+    <div class="deskwrap">
+      <div class="desk app-light">
+        <div class="d-bar">
+          <span class="wordmark">Rezepte</span>
+          <span class="d-links">
+            <span class="d-link">Rezepte</span>
+            <span class="d-link on">Menüplan</span>
+          </span>
+          <span class="grow"></span>
+          <span class="iconbtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8.2" r="3.4"></circle>
+              <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="d-body">
+          <div class="mpd-head">
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="wklabel">Mi 15. – Di 21. Juli</span>
+            <span class="iconbtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="grow"></span>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5.4" r="1.9"></circle>
+                <circle cx="12" cy="12" r="1.9"></circle>
+                <circle cx="12" cy="18.6" r="1.9"></circle>
+              </svg>
+            </span>
+          </div>
+          <div class="mpd-board">
+            <span></span>
+            <div class="mpd-dayhead"><b>Mi</b>15.</div>
+            <div class="mpd-dayhead"><b>Do</b>16.</div>
+            <div class="mpd-dayhead today"><b>Fr</b>17.</div>
+            <div class="mpd-dayhead"><b>Sa</b>18.</div>
+            <div class="mpd-dayhead"><b>So</b>19.</div>
+            <div class="mpd-dayhead"><b>Mo</b>20.</div>
+            <div class="mpd-dayhead"><b>Di</b>21.</div>
+            <span class="mpd-rowlabel">Mittag</span>
+            <div class="mpd-slot"><span class="photo gurke">🥒<span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></span><span class="mname">Gurkensalat mit Dill</span></div>
+            <div class="mpd-slot empty">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mpd-slot"><span class="photo suppe">🥣<span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span></span><span class="mname">Kalte Gurkensuppe</span></div>
+            <div class="mpd-slot"><span class="photo salat">🥗</span><span class="mname">Sommersalat</span></div>
+            <div class="mpd-slot"><span class="photo waehe">🥧</span><span class="mname">Gemüsewähe</span></div>
+            <div class="mpd-slot empty">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mpd-slot"><span class="photo beeren">🫐</span><span class="mname">Beerenquark</span></div>
+            <span class="mpd-rowlabel">Abend</span>
+            <div class="mpd-slot"><span class="photo magronen">🧀<span class="done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path></svg></span><svg class="hrt" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Älplermagronen</span></div>
+            <div class="mpd-slot"><span class="photo geschnetzeltes">🍄<svg class="hrt" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Zürcher Geschnetzeltes</span></div>
+            <div class="mpd-slot"><span class="photo tomaten">🍅<svg class="hrt" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path></svg></span><span class="mname">Tomaten-Zucchetti-Gratin</span></div>
+            <div class="mpd-slot"><span class="photo roesti">🥔</span><span class="mname">Rösti</span></div>
+            <div class="mpd-slot empty">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+            <div class="mpd-slot"><span class="photo aprikose">🥧</span><span class="mname">Aprikosenwähe</span></div>
+            <div class="mpd-slot empty">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>Menüplan, expanded (≥ 905 px).</strong> The same plan as above, turned into a
+      board: the whole span is visible without scrolling, today's column is marked, cooked
+      meals carry their green tick on the photo, and the slot photos get room to be
+      appetizing. Behavior is unchanged — every slot opens the picker (a dialog at this
+      width, not a sheet), the tick toggles on the card, ⋮ deletes the plan, and stepping
+      past the newest plan shows the same setup — Start, Dauer, the two ways in — centered
+      on the empty board.
+    </p>
   </section>
 
   <section>
@@ -1593,6 +3708,8 @@
           <div class="tabbar">
             <span class="tab on">Benutzer</span>
             <span class="tab">Übersetzungen</span>
+            <span class="tab">Zutaten</span>
+            <span class="tab">Rezepte</span>
           </div>
           <div class="ulist">
             <div class="urow">
@@ -1644,8 +3761,8 @@
         </div>
         <p class="frame-caption">
           <strong>Administration.</strong> The sidenav becomes secondary tabs; the back arrow
-          returns to Konto. The user table turns into list rows on compact. The second tab is
-          illustrative — future admin pages simply appear here.
+          returns to Konto. The user table turns into list rows on compact. The tab bar
+          scrolls horizontally as admin areas are added — Rezepte is cut off here on purpose.
         </p>
       </div>
     </div>
@@ -1845,6 +3962,583 @@
   </section>
 
   <section>
+    <h2>Editing in the admin area</h2>
+    <p class="sub">
+      The Navigation section shows where administration lives; this one shows how it edits.
+      On compact, list rows stay read-only summaries — tapping one lifts the controls in a
+      bottom sheet, the same container the language picker uses. From 600&nbsp;px up the
+      table is wide enough to edit inline. Changes persist as they are made — no save button,
+      no edit mode. Every destructive action confirms in a small dialog first, and when the
+      server refuses one — your own account, an ingredient recipes still use — the reason
+      replaces the dialog text right there; the generic snackbar stays reserved for errors
+      nobody can act on.
+    </p>
+
+    <div class="screens">
+      <!-- ============ SCREEN: Benutzer list with search + paging ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Administration</span>
+            <span class="grow"></span>
+          </div>
+          <div class="tabbar">
+            <span class="tab on">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Benutzer durchsuchen
+          </div>
+          <div class="ulist">
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">F</span>
+              <span class="who"><b>Fabian</b><span>fabian@example.com</span></span>
+              <span class="tag">User</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">A</span>
+              <span class="who"><b>adminuser</b><span>adminuser@example.com</span></span>
+              <span class="tag">User</span>
+              <span class="tag amber">Admin</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="urow dis">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">M</span>
+              <span class="who"><b>mytest</b><span>my@test.ch</span></span>
+              <span class="tag mutd">Deaktiviert</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">A</span>
+              <span class="who"><b>anna</b><span>anna@example.com</span></span>
+              <span class="tag">User</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">L</span>
+              <span class="who"><b>luca</b><span>luca@example.com</span></span>
+              <span class="tag">User</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="pager">
+            <span>1–10 von 23</span>
+            <span class="iconbtn dim">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="iconbtn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="bottomnav">
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                  <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5Z"></path>
+                  <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5Z"></path>
+                </svg>
+              </span>
+              Rezepte
+            </span>
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+                  <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+                </svg>
+              </span>
+              Menüplan
+            </span>
+            <span class="navitem on">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4"></circle>
+                  <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+                </svg>
+              </span>
+              Konto
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Benutzer.</strong> The search filters username and email server-side and
+          resets to the first page on every new term. Rows summarize: role tags, a quiet
+          Deaktiviert tag with dimmed identity for disabled accounts, a chevron because the
+          row opens. Paging is the standard paginator reduced to range and arrows on compact.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: user edit sheet ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Administration</span>
+            <span class="grow"></span>
+          </div>
+          <div class="tabbar">
+            <span class="tab on">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Benutzer durchsuchen
+          </div>
+          <div class="ulist">
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">F</span>
+              <span class="who"><b>Fabian</b><span>fabian@example.com</span></span>
+              <span class="tag">User</span>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">A</span>
+              <span class="who"><b>adminuser</b><span>adminuser@example.com</span></span>
+              <span class="tag">User</span>
+              <span class="tag amber">Admin</span>
+            </div>
+            <div class="urow dis">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">M</span>
+              <span class="who"><b>mytest</b><span>my@test.ch</span></span>
+              <span class="tag mutd">Deaktiviert</span>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <div class="acct-head">
+              <span class="avatar">M</span>
+              <span class="who"><b>mytest</b><span>my@test.ch</span></span>
+            </div>
+            <div class="mrow">
+              <span class="grow">Aktiv</span>
+              <span class="tgl off"></span>
+            </div>
+            <div class="mrow">
+              <span class="grow">Rolle</span>
+              <span class="selval">
+                User
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6.5 9.5 12 15l5.5-5.5"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="mrow danger last">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 7h15"></path>
+                <path d="M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7"></path>
+                <path d="M6.3 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.6a1.5 1.5 0 0 0 1.5-1.4L17.7 7"></path>
+                <path d="M10.2 10.5v6.5M13.8 10.5v6.5"></path>
+              </svg>
+              <span class="grow">Benutzer löschen</span>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Benutzer bearbeiten (compact).</strong> Tapping a row lifts its controls in
+          a bottom sheet: the Aktiv toggle and the Rolle select persist on change, and the
+          list behind updates as the sheet closes. On the signed-in admin's own account the
+          Löschen row is disabled — you cannot delete yourself, and the server enforces the
+          same rule. A role change reaches the user with their next token refresh.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: delete confirmation ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Administration</span>
+            <span class="grow"></span>
+          </div>
+          <div class="tabbar">
+            <span class="tab on">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6"></circle>
+              <path d="M15.2 15.2 20 20"></path>
+            </svg>
+            Benutzer durchsuchen
+          </div>
+          <div class="ulist">
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">F</span>
+              <span class="who"><b>Fabian</b><span>fabian@example.com</span></span>
+              <span class="tag">User</span>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">A</span>
+              <span class="who"><b>adminuser</b><span>adminuser@example.com</span></span>
+              <span class="tag">User</span>
+              <span class="tag amber">Admin</span>
+            </div>
+            <div class="urow dis">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">M</span>
+              <span class="who"><b>mytest</b><span>my@test.ch</span></span>
+              <span class="tag mutd">Deaktiviert</span>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="dialog">
+            <p class="dtitle">Benutzer löschen?</p>
+            <p class="dtext">
+              mytest wird dauerhaft entfernt. Das kann nicht rückgängig gemacht werden.
+            </p>
+            <div class="dactions">
+              <span class="grow"></span>
+              <span class="tbtn">Abbrechen</span>
+              <span class="tbtn danger">Löschen</span>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Delete confirmation.</strong> One dialog pattern for every destructive
+          admin action — users, ingredients, recipes. When the server refuses, the reason
+          replaces the supporting text («Du kannst dein eigenes Konto nicht löschen») and the
+          actions collapse to a single Schliessen.
+        </p>
+      </div>
+    </div>
+
+    <div class="deskwrap">
+      <div class="desk app-light">
+        <div class="d-bar">
+          <span class="wordmark">Rezepte</span>
+          <span class="d-links">
+            <span class="d-link">Rezepte</span>
+            <span class="d-link">Menüplan</span>
+          </span>
+          <span class="grow"></span>
+          <span class="iconbtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8.2" r="3.4"></circle>
+              <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="d-body">
+          <p class="d-title">Administration</p>
+          <div class="tabbar d-tabs">
+            <span class="tab on">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="d-row" style="margin: 0.9rem 0 0.3rem">
+            <div class="search d-search">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="grow"></span>
+          </div>
+          <div class="d-thead cols-u">
+            <span>Benutzername</span><span>E-Mail</span><span>Aktiv</span><span>Rolle</span><span></span>
+          </div>
+          <div class="d-tr cols-u">
+            <span>Fabian</span><span class="cell-mail">fabian@example.com</span>
+            <span><span class="tgl"></span></span>
+            <span><span class="selval">User
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
+            </span></span>
+            <span class="rowbtn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 7h15"></path>
+                <path d="M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7"></path>
+                <path d="M6.3 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.6a1.5 1.5 0 0 0 1.5-1.4L17.7 7"></path>
+                <path d="M10.2 10.5v6.5M13.8 10.5v6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="d-tr cols-u">
+            <span>adminuser</span><span class="cell-mail">adminuser@example.com</span>
+            <span><span class="tgl"></span></span>
+            <span><span class="selval">Admin
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
+            </span></span>
+            <span class="rowbtn dim">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 7h15"></path>
+                <path d="M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7"></path>
+                <path d="M6.3 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.6a1.5 1.5 0 0 0 1.5-1.4L17.7 7"></path>
+                <path d="M10.2 10.5v6.5M13.8 10.5v6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="d-tr cols-u dis">
+            <span>mytest</span><span class="cell-mail">my@test.ch</span>
+            <span><span class="tgl off"></span></span>
+            <span><span class="selval">User
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
+            </span></span>
+            <span class="rowbtn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 7h15"></path>
+                <path d="M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7"></path>
+                <path d="M6.3 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.6a1.5 1.5 0 0 0 1.5-1.4L17.7 7"></path>
+                <path d="M10.2 10.5v6.5M13.8 10.5v6.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="d-pager">
+            <span>Zeilen pro Seite</span>
+            <span class="selval">10
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
+            </span>
+            <span class="range">1–10 von 23</span>
+            <span class="iconbtn dim">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="iconbtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption" style="max-width: 44rem">
+      <strong>Benutzer, expanded (≥ 600 px).</strong> The width brings the table back and
+      editing goes inline — the same toggle, select and delete the sheet carries on compact,
+      persisting on change. The signed-in admin (adminuser here) sees their own delete
+      disabled; a disabled account dims its identity columns. Search above, the full
+      paginator with page-size select below.
+    </p>
+
+    <div class="screens">
+      <!-- ============ SCREEN: Zutaten list ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Administration</span>
+            <span class="grow"></span>
+          </div>
+          <div class="tabbar">
+            <span class="tab">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab on">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="ulist" style="margin-top: 0.4rem">
+            <div class="urow">
+              <span class="who"><b>Broccoli</b></span>
+              <span class="tag amber">Jun–Okt</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Erdbeeren</b></span>
+              <span class="tag amber">Mai–Jul</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Karotten</b></span>
+              <span class="tag mutd">ganzjährig</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Kartoffeln</b></span>
+              <span class="tag mutd">ganzjährig</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Kürbis</b></span>
+              <span class="tag amber">Sep–Dez</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Lauch</b></span>
+              <span class="tag amber">Sep–Apr</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Spargel</b></span>
+              <span class="tag amber">Apr–Jun</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Tomaten</b></span>
+              <span class="tag amber">Jul–Okt</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Zucchetti</b></span>
+              <span class="tag amber">Jun–Okt</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"></path></svg>
+            </div>
+          </div>
+          <span class="fab">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </span>
+          <div class="bottomnav">
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+                  <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5Z"></path>
+                  <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5Z"></path>
+                </svg>
+              </span>
+              Rezepte
+            </span>
+            <span class="navitem">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="6" width="16" height="14" rx="2.5"></rect>
+                  <path d="M4 11h16M8.5 3.5v4M15.5 3.5v4"></path>
+                </svg>
+              </span>
+              Menüplan
+            </span>
+            <span class="navitem on">
+              <span class="pill">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4"></circle>
+                  <path d="M4.8 19.4c1.6-3.1 4.2-4.6 7.2-4.6s5.6 1.5 7.2 4.6"></path>
+                </svg>
+              </span>
+              Konto
+            </span>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Zutaten.</strong> The curated catalog, alphabetical. Season months collapse
+          to a range in saffron — wrap-around seasons included (Lauch: Sep–Apr); year-round
+          ingredients wear a quiet outline tag instead. The FAB creates, tapping a row edits —
+          both open the same dialog.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: Zutat dialog ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Administration</span>
+            <span class="grow"></span>
+          </div>
+          <div class="tabbar">
+            <span class="tab">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab on">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="ulist" style="margin-top: 0.4rem">
+            <div class="urow">
+              <span class="who"><b>Broccoli</b></span>
+              <span class="tag amber">Jun–Okt</span>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Erdbeeren</b></span>
+              <span class="tag amber">Mai–Jul</span>
+            </div>
+            <div class="urow">
+              <span class="who"><b>Karotten</b></span>
+              <span class="tag mutd">ganzjährig</span>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="dialog">
+            <p class="dtitle">Zutat bearbeiten</p>
+            <div class="dfield"><small>Name</small>Tomaten</div>
+            <p class="dlabel">Saison</p>
+            <div class="months">
+              <span class="mth">Jan</span>
+              <span class="mth">Feb</span>
+              <span class="mth">Mär</span>
+              <span class="mth">Apr</span>
+              <span class="mth">Mai</span>
+              <span class="mth">Jun</span>
+              <span class="mth on">Jul</span>
+              <span class="mth on">Aug</span>
+              <span class="mth on">Sep</span>
+              <span class="mth on">Okt</span>
+              <span class="mth">Nov</span>
+              <span class="mth">Dez</span>
+            </div>
+            <p class="dhint">Keine Monate ausgewählt bedeutet ganzjährig erhältlich.</p>
+            <div class="dactions">
+              <span class="tbtn danger">Löschen</span>
+              <span class="grow"></span>
+              <span class="tbtn">Abbrechen</span>
+              <span class="tbtn">Speichern</span>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Zutat dialog.</strong> A name and twelve month toggles — the data behind
+          every season feature. Creating (via FAB) opens it empty as «Neue Zutat», without
+          the Löschen action. Deleting confirms like everywhere; an ingredient recipes still
+          use is refused with «Wird noch von 3 Rezepten verwendet» in that dialog. Identical
+          as a centered dialog at every width.
+        </p>
+      </div>
+    </div>
+
+    <p class="sub" style="margin-top: 0.5rem">
+      The Rezepte admin tab repeats the Benutzer arrangement — rows on compact, table from
+      600&nbsp;px up, with author and dates as the columns, an edit action leading into the
+      recipe editor (specced above) and the same delete confirmation.
+    </p>
+  </section>
+
+  <section>
     <h2>Language</h2>
     <p class="sub">
       The UI speaks German, English, French and Italian. The picker — behind the signed-out
@@ -1857,7 +4551,10 @@
       reload. First visit follows the browser language (German when unsupported); an
       anonymous visitor's choice sticks on the device, a signed-in user's choice sticks to
       the account and follows them to any device. Language switching never claims signed-in
-      toolbar space — it is a rare, set-once action and lives with the account.
+      toolbar space — it is a rare, set-once action and lives with the account. Recipe
+      content is data, not chrome: it follows the chosen language only where a translation
+      exists and otherwise falls back to the recipe's original language with a visible
+      note — mixed states are honest, never silent.
     </p>
 
     <div class="screens">
@@ -1976,6 +4673,69 @@
           picker (this bottom sheet on compact, a menu from 600&nbsp;px up). First visit
           already follows the browser language; the globe is for correcting it, and the
           choice sticks on the device.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: content fallback ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="hero-photo tomaten photo">
+            🍅
+            <span class="back">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="fav active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 20.5C7 16.6 3.5 13.4 3.5 9.7 3.5 7 5.6 5 8.1 5c1.5 0 3 .8 3.9 2 .9-1.2 2.4-2 3.9-2 2.5 0 4.6 2 4.6 4.7 0 3.7-3.5 6.9-8.5 10.8Z"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="detail-body">
+            <span class="tag">Plat principal</span>
+            <h3 class="detail-title">Tomaten-Zucchetti-Gratin</h3>
+            <div class="detail-meta">
+              <span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <circle cx="12" cy="12" r="8.5"></circle>
+                  <path d="M12 7.5V12l3 2"></path>
+                </svg>
+                45 min
+              </span>
+              <span>facile</span>
+              <span>⌀ par portion 520 kcal</span>
+            </div>
+            <div class="inline-note">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8.5"></circle>
+                <path d="M3.5 12h17"></path>
+                <path d="M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"></path>
+              </svg>
+              Pas encore disponible en français — contenu affiché en allemand.
+            </div>
+            <div class="sect">
+              <h4>Ingrédients</h4>
+              <span class="stepper"><span class="pm">−</span><b>4 portions</b><span class="pm">+</span></span>
+            </div>
+            <ul class="ing">
+              <li><span class="qty">600 g</span> Tomaten</li>
+              <li><span class="qty">400 g</span> Zucchetti</li>
+              <li><span class="qty">200 g</span> Bergkäse, gerieben</li>
+              <li><span class="qty">2 EL</span> Olivenöl</li>
+            </ul>
+            <div class="sect"><h4>Préparation</h4></div>
+          </div>
+          <div class="cta">Mode cuisine</div>
+        </div>
+        <p class="frame-caption">
+          <strong>Content in the wrong language.</strong> Switching the UI language
+          switches the chrome instantly — recipe <em>content</em> is data and follows only
+          where the recipe actually carries that translation. When it doesn't, the recipe
+          shows whole in its original language under this quiet note — an honest mixed
+          state instead of a silent or half-translated one. How translations get authored
+          is still an open question on the feature issue and deliberately not designed
+          yet.
         </p>
       </div>
     </div>
@@ -2385,7 +5145,59 @@
         item in the account menu; on compact it renders as a <code>MatBottomSheet</code>,
         from 600&nbsp;px up as a <code>mat-menu</code>. Anonymous choice persists in
         <code>localStorage</code>; the signed-in preference is a column on the user and wins
-        over the device choice after login.
+        over the device choice after login. Recipe content is served per locale with
+        fallback to the recipe's source locale, and the response flags fallbacks so the
+        detail view can show its note (#243 — storage and authoring still open on the
+        issue).
+      </li>
+      <li>
+        <b>Admin editing.</b> Compact rows open a <code>MatBottomSheet</code> carrying the
+        row's controls; from 600&nbsp;px up the table edits inline
+        (<code>mat-slide-toggle</code>, <code>mat-select</code>) and pages with
+        <code>MatPaginator</code>. All destructive actions share one confirm
+        <code>MatDialog</code> that also renders server refusals (self-deletion, ingredient
+        in use). The ingredient dialog's season picker is a twelve-toggle grid
+        (<code>mat-button-toggle-group multiple</code>).
+      </li>
+      <li>
+        <b>Recipe editor.</b> One <code>recipe-edit</code> screen for create
+        (<code>/recipes/new</code>) and edit (<code>/recipes/:id/edit</code>): dynamic
+        ingredient and step arrays, <code>mat-autocomplete</code> over the ingredient
+        catalog with a create-new option, a second autocomplete on Einheit fed by the units
+        already in use, step reordering via CDK drag-drop, per-step
+        ingredient chips writing the step–ingredient links. Leaving with unsaved changes is
+        guarded by the shared confirm dialog.
+      </li>
+      <li>
+        <b>Import.</b> One source chooser behind «Neues Rezept» (bottom sheet on compact,
+        a <code>mat-menu</code> under the button from 600&nbsp;px; Aus Link and Aus Text
+        are small <code>MatDialog</code>s there). The server turns a source into a recipe
+        draft — schema.org JSON-LD for links behind the SSRF-guarded fetch, the configured
+        extraction backend for photos/PDFs/text — and the frontend routes that draft into
+        the recipe editor: review is the normal editor with a prefilled model, unmatched
+        ingredients flagged and resolved through the existing autocomplete panel. A
+        capabilities endpoint tells the UI which sources the instance supports
+        (#271, #272).
+      </li>
+      <li>
+        <b>Meal plan.</b> One <code>/meal-plans</code> page owns the plan: a plain CSS
+        grid (no table component) that re-templates at the expanded breakpoint — day rows
+        below 905&nbsp;px, the day-column board above (one column per day, up to ten) —
+        with a date as a query param so plans stay linkable. A plan spans 1–10 days from
+        any start date; the setup screen prefills both from the previous plan (the day
+        after it ends, the same length). The
+        slot picker reuses the bottom-sheet pattern (<code>MatBottomSheet</code> on
+        compact, a dialog from 600&nbsp;px up) over the recipe search; each pick persists
+        immediately, so the page has no save state of its own — the cooked tick is the
+        same immediate slot update. Plan löschen goes through
+        the shared confirm <code>MatDialog</code>. A suggested plan is client-side state
+        only until Übernehmen persists it through the normal create call; suggestions
+        exclude recently cooked recipes, keyed on the cooked confirmations. The plan menu
+        is a <code>mat-menu</code> on the page heading (and in the board header from
+        600&nbsp;px up) carrying the plan-scoped actions: filling the empty slots reuses
+        the suggestion draft state over the saved plan (#312), and adjusting the range
+        reuses the setup screen's Start/Dauer fields with an inline warning when
+        shortening would drop planned meals (#313).
       </li>
       <li>
         <b>Screens.</b> List, detail, and cooking mode are future feature slices — this proposal
