@@ -31,7 +31,7 @@ jobs:
             required: true
           - pass: security
             label: Security review
-            model: fable
+            model: opus
             reviewer: web-security-reviewer
             required: false
 
