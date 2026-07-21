@@ -4,6 +4,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +21,13 @@ public class UserService {
 
   public List<UserDto> getAllUsers() {
     return userRepository.findAll().stream().map(UserService::toDto).toList();
+  }
+
+  public Page<UserDto> getUsers(Pageable pageable) {
+    // A stable, immutable sort key keeps page boundaries consistent across requests and prevents a
+    // caller from ordering by a sensitive column via the sort parameter.
+    Pageable byId = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("id"));
+    return userRepository.findAll(byId).map(UserService::toDto);
   }
 
   public Optional<UserDto> findUser(long id) {

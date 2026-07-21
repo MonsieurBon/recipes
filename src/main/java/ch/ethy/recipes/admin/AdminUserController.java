@@ -2,7 +2,9 @@ package ch.ethy.recipes.admin;
 
 import ch.ethy.recipes.user.UserDto;
 import ch.ethy.recipes.user.UserService;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +19,7 @@ public class AdminUserController {
   }
 
   @GetMapping
-  public List<UserDto> getAllUsers() {
-    return userService.getAllUsers();
+  public PagedModel<UserDto> getUsers(@PageableDefault(size = 10) Pageable pageable) {
+    return new PagedModel<>(userService.getUsers(pageable));
   }
 }

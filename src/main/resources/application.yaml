@@ -1,6 +1,10 @@
 spring:
   application:
     name: recipes
+  data:
+    web:
+      pageable:
+        max-page-size: 100
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/recipes
     username: recipes

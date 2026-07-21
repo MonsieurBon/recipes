@@ -1,6 +1,7 @@
 package ch.ethy.recipes.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,12 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 class UserServiceTest {
 
@@ -58,6 +65,25 @@ class UserServiceTest {
     UserDto dto = userService.getAllUsers().getFirst();
 
     assertEquals("fr", dto.preferredLanguage());
+  }
+
+  @Test
+  void getUsersSortsByIdAndPreservesPagingMetadata() {
+    User user = new User();
+    user.setUsername("alice");
+    user.setEmail("alice@example.com");
+    ArgumentCaptor<Pageable> applied = ArgumentCaptor.forClass(Pageable.class);
+    when(userRepository.findAll(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(user), PageRequest.of(1, 10), 25));
+
+    Page<UserDto> page = userService.getUsers(PageRequest.of(1, 10));
+
+    verify(userRepository).findAll(applied.capture());
+    assertEquals(Sort.by("id"), applied.getValue().getSort());
+    assertEquals(1, applied.getValue().getPageNumber());
+    assertEquals(10, applied.getValue().getPageSize());
+    assertEquals(25, page.getTotalElements());
+    assertEquals(List.of("alice"), page.getContent().stream().map(UserDto::username).toList());
   }
 
   @Test

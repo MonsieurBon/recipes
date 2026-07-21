@@ -101,7 +101,7 @@ src/main/webapp/app/
 |    Admin area: secondary tab navigation, back  |
 |    arrow to the entry point                    |
 |    Route guard restricting area to ADMIN role  |
-|    User list (table; stacked rows on compact)  |
+|    Paginated user list (stacked on compact)    |
 |    User edit (planned)                         |
 |    Recipe list and edit (planned)              |
 |    Ingredient list and edit (planned)          |
