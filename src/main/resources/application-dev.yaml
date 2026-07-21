@@ -1,4 +1,8 @@
 spring:
+  flyway:
+    # The extra location layers repeatable seed migrations on top of the canonical schema. Only the
+    # dev profile lists it, so production never applies the sample data.
+    locations: classpath:db/migration,classpath:db/testdata
   jpa:
     hibernate:
       ddl-auto: update
