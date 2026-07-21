@@ -24,6 +24,8 @@ import {
   MatFormFieldDefaultOptions,
 } from '@angular/material/form-field';
 import { MAT_CARD_CONFIG, MatCardConfig } from '@angular/material/card';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { TranslatedPaginatorIntl } from './i18n/translated-paginator-intl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -52,5 +54,6 @@ export const appConfig: ApplicationConfig = {
       provide: MAT_CARD_CONFIG,
       useValue: { appearance: 'outlined' } as MatCardConfig,
     },
+    { provide: MatPaginatorIntl, useClass: TranslatedPaginatorIntl },
   ],
 };

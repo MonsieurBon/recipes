@@ -20,18 +20,24 @@ describe('AdminService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('getUsers fetches the user list from the admin API', async () => {
-    const promise = firstValueFrom(service.getUsers());
+  it('getUsers requests the given page and maps content plus total count', async () => {
+    const promise = firstValueFrom(service.getUsers(1, 20));
 
-    const req = httpMock.expectOne('/api/admin/users');
+    const req = httpMock.expectOne('/api/admin/users?page=1&size=20');
     expect(req.request.method).toBe('GET');
-    req.flush([
-      { id: 1, username: 'alice', email: 'alice@example.com', roles: ['USER', 'ADMIN'] },
-      { id: 2, username: 'bob', email: 'bob@example.com', roles: ['USER'] },
-    ]);
+    req.flush({
+      content: [
+        { id: 1, username: 'alice', email: 'alice@example.com', roles: ['USER', 'ADMIN'] },
+        { id: 2, username: 'bob', email: 'bob@example.com', roles: ['USER'] },
+      ],
+      page: { size: 20, number: 1, totalElements: 42, totalPages: 3 },
+    });
 
-    const users = await promise;
-    expect(users).toEqual([
+    const result = await promise;
+    expect(result.totalElements).toBe(42);
+    expect(result.number).toBe(1);
+    expect(result.size).toBe(20);
+    expect(result.content).toEqual([
       { id: 1, username: 'alice', email: 'alice@example.com', roles: ['USER', 'ADMIN'] },
       { id: 2, username: 'bob', email: 'bob@example.com', roles: ['USER'] },
     ]);

@@ -61,6 +61,15 @@
     "emailColumn": "E-mail",
     "rolesColumn": "Rôles"
   },
+  "paginator": {
+    "itemsPerPage": "Éléments par page :",
+    "nextPage": "Page suivante",
+    "previousPage": "Page précédente",
+    "firstPage": "Première page",
+    "lastPage": "Dernière page",
+    "range": "{{start}}–{{end}} sur {{length}}",
+    "rangeEmpty": "0 sur 0"
+  },
   "access": {
     "denied": "Tu n'as pas accès à cette page."
   },
