@@ -235,6 +235,16 @@
     font-size: 0.9rem;
   }
 
+  .search-row {
+    display: flex;
+    align-items: center;
+  }
+  .search-row .search {
+    flex: 1;
+    margin-right: 0.4rem;
+  }
+  .search-row .iconbtn { margin-right: 0.7rem; }
+
   .chips {
     display: flex;
     gap: 0.5rem;
@@ -546,6 +556,7 @@
     width: 18px;
     flex-shrink: 0;
   }
+  .sheet .srow .tgl { margin-left: auto; }
   .tabbar {
     display: flex;
     gap: 0.4rem;
@@ -1444,6 +1455,12 @@
   }
   .d-tr { font-size: 0.9rem; }
   .d-tr .cell-mail { color: var(--a-muted); }
+  .d-thead .sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .d-thead .sort.on { color: var(--a-ink); }
   .photo.suppe { background: radial-gradient(120% 90% at 20% 10%, #f0e2c0, #c9a166 65%, #9c7a45); }
 
   /* detail screen */
@@ -3711,6 +3728,23 @@
             <span class="tab">Zutaten</span>
             <span class="tab">Rezepte</span>
           </div>
+          <div class="search-row">
+            <div class="search">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 19V5"></path>
+                <path d="M4.5 8.5 8 5l3.5 3.5"></path>
+                <path d="M16 5v14"></path>
+                <path d="M12.5 15.5 16 19l3.5-3.5"></path>
+              </svg>
+            </span>
+          </div>
           <div class="ulist">
             <div class="urow">
               <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">F</span>
@@ -3933,6 +3967,17 @@
             <span class="tab">Zutaten</span>
             <span class="tab">Rezepte</span>
           </div>
+          <div class="d-row" style="margin: 0.9rem 0 0.3rem">
+            <div class="search d-search">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="chip">Admins</span>
+            <span class="grow"></span>
+          </div>
           <div class="d-thead">
             <span>Benutzername</span><span>E-Mail</span><span>Rollen</span>
           </div>
@@ -3975,7 +4020,7 @@
     </p>
 
     <div class="screens">
-      <!-- ============ SCREEN: Benutzer list with search + paging ============ -->
+      <!-- ============ SCREEN: Benutzer list with search, sort, filter + paging ============ -->
       <div class="frame-group">
         <div class="phone app-light">
           <div class="appbar">
@@ -3993,12 +4038,22 @@
             <span class="tab">Zutaten</span>
             <span class="tab">Rezepte</span>
           </div>
-          <div class="search">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="10.5" cy="10.5" r="6"></circle>
-              <path d="M15.2 15.2 20 20"></path>
-            </svg>
-            Benutzer durchsuchen
+          <div class="search-row">
+            <div class="search">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 19V5"></path>
+                <path d="M4.5 8.5 8 5l3.5 3.5"></path>
+                <path d="M16 5v14"></path>
+                <path d="M12.5 15.5 16 19l3.5-3.5"></path>
+              </svg>
+            </span>
           </div>
           <div class="ulist">
             <div class="urow">
@@ -4087,10 +4142,109 @@
           </div>
         </div>
         <p class="frame-caption">
-          <strong>Benutzer.</strong> The search filters username and email server-side and
-          resets to the first page on every new term. Rows summarize: role tags, a quiet
-          Deaktiviert tag with dimmed identity for disabled accounts, a chevron because the
-          row opens. Paging is the standard paginator reduced to range and arrows on compact.
+          <strong>Benutzer.</strong> The search filters username and email server-side — one
+          global field, no per-column filters — and every new term returns to the first page.
+          The sort button next to it lifts sorting and the admin filter in one sheet (next
+          frame), keeping the list itself free of extra control rows. Rows summarize: role
+          tags, a quiet Deaktiviert tag with dimmed identity for disabled accounts, a chevron
+          because the row opens. Paging is the standard paginator reduced to range and arrows
+          on compact.
+        </p>
+      </div>
+
+      <!-- ============ SCREEN: sort + filter sheet ============ -->
+      <div class="frame-group">
+        <div class="phone app-light">
+          <div class="appbar">
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 5.5 8 12l6.5 6.5"></path>
+              </svg>
+            </span>
+            <span class="appbar-title">Administration</span>
+            <span class="grow"></span>
+          </div>
+          <div class="tabbar">
+            <span class="tab on">Benutzer</span>
+            <span class="tab">Übersetzungen</span>
+            <span class="tab">Zutaten</span>
+            <span class="tab">Rezepte</span>
+          </div>
+          <div class="search-row">
+            <div class="search">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 19V5"></path>
+                <path d="M4.5 8.5 8 5l3.5 3.5"></path>
+                <path d="M16 5v14"></path>
+                <path d="M12.5 15.5 16 19l3.5-3.5"></path>
+              </svg>
+            </span>
+          </div>
+          <div class="ulist">
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">A</span>
+              <span class="who"><b>adminuser</b><span>adminuser@example.com</span></span>
+              <span class="tag">User</span>
+              <span class="tag amber">Admin</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">A</span>
+              <span class="who"><b>anna</b><span>anna@example.com</span></span>
+              <span class="tag">User</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+            <div class="urow">
+              <span class="avatar" style="width: 38px; height: 38px; font-size: 1rem">F</span>
+              <span class="who"><b>Fabian</b><span>fabian@example.com</span></span>
+              <span class="tag">User</span>
+              <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="sheet-scrim"></div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <p class="stitle">Sortieren</p>
+            <div class="srow sel">
+              <svg class="ck" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 12.5 9.5 17.5 19.5 6.5"></path>
+              </svg>
+              <span>Benutzername (A–Z)</span>
+            </div>
+            <div class="srow"><span class="ck"></span><span>Benutzername (Z–A)</span></div>
+            <div class="srow"><span class="ck"></span><span>E-Mail (A–Z)</span></div>
+            <div class="srow"><span class="ck"></span><span>E-Mail (Z–A)</span></div>
+            <div class="srow"><span class="ck"></span><span>Aktive zuerst</span></div>
+            <div class="srow"><span class="ck"></span><span>Deaktivierte zuerst</span></div>
+            <p class="stitle" style="margin-top: 0.7rem">Filter</p>
+            <div class="srow">
+              <span class="ck"></span>
+              <span>Nur Admins</span>
+              <span class="tgl off"></span>
+            </div>
+          </div>
+        </div>
+        <p class="frame-caption">
+          <strong>Sortieren &amp; Filter (compact).</strong> The sort button lifts one sheet:
+          six orderings — Benutzername, E-Mail and the active state, each in both directions —
+          with the current one checked, and below them the Nur-Admins toggle, so the filter
+          costs no space in the list. Tapping an ordering applies it and dismisses the sheet;
+          the toggle applies immediately. Either way the list returns to the first page. From
+          600&nbsp;px up the orderings move onto the column headers and the filter becomes the
+          Admins chip beside the search.
         </p>
       </div>
 
@@ -4112,12 +4266,22 @@
             <span class="tab">Zutaten</span>
             <span class="tab">Rezepte</span>
           </div>
-          <div class="search">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="10.5" cy="10.5" r="6"></circle>
-              <path d="M15.2 15.2 20 20"></path>
-            </svg>
-            Benutzer durchsuchen
+          <div class="search-row">
+            <div class="search">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 19V5"></path>
+                <path d="M4.5 8.5 8 5l3.5 3.5"></path>
+                <path d="M16 5v14"></path>
+                <path d="M12.5 15.5 16 19l3.5-3.5"></path>
+              </svg>
+            </span>
           </div>
           <div class="ulist">
             <div class="urow">
@@ -4195,12 +4359,22 @@
             <span class="tab">Zutaten</span>
             <span class="tab">Rezepte</span>
           </div>
-          <div class="search">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="10.5" cy="10.5" r="6"></circle>
-              <path d="M15.2 15.2 20 20"></path>
-            </svg>
-            Benutzer durchsuchen
+          <div class="search-row">
+            <div class="search">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="10.5" cy="10.5" r="6"></circle>
+                <path d="M15.2 15.2 20 20"></path>
+              </svg>
+              Benutzer durchsuchen
+            </div>
+            <span class="iconbtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 19V5"></path>
+                <path d="M4.5 8.5 8 5l3.5 3.5"></path>
+                <path d="M16 5v14"></path>
+                <path d="M12.5 15.5 16 19l3.5-3.5"></path>
+              </svg>
+            </span>
           </div>
           <div class="ulist">
             <div class="urow">
@@ -4274,25 +4448,16 @@
               </svg>
               Benutzer durchsuchen
             </div>
+            <span class="chip on">Admins</span>
             <span class="grow"></span>
           </div>
           <div class="d-thead cols-u">
-            <span>Benutzername</span><span>E-Mail</span><span>Aktiv</span><span>Rolle</span><span></span>
-          </div>
-          <div class="d-tr cols-u">
-            <span>Fabian</span><span class="cell-mail">fabian@example.com</span>
-            <span><span class="tgl"></span></span>
-            <span><span class="selval">User
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
-            </span></span>
-            <span class="rowbtn">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4.5 7h15"></path>
-                <path d="M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7"></path>
-                <path d="M6.3 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6.6a1.5 1.5 0 0 0 1.5-1.4L17.7 7"></path>
-                <path d="M10.2 10.5v6.5M13.8 10.5v6.5"></path>
+            <span class="sort on">Benutzername
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19V5"></path>
+                <path d="M6.5 10.5 12 5l5.5 5.5"></path>
               </svg>
-            </span>
+            </span><span class="sort">E-Mail</span><span class="sort">Aktiv</span><span>Rolle</span><span></span>
           </div>
           <div class="d-tr cols-u">
             <span>adminuser</span><span class="cell-mail">adminuser@example.com</span>
@@ -4309,10 +4474,10 @@
               </svg>
             </span>
           </div>
-          <div class="d-tr cols-u dis">
-            <span>mytest</span><span class="cell-mail">my@test.ch</span>
-            <span><span class="tgl off"></span></span>
-            <span><span class="selval">User
+          <div class="d-tr cols-u">
+            <span>luca</span><span class="cell-mail">luca@example.com</span>
+            <span><span class="tgl"></span></span>
+            <span><span class="selval">Admin
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
             </span></span>
             <span class="rowbtn">
@@ -4329,13 +4494,13 @@
             <span class="selval">10
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5 12 15l5.5-5.5"></path></svg>
             </span>
-            <span class="range">1–10 von 23</span>
+            <span class="range">1–2 von 2</span>
             <span class="iconbtn dim">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14.5 5.5 8 12l6.5 6.5"></path>
               </svg>
             </span>
-            <span class="iconbtn">
+            <span class="iconbtn dim">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9.5 5.5 16 12l-6.5 6.5"></path>
               </svg>
@@ -4345,11 +4510,16 @@
       </div>
     </div>
     <p class="frame-caption" style="max-width: 44rem">
-      <strong>Benutzer, expanded (≥ 600 px).</strong> The width brings the table back and
-      editing goes inline — the same toggle, select and delete the sheet carries on compact,
-      persisting on change. The signed-in admin (adminuser here) sees their own delete
-      disabled; a disabled account dims its identity columns. Search above, the full
-      paginator with page-size select below.
+      <strong>Benutzer, expanded (≥ 600 px), Admins filter applied.</strong> The width brings
+      the table back and editing goes inline — the same toggle, select and delete the sheet
+      carries on compact, persisting on change. The active Admins chip carries the same filter
+      the compact sort sheet holds: the table narrows to admin accounts and the paginator
+      counts only them (two of the 23 users here); tapping the chip again restores the full
+      list. The Benutzername, E-Mail and Aktiv headers sort on click — the arrow shows column
+      and direction, a second click flips it (ascending by username here, so adminuser leads);
+      Rolle and the delete column don't sort. Any new term, filter or sort returns to the
+      first page. The signed-in admin (adminuser here) sees their own delete disabled. Search
+      above, the full paginator with page-size select below.
     </p>
 
     <div class="screens">
