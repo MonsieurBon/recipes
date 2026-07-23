@@ -25,7 +25,15 @@ public class DbUserDetailsService implements UserDetailsService {
     }
 
     User user = userRes.get();
+    // enabled feeds Spring Security's built-in disabled check, so a deactivated account is rejected
+    // at authentication (DisabledException) rather than being issued fresh tokens.
     return new org.springframework.security.core.userdetails.User(
-        user.getUsername(), user.getPassword(), user.getRoles());
+        user.getUsername(),
+        user.getPassword(),
+        user.isEnabled(),
+        true,
+        true,
+        true,
+        user.getRoles());
   }
 }

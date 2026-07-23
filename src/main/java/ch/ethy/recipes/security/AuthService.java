@@ -96,6 +96,11 @@ public class AuthService {
         userRepository
             .findById(tokenData.userId())
             .orElseThrow(() -> new InvalidRefreshTokenException("User no longer exists"));
+    // A disabled account's refresh token is hard-revoked: the rolling refresh would otherwise keep
+    // minting access tokens indefinitely, so a disable would never end an active session.
+    if (!user.isEnabled()) {
+      throw new InvalidRefreshTokenException("User is disabled");
+    }
     return issueTokens(user);
   }
 
@@ -106,6 +111,7 @@ public class AuthService {
             user.getId(), user.getUsername(), roles, user.getTokenVersion());
     String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getUsername());
     return new AuthTokens(
+        user.getId(),
         accessToken,
         refreshToken,
         user.getUsername(),

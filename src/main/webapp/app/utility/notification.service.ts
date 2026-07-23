@@ -43,6 +43,14 @@ export class NotificationService {
     this.show(NotificationService.ACCESS_DENIED_KEY);
   }
 
+  /**
+   * Surfaces a specific, actionable notice by its translation key — e.g. the reason an expected
+   * conflict was refused. The key is always a fixed code constant; no error content is interpolated.
+   */
+  showNotice(messageKey: string): void {
+    this.show(messageKey);
+  }
+
   private show(messageKey: string): void {
     // The fixed bottom navigation — shown only to a signed-in user on a phone — owns the bottom
     // edge, so lift the toast clear of it exactly when that nav is present.

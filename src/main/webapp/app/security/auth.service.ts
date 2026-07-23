@@ -33,6 +33,7 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   token: string;
+  id: number;
   username: string;
   email: string;
   roles: string[];
@@ -40,6 +41,7 @@ export interface LoginResponse {
 }
 
 export interface CurrentUser {
+  id: number;
   username: string;
   email: string;
 }
@@ -143,7 +145,7 @@ export class AuthService {
       );
       this.accessToken.set(response.token);
       this.roles.set(response.roles);
-      this.user.set({ username: response.username, email: response.email });
+      this.user.set({ id: response.id, username: response.username, email: response.email });
       this.profileLanguageSignal.set(response.preferredLanguage ?? null);
       this.localStorage.removeItem(AuthService.LOGGED_OUT_KEY);
       return true;
@@ -223,7 +225,7 @@ export class AuthService {
         tap((response) => {
           this.accessToken.set(response.token);
           this.roles.set(response.roles);
-          this.user.set({ username: response.username, email: response.email });
+          this.user.set({ id: response.id, username: response.username, email: response.email });
           this.profileLanguageSignal.set(response.preferredLanguage ?? null);
         }),
         map((response) => response.token),

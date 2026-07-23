@@ -6,10 +6,14 @@ import {
   ErrorHandler,
   inject,
   linkedSignal,
+  signal,
   Signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatIcon } from '@angular/material/icon';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import {
   MatCell,
   MatCellDef,
@@ -23,9 +27,13 @@ import {
   MatTable,
 } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, EMPTY, finalize, of, switchMap } from 'rxjs';
+import { AuthService } from '../../security/auth.service';
 import { LayoutService } from '../../utility/layout.service';
-import { AdminService, UserPage } from '../admin.service';
+import { NotificationService } from '../../utility/notification.service';
+import { AdminService, AdminUser, UserPage } from '../admin.service';
+import { conflictNoticeKey } from './user-conflict';
+import { UserEditSheet } from './user-edit-sheet';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -39,9 +47,11 @@ const DEFAULT_PAGE_SIZE = 10;
     MatHeaderCellDef,
     MatHeaderRow,
     MatHeaderRowDef,
+    MatIcon,
     MatPaginator,
     MatRow,
     MatRowDef,
+    MatSlideToggle,
     MatTable,
     TitleCasePipe,
     UpperCasePipe,
@@ -53,14 +63,25 @@ const DEFAULT_PAGE_SIZE = 10;
 })
 export class AdminUsers {
   private adminService = inject(AdminService);
+  private authService = inject(AuthService);
+  private bottomSheet = inject(MatBottomSheet);
   private errorHandler = inject(ErrorHandler);
   private layoutService = inject(LayoutService);
+  private notification = inject(NotificationService);
 
   protected readonly isCompact = this.layoutService.isCompact;
-  protected readonly columns = ['username', 'email', 'roles'];
+  protected readonly columns = ['username', 'email', 'active', 'roles'];
   protected readonly pageSizeOptions = [10, 20, 50];
 
-  private readonly request = computed(() => ({ page: this.pageIndex(), size: this.pageSize() }));
+  // Bumped to force a re-fetch of the current page after a change (an enabled toggle, or the edit
+  // sheet closing), so the list reconciles with what the server actually stored.
+  private readonly reload = signal(0);
+
+  private readonly request = computed(() => ({
+    page: this.pageIndex(),
+    size: this.pageSize(),
+    reload: this.reload(),
+  }));
   private readonly result: Signal<UserPage> = toSignal(
     toObservable(this.request).pipe(
       switchMap((request) =>
@@ -92,5 +113,42 @@ export class AdminUsers {
   protected onPage(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
+  }
+
+  // The signed-in admin cannot deactivate their own account, so their own row's toggle is disabled.
+  // Identity is the immutable id; the server enforces the same rule regardless of the client.
+  protected isOwn(user: AdminUser): boolean {
+    return user.id === this.authService.currentUser()?.id;
+  }
+
+  protected onToggle(user: AdminUser, change: MatSlideToggleChange): void {
+    this.setEnabled(user.id, change.checked);
+  }
+
+  private setEnabled(id: number, enabled: boolean): void {
+    this.adminService
+      .setEnabled(id, enabled)
+      .pipe(
+        catchError((error: unknown) => {
+          // A recognized conflict is expected and shows its dedicated message; anything else
+          // rethrows to the global handler. Either way the reload below snaps the row back to the
+          // server's truth.
+          const noticeKey = conflictNoticeKey(error);
+          if (noticeKey) {
+            this.notification.showNotice(noticeKey);
+            return EMPTY;
+          }
+          throw error;
+        }),
+        finalize(() => this.reload.update((n) => n + 1)),
+      )
+      .subscribe();
+  }
+
+  protected openEditSheet(user: AdminUser): void {
+    this.bottomSheet
+      .open(UserEditSheet, { data: { user, isOwn: this.isOwn(user) } })
+      .afterDismissed()
+      .subscribe(() => this.reload.update((n) => n + 1));
   }
 }

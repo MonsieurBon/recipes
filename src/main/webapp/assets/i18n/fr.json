@@ -59,7 +59,15 @@
     "areas": "Zones d'administration",
     "users": "Utilisateurs",
     "emailColumn": "E-mail",
-    "rolesColumn": "Rôles"
+    "rolesColumn": "Rôles",
+    "activeColumn": "Actif",
+    "activeLabel": "Actif",
+    "activeToggleAria": "Actif pour {{username}}",
+    "disabledTag": "Désactivé",
+    "userConflict": {
+      "selfDeactivation": "Tu ne peux pas désactiver ton propre compte.",
+      "lastActiveAdmin": "Il doit rester au moins un administrateur actif."
+    }
   },
   "paginator": {
     "itemsPerPage": "Éléments par page :",

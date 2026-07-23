@@ -20,7 +20,11 @@ describe('Konto', () => {
 
   beforeEach(async () => {
     authServiceSpy = {
-      currentUser: signal<CurrentUser | null>({ username: 'alice', email: 'alice@example.com' }),
+      currentUser: signal<CurrentUser | null>({
+        id: 42,
+        username: 'alice',
+        email: 'alice@example.com',
+      }),
       isAdmin: signal(false),
       isLoggedIn: signal(true),
       profileLanguage: signal<string | null>(null),

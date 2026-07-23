@@ -36,6 +36,9 @@ jobs:
       - name: test backend
         run: mvn -B test
 
+      - name: integration tests
+        run: mvn -B -Pintegration-tests verify
+
       - name: build backend
         run: mvn -B clean package -DskipTests=true
 

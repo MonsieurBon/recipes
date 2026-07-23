@@ -91,6 +91,7 @@ public class AuthController {
         HttpHeaders.SET_COOKIE, refreshTokenCookieFactory.issue(tokens.refreshToken()).toString());
     return new LoginResponse(
         tokens.accessToken(),
+        tokens.id(),
         tokens.username(),
         tokens.email(),
         tokens.roles(),

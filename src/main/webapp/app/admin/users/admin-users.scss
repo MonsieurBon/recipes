@@ -7,12 +7,25 @@
   padding: 0;
   list-style: none;
 
-  li {
+  .urow {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    width: 100%;
     padding: 0.75rem 0.2rem;
+    border: none;
     border-bottom: 1px solid var(--mat-sys-outline-variant);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--mat-sys-surface-container-high);
+      outline: none;
+    }
   }
 
   .avatar {
@@ -43,6 +56,25 @@
     font: var(--mat-sys-body-small);
     overflow-wrap: anywhere;
   }
+
+  .chev {
+    flex-shrink: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  // A disabled account reads as muted: its identity dims while the Deaktiviert tag stays legible.
+  .urow.dis {
+    .avatar,
+    .who {
+      opacity: 0.5;
+    }
+  }
+}
+
+.tag.mutd {
+  background: transparent;
+  border: 1px solid var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface-variant);
 }
 
 table {
