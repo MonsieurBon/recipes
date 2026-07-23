@@ -4,15 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import ch.ethy.recipes.security.AuthenticatedUser;
 import ch.ethy.recipes.security.JwtService;
 import ch.ethy.recipes.security.TokenVersionService;
+import ch.ethy.recipes.user.LastActiveAdminException;
 import ch.ethy.recipes.user.Role;
+import ch.ethy.recipes.user.SelfDeactivationException;
 import ch.ethy.recipes.user.UserDto;
+import ch.ethy.recipes.user.UserNotFoundException;
 import ch.ethy.recipes.user.UserService;
 import java.util.List;
 import java.util.Set;
@@ -25,8 +32,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -59,8 +69,13 @@ class AdminUserControllerTest {
             new PageImpl<>(
                 List.of(
                     new UserDto(
-                        1L, "alice", "alice@example.com", Set.of(Role.USER, Role.ADMIN), "de"),
-                    new UserDto(2L, "bob", "bob@example.com", Set.of(Role.USER), "en")),
+                        1L,
+                        "alice",
+                        "alice@example.com",
+                        true,
+                        Set.of(Role.USER, Role.ADMIN),
+                        "de"),
+                    new UserDto(2L, "bob", "bob@example.com", true, Set.of(Role.USER), "en")),
                 pageable,
                 42));
 
@@ -101,5 +116,82 @@ class AdminUserControllerTest {
     verify(userService, times(2)).getUsers(pageable.capture());
     assertEquals(100, pageable.getAllValues().get(0).getPageSize());
     assertEquals(100, pageable.getAllValues().get(1).getPageSize());
+  }
+
+  private static Authentication authenticatedAs(long userId) {
+    AuthenticatedUser principal = new AuthenticatedUser(userId, "admin", List.of());
+    return new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+  }
+
+  @Test
+  void updatesTheEnabledFlagUsingTheAuthenticatedPrincipalAsActor() throws Exception {
+    when(userService.updateEnabled(5L, false, 7L))
+        .thenReturn(new UserDto(5L, "mytest", "my@test.ch", false, Set.of(Role.USER), "de"));
+
+    mockMvc
+        .perform(
+            put("/api/admin/users/5")
+                .with(authentication(authenticatedAs(7L)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"enabled\":false}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(5))
+        .andExpect(jsonPath("$.enabled").value(false));
+
+    verify(userService).updateEnabled(5L, false, 7L);
+  }
+
+  @Test
+  void refusingToDisableYourOwnAccountYieldsConflict() throws Exception {
+    when(userService.updateEnabled(7L, false, 7L)).thenThrow(new SelfDeactivationException());
+
+    mockMvc
+        .perform(
+            put("/api/admin/users/7")
+                .with(authentication(authenticatedAs(7L)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"enabled\":false}"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.reason").value("selfDeactivation"));
+  }
+
+  @Test
+  void refusingToDisableTheLastActiveAdminYieldsConflict() throws Exception {
+    when(userService.updateEnabled(5L, false, 7L)).thenThrow(new LastActiveAdminException());
+
+    mockMvc
+        .perform(
+            put("/api/admin/users/5")
+                .with(authentication(authenticatedAs(7L)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"enabled\":false}"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.reason").value("lastActiveAdmin"));
+  }
+
+  @Test
+  void updatingAnUnknownUserYieldsNotFound() throws Exception {
+    when(userService.updateEnabled(404L, false, 7L)).thenThrow(new UserNotFoundException(404L));
+
+    mockMvc
+        .perform(
+            put("/api/admin/users/404")
+                .with(authentication(authenticatedAs(7L)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"enabled\":false}"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void rejectsARequestWithoutTheEnabledFieldWithoutTouchingTheService() throws Exception {
+    mockMvc
+        .perform(
+            put("/api/admin/users/5")
+                .with(authentication(authenticatedAs(7L)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+        .andExpect(status().isBadRequest());
+
+    verifyNoInteractions(userService);
   }
 }

@@ -388,26 +388,36 @@ describe('AuthService', () => {
     const promise = service.login({ usernameOrEmail: 'alice', password: 'pw' });
     httpMock.expectOne('/api/auth/login').flush({
       token: 'access-1',
+      id: 42,
       username: 'alice',
       email: 'alice@example.com',
       roles: ['USER'],
     });
     expect(await promise).toBe(true);
 
-    expect(service.currentUser()).toEqual({ username: 'alice', email: 'alice@example.com' });
+    expect(service.currentUser()).toEqual({
+      id: 42,
+      username: 'alice',
+      email: 'alice@example.com',
+    });
   });
 
   it('restores the user from the refresh cookie', async () => {
     const refreshed = firstValueFrom(service.refresh());
     httpMock.expectOne('/api/auth/refresh').flush({
       token: 'restored',
+      id: 42,
       username: 'alice',
       email: 'alice@example.com',
       roles: ['USER'],
     });
     await refreshed;
 
-    expect(service.currentUser()).toEqual({ username: 'alice', email: 'alice@example.com' });
+    expect(service.currentUser()).toEqual({
+      id: 42,
+      username: 'alice',
+      email: 'alice@example.com',
+    });
   });
 
   it('drops the user when the local session is cleared', async () => {

@@ -1,0 +1,24 @@
+<button
+  type="button"
+  class="handle"
+  data-test-id="sheetHandle"
+  [attr.aria-label]="'common.close' | translate"
+  (click)="close()"
+></button>
+<div class="user-head">
+  <span class="avatar" aria-hidden="true">{{ data.user.username.charAt(0) }}</span>
+  <span class="who">
+    <span class="name">{{ data.user.username }}</span>
+    <span class="email">{{ data.user.email }}</span>
+  </span>
+</div>
+<div class="edit-row">
+  <span class="label">{{ 'admin.activeLabel' | translate }}</span>
+  <mat-slide-toggle
+    data-test-id="activeToggle"
+    [aria-label]="'admin.activeToggleAria' | translate: { username: data.user.username }"
+    [checked]="enabled()"
+    [disabled]="data.isOwn"
+    (change)="toggleEnabled($event)"
+  ></mat-slide-toggle>
+</div>

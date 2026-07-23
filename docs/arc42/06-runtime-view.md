@@ -67,3 +67,26 @@ Browser                         Meal-plan API            Plan logic             
   |                                     <- updated plan --------|                   |
   |<- 200 { plan }                      |                       |                   |
 ```
+
+## 6.5 Deactivate a User (Admin)
+
+The caller is taken from the authenticated token, never the request body, and the last-active-admin
+check locks the active-admin rows so concurrent deactivations cannot both pass.
+
+```
+Browser                    Admin API              User service                     DB
+  |- PUT /api/admin/users/{id} { enabled: false } >              |                  |
+  |                          |- deactivate (id, by caller) ------>                  |
+  |                          |    reject if id == caller (own account)              |
+  |                          |    if target is admin:            |                  |
+  |                          |      lock active admins ----------------------------->  SELECT ... FOR UPDATE
+  |                          |      <- active admin set ---------------------------|
+  |                          |      reject if none would remain  |                  |
+  |                          |    persist enabled ---------------------------------->
+  |                          |    <- ok -------------------------------------------|
+  |                          <- updated user -------|            |                  |
+  |<- 200 { user }           |                      |            |                  |
+```
+
+A refused action (own account, or the target is the last active admin) returns `409` with a reason
+code; the frontend shows the matching message and leaves the row unchanged.

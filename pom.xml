@@ -109,6 +109,21 @@
       <artifactId>spring-boot-starter-webmvc-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-mysql</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -239,5 +254,45 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- Testcontainers-backed integration tests (*IT) are slow to start a container, so they are
+         kept out of the default build. Surefire ignores *IT by name; this profile wires failsafe
+         to run them. Activate with -Pintegration-tests (its own CI job). -->
+    <profile>
+      <id>integration-tests</id>
+      <properties>
+        <!-- Run the integration tests in isolation: skip the frontend build so the profile brings
+             up only the Testcontainers ITs. -->
+        <skip.installnodenpm>true</skip.installnodenpm>
+        <skip.npm>true</skip.npm>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <!-- Skip the unit tests here (plugin-scoped, so failsafe still runs); the default build
+                 already runs them without a container. -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

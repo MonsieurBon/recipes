@@ -1,0 +1,2 @@
+ALTER TABLE users
+  ADD COLUMN enabled BIT DEFAULT b'1' NOT NULL;

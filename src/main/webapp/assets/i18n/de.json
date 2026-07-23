@@ -59,7 +59,15 @@
     "areas": "Administrationsbereiche",
     "users": "Benutzer",
     "emailColumn": "E-Mail",
-    "rolesColumn": "Rollen"
+    "rolesColumn": "Rollen",
+    "activeColumn": "Aktiv",
+    "activeLabel": "Aktiv",
+    "activeToggleAria": "Aktiv für {{username}}",
+    "disabledTag": "Deaktiviert",
+    "userConflict": {
+      "selfDeactivation": "Du kannst dein eigenes Konto nicht deaktivieren.",
+      "lastActiveAdmin": "Es muss mindestens ein aktiver Admin bleiben."
+    }
   },
   "paginator": {
     "itemsPerPage": "Einträge pro Seite:",

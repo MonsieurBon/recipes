@@ -102,7 +102,7 @@ src/main/webapp/app/
 |    arrow to the entry point                    |
 |    Route guard restricting area to ADMIN role  |
 |    Paginated user list (stacked on compact)    |
-|    User edit (planned)                         |
+|    User enable/disable (role/delete planned)   |
 |    Recipe list and edit (planned)              |
 |    Ingredient list and edit (planned)          |
 |    API communication                           |

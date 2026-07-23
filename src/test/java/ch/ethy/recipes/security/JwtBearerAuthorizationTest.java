@@ -74,7 +74,8 @@ class JwtBearerAuthorizationTest {
   void stubExistingUser() {
     when(userService.findUser(1L))
         .thenReturn(
-            Optional.of(new UserDto(1L, "alice", "alice@example.com", Set.of(Role.USER), "de")));
+            Optional.of(
+                new UserDto(1L, "alice", "alice@example.com", true, Set.of(Role.USER), "de")));
     when(tokenVersionService.getCurrentVersion(1L)).thenReturn(0);
   }
 

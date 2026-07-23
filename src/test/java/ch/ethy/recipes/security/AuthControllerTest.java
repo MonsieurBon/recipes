@@ -65,6 +65,7 @@ class AuthControllerTest {
         .thenReturn(
             CompletableFuture.completedFuture(
                 new AuthTokens(
+                    42L,
                     "access-1",
                     "refresh-1",
                     "alice",
@@ -86,6 +87,7 @@ class AuthControllerTest {
             .perform(asyncDispatch(suspended))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").value("access-1"))
+            .andExpect(jsonPath("$.id").value(42))
             .andExpect(jsonPath("$.username").value("alice"))
             .andExpect(jsonPath("$.email").value("alice@example.com"))
             .andExpect(jsonPath("$.preferredLanguage").value("fr"))
@@ -161,6 +163,7 @@ class AuthControllerTest {
         .thenReturn(
             CompletableFuture.completedFuture(
                 new AuthTokens(
+                    42L,
                     "access-1",
                     "refresh-1",
                     "alice",
@@ -322,7 +325,13 @@ class AuthControllerTest {
     when(authService.refresh("old-refresh"))
         .thenReturn(
             new AuthTokens(
-                "access-2", "refresh-2", "alice", "alice@example.com", Set.of(Role.USER), "it"));
+                42L,
+                "access-2",
+                "refresh-2",
+                "alice",
+                "alice@example.com",
+                Set.of(Role.USER),
+                "it"));
 
     MvcResult result =
         mockMvc

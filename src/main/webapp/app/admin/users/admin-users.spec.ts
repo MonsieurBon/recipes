@@ -1,19 +1,29 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { of, throwError } from 'rxjs';
 import { Mock } from 'vitest';
 
+import { AuthService, CurrentUser } from '../../security/auth.service';
 import { LayoutService } from '../../utility/layout.service';
+import { NotificationService } from '../../utility/notification.service';
 import { provideTranslateTesting } from '../../testing/provide-translate-testing';
-import { AdminService, UserPage } from '../admin.service';
+import { AdminService, AdminUser, UserPage } from '../admin.service';
 import { AdminUsers } from './admin-users';
+import { UserEditSheet } from './user-edit-sheet';
 
 describe('AdminUsers', () => {
   let fixture: ComponentFixture<AdminUsers>;
   let isCompact: WritableSignal<boolean>;
+  let currentUser: WritableSignal<CurrentUser | null>;
   let getUsers: Mock<(page: number, size: number) => ReturnType<AdminService['getUsers']>>;
+  let setEnabled: Mock<(id: number, enabled: boolean) => ReturnType<AdminService['setEnabled']>>;
+  let open: Mock;
+  let showNotice: Mock<(key: string) => void>;
   let handleError: Mock<(error: unknown) => void>;
 
   const page = (
@@ -23,23 +33,38 @@ describe('AdminUsers', () => {
     size: number,
   ): UserPage => ({ content, totalElements, number, size });
 
-  const twoUsers = [
-    { id: 1, username: 'alice', email: 'alice@example.com', roles: ['USER', 'ADMIN'] },
-    { id: 2, username: 'bob', email: 'bob@example.com', roles: ['USER'] },
+  const twoUsers: AdminUser[] = [
+    {
+      id: 1,
+      username: 'alice',
+      email: 'alice@example.com',
+      enabled: true,
+      roles: ['USER', 'ADMIN'],
+    },
+    { id: 2, username: 'bob', email: 'bob@example.com', enabled: true, roles: ['USER'] },
   ];
 
   beforeEach(async () => {
     isCompact = signal(false);
+    currentUser = signal<CurrentUser | null>(null);
     handleError = vi.fn();
     // The server echoes back the page it actually served, so the mock mirrors the request.
     getUsers = vi.fn((number: number, size: number) => of(page(twoUsers, 42, number, size)));
+    setEnabled = vi.fn((id: number, enabled: boolean) =>
+      of({ id, username: 'x', email: 'x@example.com', enabled, roles: ['USER'] }),
+    );
+    open = vi.fn(() => ({ afterDismissed: () => of(undefined) }));
+    showNotice = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [AdminUsers],
       providers: [
         provideTranslateTesting(),
-        { provide: AdminService, useValue: { getUsers } },
+        { provide: AdminService, useValue: { getUsers, setEnabled } },
         { provide: LayoutService, useValue: { isCompact } },
+        { provide: AuthService, useValue: { currentUser } },
+        { provide: MatBottomSheet, useValue: { open } },
+        { provide: NotificationService, useValue: { showNotice } },
         { provide: ErrorHandler, useValue: { handleError } },
       ],
     }).compileComponents();
@@ -159,5 +184,92 @@ describe('AdminUsers', () => {
     await fixture.whenStable();
 
     expect(paginator().hidePageSize).toBe(true);
+  });
+
+  const toggleDebugElements = () => fixture.debugElement.queryAll(By.directive(MatSlideToggle));
+
+  // Forces a fresh fetch with the given content by changing the page size (which re-runs the
+  // request), so a test can render users other than the default pair.
+  const reloadWith = async (content: AdminUser[]) => {
+    getUsers.mockReturnValue(of(page(content, content.length, 0, 20)));
+    paginator().page.emit({ pageIndex: 0, pageSize: 20, length: 42, previousPageIndex: 0 });
+    await fixture.whenStable();
+  };
+
+  it('marks a disabled account with a Deaktiviert tag and dims it on compact viewports', async () => {
+    isCompact.set(true);
+    await reloadWith([
+      { id: 3, username: 'mytest', email: 'my@test.ch', enabled: false, roles: ['USER'] },
+    ]);
+
+    const row: HTMLElement = fixture.nativeElement.querySelector('[data-test-id="userRows"] li');
+    expect(tags(row)).toEqual(['Deaktiviert']);
+    expect(row.querySelector('.dis')).not.toBeNull();
+  });
+
+  it('opens the edit sheet for the tapped row, flagging the signed-in admin’s own row', async () => {
+    currentUser.set({ id: 1, username: 'alice', email: 'alice@example.com' });
+    isCompact.set(true);
+    await fixture.whenStable();
+
+    const rowButton: HTMLElement = fixture.nativeElement.querySelector('[data-test-id="userRow"]');
+    rowButton.click();
+
+    expect(open).toHaveBeenCalledWith(UserEditSheet, {
+      data: { user: twoUsers[0], isOwn: true },
+    });
+  });
+
+  it('re-fetches the current page after the edit sheet closes', async () => {
+    isCompact.set(true);
+    await fixture.whenStable();
+    getUsers.mockClear();
+
+    fixture.nativeElement.querySelector('[data-test-id="userRow"]').click();
+    await fixture.whenStable();
+
+    expect(getUsers).toHaveBeenCalled();
+  });
+
+  it('disables only the signed-in admin’s own toggle in the expanded table', () => {
+    currentUser.set({ id: 1, username: 'alice', email: 'alice@example.com' });
+    fixture.detectChanges();
+
+    const toggles = toggleDebugElements().map((d) => d.componentInstance as MatSlideToggle);
+    expect(toggles[0].disabled).toBe(true); // alice is the signed-in admin
+    expect(toggles[1].disabled).toBe(false);
+  });
+
+  it('gives each expanded-table toggle an accessible name naming its account', () => {
+    const button: HTMLElement = fixture.nativeElement.querySelector(
+      'tr[mat-row] [data-test-id="activeToggle"] button[role="switch"]',
+    );
+    expect(button.getAttribute('aria-label')).toContain('alice');
+  });
+
+  it('persists an inline toggle and re-fetches to reconcile', async () => {
+    getUsers.mockClear();
+
+    toggleDebugElements()[1].triggerEventHandler('change', { checked: false });
+    await fixture.whenStable();
+
+    expect(setEnabled).toHaveBeenCalledWith(2, false);
+    expect(getUsers).toHaveBeenCalled();
+  });
+
+  it('shows a dedicated notice and does not log a conflict, then reconciles', async () => {
+    setEnabled.mockReturnValue(
+      throwError(
+        () => new HttpErrorResponse({ status: 409, error: { reason: 'lastActiveAdmin' } }),
+      ),
+    );
+    getUsers.mockClear();
+
+    toggleDebugElements()[1].triggerEventHandler('change', { checked: false });
+    await fixture.whenStable();
+
+    expect(showNotice).toHaveBeenCalledWith('admin.userConflict.lastActiveAdmin');
+    expect(handleError).not.toHaveBeenCalled();
+    expect(getUsers).toHaveBeenCalled(); // reload snaps the toggle back
   });
 });

@@ -199,6 +199,17 @@ class AuthServiceTest {
   }
 
   @Test
+  void refreshRejectsADisabledUser() {
+    when(jwtService.parseToken("refresh-disabled"))
+        .thenReturn(new JwtService.TokenData(42L, "alice", Set.of(), 0, TokenType.REFRESH));
+    User user = userEntity(42L, "alice");
+    user.setEnabled(false);
+    when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+
+    assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("refresh-disabled"));
+  }
+
+  @Test
   void refreshIgnoresTheRefreshTokensVersionAndMintsFromCurrentState() {
     // A refresh token minted at an older version still works; the new tokens reflect the
     // user's current state rather than the (possibly stale) claims in the refresh token.

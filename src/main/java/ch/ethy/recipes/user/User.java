@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +24,10 @@ public class User extends BaseEntity {
   @Nonnull
   @Column(unique = true)
   private String email;
+
+  @Column(nullable = false)
+  @ColumnDefault("b'1'")
+  private boolean enabled = true;
 
   @Nonnull private String password;
 
@@ -54,6 +59,14 @@ public class User extends BaseEntity {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   public String getPassword() {

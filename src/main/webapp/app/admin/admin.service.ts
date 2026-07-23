@@ -6,6 +6,7 @@ export interface AdminUser {
   id: number;
   username: string;
   email: string;
+  enabled: boolean;
   roles: string[];
 }
 
@@ -37,5 +38,9 @@ export class AdminService {
         size: response.page.size,
       })),
     );
+  }
+
+  setEnabled(id: number, enabled: boolean): Observable<AdminUser> {
+    return this.http.put<AdminUser>(`/api/admin/users/${id}`, { enabled });
   }
 }
