@@ -84,27 +84,29 @@ export class AuthService {
     });
   }
 
-  // The access token lives only in memory: it is never written to localStorage, so an XSS payload
-  // cannot exfiltrate it. After a page reload it starts null until restoreSession() re-acquires it
-  // from the refresh cookie. A signal, so auth-state-dependent UI reacts to it.
-  private readonly accessToken = signal<string | null>(null);
+  // The whole authenticated session — access token, identity, roles, language — from the last
+  // login/refresh response, or null while anonymous. Held only in memory: it is never written to
+  // localStorage, so an XSS payload cannot exfiltrate the access token. After a page reload it
+  // starts null until restoreSession() re-acquires it from the refresh cookie. Every projection
+  // below derives from this one source, so login, refresh and logout each write it in one place.
+  private readonly session = signal<LoginResponse | null>(null);
 
-  // The user's roles, refreshed from every login and refresh response (the access token holds the
-  // authoritative copy server-side; this is only a UI hint for gating admin-only navigation). Like
-  // the token it lives in memory and starts empty after a reload until restoreSession() runs.
-  private readonly roles = signal<readonly string[]>([]);
+  // Sent on every request; the authoritative copy is the signed JWT re-parsed server-side.
+  private readonly accessToken = computed(() => this.session()?.token ?? null);
 
-  // The signed-in user's identity for display (e.g. the account page's profile header). Like roles
-  // it is a UI hint from the login/refresh response, held in memory only.
-  private readonly user = signal<CurrentUser | null>(null);
+  // A UI hint for gating admin-only navigation, not authoritative.
+  private readonly roles = computed<readonly string[]>(() => this.session()?.roles ?? []);
 
-  readonly currentUser = this.user.asReadonly();
+  // The signed-in user's identity for display (e.g. the account page's profile header) and for the
+  // admin user list telling the caller's own row apart.
+  readonly currentUser = computed<CurrentUser | null>(() => {
+    const session = this.session();
+    return session ? { id: session.id, username: session.username, email: session.email } : null;
+  });
 
-  // The account's stored language preference, taken from the login/refresh response. Null while
-  // anonymous; the LanguageService watches it so the profile choice wins over a local one on login.
-  private readonly profileLanguageSignal = signal<string | null>(null);
-
-  readonly profileLanguage = this.profileLanguageSignal.asReadonly();
+  // The account's stored language preference; the LanguageService watches it so the profile choice
+  // wins over a local one on login. Null while anonymous.
+  readonly profileLanguage = computed(() => this.session()?.preferredLanguage ?? null);
 
   readonly isLoggedIn = computed(() => this.accessToken() !== null);
 
@@ -143,10 +145,7 @@ export class AuthService {
       const response = await firstValueFrom(
         this.http.post<LoginResponse>('/api/auth/login', credentials, { withCredentials: true }),
       );
-      this.accessToken.set(response.token);
-      this.roles.set(response.roles);
-      this.user.set({ id: response.id, username: response.username, email: response.email });
-      this.profileLanguageSignal.set(response.preferredLanguage ?? null);
+      this.session.set(response);
       this.localStorage.removeItem(AuthService.LOGGED_OUT_KEY);
       return true;
     } catch (error) {
@@ -198,10 +197,7 @@ export class AuthService {
   // this tab's in-memory token. Unlike logout(), it sets no logged-out marker — the user did not
   // ask to leave, so a still-valid session may be silently restored on the next load.
   clearLocalSession(): void {
-    this.accessToken.set(null);
-    this.roles.set([]);
-    this.user.set(null);
-    this.profileLanguageSignal.set(null);
+    this.session.set(null);
   }
 
   refresh(): Observable<string> {
@@ -222,12 +218,7 @@ export class AuthService {
           }
           return response;
         }),
-        tap((response) => {
-          this.accessToken.set(response.token);
-          this.roles.set(response.roles);
-          this.user.set({ id: response.id, username: response.username, email: response.email });
-          this.profileLanguageSignal.set(response.preferredLanguage ?? null);
-        }),
+        tap((response) => this.session.set(response)),
         map((response) => response.token),
         finalize(() => (this.refreshInFlight$ = null)),
         shareReplay(1),
