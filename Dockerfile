@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25.0.4_7-jre@sha256:f9e65324a37f28209ce7dd0e5149a7aa954520ed936fb87813cf6ded2400a112
+FROM eclipse-temurin:27_35-jre@sha256:387922dd341a11a06f39375e6b13f3cb865e09aa409789cd4f7a5a6577cd2290
 
 RUN mkdir /opt/app
 COPY target/recipes*.jar /opt/app/recipes.jar
