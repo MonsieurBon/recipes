@@ -46,7 +46,7 @@
     "@angular/cli": "22.1.6",
     "@angular/compiler-cli": "22.1.4",
     "@eslint/js": "10.0.1",
-    "@playwright/mcp": "0.0.79",
+    "@playwright/mcp": "0.0.81",
     "@semantic-release/changelog": "7.0.0",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/exec": "7.1.0",
